@@ -271,7 +271,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(height: 48),
 
                         // 4 square images, centered and same total width
-                        Wrap(
+                        const Wrap(
                           alignment: WrapAlignment.center,
                           spacing: 24,
                           runSpacing: 24,
@@ -295,6 +295,69 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ],
                         ),
+
+                        const SizedBox(height: 48),
+
+                        // Add a Personal Touch section
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Left side: text + button
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Add a Personal Touch',
+                                    style: AppStyles.title,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'First add your item of clothing to your cart then click below to add your text! '
+                                    'One line of text contains 10 characters!',
+                                    style: AppStyles.subtitle,
+                                  ),
+                                  const SizedBox(height: 24),
+                                  ElevatedButton(
+                                    onPressed: placeholderCallbackForButtons,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF4d2963),
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 32,
+                                        vertical: 12,
+                                      ),
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.zero,
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Click here to add text',
+                                      style: TextStyle(
+                                        letterSpacing: 1,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 148),
+
+                            // Right side: smaller image
+                            SizedBox(
+                              width: 450, // adjust as you like
+                              height: 300, // adjust as you like
+                              child: Image.asset(
+                                'assets/images/The_Union_Print_Shack_Logo.webp',
+                                fit: BoxFit.contain, // was BoxFit.cover
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 48),
                       ],
                     ),
                   ),
