@@ -179,6 +179,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 48),
                         const Center(
                           child: Text(
                             'PORTSMOUTH CITY COLLECTION',
@@ -229,7 +230,7 @@ class HomeScreen extends StatelessWidget {
                           ],
                         ),
 
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 48),
 
                         // VIEW ALL button
                         Center(
@@ -256,7 +257,18 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 48),
+
+                        // OUR RANGE title
+                        const Center(
+                          child: Text(
+                            'OUR RANGE',
+                            style: AppStyles.title,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+
+                        const SizedBox(height: 48),
 
                         // 4 square images, centered and same total width
                         const Wrap(
@@ -309,42 +321,32 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, '/product');
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // was: Expanded(child: Image.asset(...))
-          SizedBox(
-            height: 320, // smaller image height; reduce/increase as needed
-            width: double.infinity,
-            child: Image.asset(
-              imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.grey[300],
-                  child: const Center(
-                    child: Icon(Icons.image_not_supported, color: Colors.grey),
-                  ),
-                );
-              },
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(context, '/product');
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _HoverImage(
+              imageUrl: imageUrl,
+              height: 320,
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 14, color: Colors.black),
-            maxLines: 2,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            price,
-            style: const TextStyle(fontSize: 13, color: Colors.grey),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 14, color: Colors.black),
+              maxLines: 2,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              price,
+              style: const TextStyle(fontSize: 13, color: Colors.grey),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -357,13 +359,58 @@ class _SquareImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 250, // increased size
-      height: 250, // increased size
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(imagePath),
+    return _HoverImage(
+      imageUrl: imagePath,
+      width: 250,
+      height: 250,
+    );
+  }
+}
+
+class _HoverImage extends StatefulWidget {
+  final String imageUrl;
+  final double? width;
+  final double height;
+
+  const _HoverImage({
+    Key? key,
+    required this.imageUrl,
+    this.width,
+    required this.height,
+  }) : super(key: key);
+
+  @override
+  State<_HoverImage> createState() => _HoverImageState();
+}
+
+class _HoverImageState extends State<_HoverImage> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        width: widget.width ?? double.infinity,
+        height: widget.height,
+        foregroundDecoration: BoxDecoration(
+          // light overlay when hovering to "brighten"
+          color:
+              _hovering ? Colors.white.withOpacity(0.12) : Colors.transparent,
+        ),
+        child: Image.asset(
+          widget.imageUrl,
           fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey[300],
+              child: const Center(
+                child: Icon(Icons.image_not_supported, color: Colors.grey),
+              ),
+            );
+          },
         ),
       ),
     );
