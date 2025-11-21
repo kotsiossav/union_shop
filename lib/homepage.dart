@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:union_shop/layout.dart';
+import 'package:union_shop/app_styles.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -50,7 +51,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.7),
+                          color: Colors.black.withOpacity(0.7),
                         ),
                       ),
                     ),
@@ -113,11 +114,7 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     const Text(
                       'PRODUCTS SECTION',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.black,
-                        letterSpacing: 1,
-                      ),
+                      style: AppStyles.title, // <-- use the title class
                     ),
                     const SizedBox(height: 48),
                     GridView.count(
@@ -151,6 +148,39 @@ class HomeScreen extends StatelessWidget {
                               'assets/images/Signature_T-Shirt_Indigo_Blue_2_720x.webp',
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 24),
+                    const Center(
+                      child: Text(
+                        'OUR RANGE',
+                        style: AppStyles.title,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 4 square images, centered
+                    const Center(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 16,
+                        runSpacing: 16,
+                        children: [
+                          _SquareImage(
+                            imagePath:
+                                'assets/images/PurpleHoodieFinal_540x.webp',
+                          ),
+                          _SquareImage(
+                            imagePath: 'assets/images/card_holder.jpg',
+                          ),
+                          _SquareImage(
+                            imagePath: 'assets/images/grey_hoodie.webp',
+                          ),
+                          _SquareImage(
+                            imagePath: 'assets/images/purple_notepad.webp',
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -218,6 +248,26 @@ class ProductCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SquareImage extends StatelessWidget {
+  final String imagePath;
+
+  const _SquareImage({Key? key, required this.imagePath}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 250, // increased size
+      height: 250, // increased size
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(imagePath),
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }
