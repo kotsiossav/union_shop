@@ -273,7 +273,7 @@ class AppFooter extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF4d2963),
+                          backgroundColor: const Color(0xFF4d2963),
                           foregroundColor: Colors.white,
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.zero,

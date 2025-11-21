@@ -109,80 +109,179 @@ class HomeScreen extends StatelessWidget {
             Container(
               color: Colors.white,
               child: Padding(
-                padding: const EdgeInsets.all(40.0),
-                child: Column(
-                  children: [
-                    const Text(
-                      'PRODUCTS SECTION',
-                      style: AppStyles.title, // <-- use the title class
-                    ),
-                    const SizedBox(height: 48),
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount:
-                          MediaQuery.of(context).size.width > 600 ? 2 : 1,
-                      crossAxisSpacing: 24,
-                      mainAxisSpacing: 48,
-                      children: const [
-                        ProductCard(
-                          title: 'Placeholder Product 1',
-                          price: '£10.00',
-                          imageUrl:
-                              'assets/images/Pink_Essential_Hoodie_720x.webp',
+                padding: EdgeInsets.all(40.0),
+                child: Center(
+                  // <--- center the inner content
+                  child: SizedBox(
+                    width: 1100, // <--- same width for cards + squares
+                    child: Column(
+                      children: [
+                        const Text(
+                          'ESSENTIAL RANGE - OVER 20% OFF!',
+                          style: AppStyles.title,
                         ),
-                        ProductCard(
-                          title: 'Placeholder Product 2',
-                          price: '£15.00',
-                          imageUrl: 'assets/images/Sage_T-shirt_720x.webp',
+                        SizedBox(height: 48),
+
+                        // First 2 products in a row
+                        const Row(
+                          children: [
+                            Expanded(
+                              child: ProductCard(
+                                title: 'Placeholder Product 1',
+                                price: '£10.00',
+                                imageUrl:
+                                    'assets/images/Pink_Essential_Hoodie_720x.webp',
+                              ),
+                            ),
+                            SizedBox(width: 24),
+                            Expanded(
+                              child: ProductCard(
+                                title: 'Placeholder Product 2',
+                                price: '£15.00',
+                                imageUrl:
+                                    'assets/images/Sage_T-shirt_720x.webp',
+                              ),
+                            ),
+                          ],
                         ),
-                        ProductCard(
-                          title: 'Placeholder Product 3',
-                          price: '£20.00',
-                          imageUrl: 'assets/images/SageHoodie_720x.webp',
+
+                        const SizedBox(height: 48),
+
+                        // Text between first 2 and last 2 product cards
+                        const Center(
+                          child: Text(
+                            'SIGNATURE RANGE',
+                            style: AppStyles.title,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        ProductCard(
-                          title: 'Placeholder Product 4',
-                          price: '£25.00',
-                          imageUrl:
-                              'assets/images/Signature_T-Shirt_Indigo_Blue_2_720x.webp',
+
+                        SizedBox(height: 48),
+
+                        // Last 2 products in a row
+                        const Row(
+                          children: [
+                            Expanded(
+                              child: ProductCard(
+                                title: 'Placeholder Product 3',
+                                price: '£20.00',
+                                imageUrl: 'assets/images/SageHoodie_720x.webp',
+                              ),
+                            ),
+                            SizedBox(width: 24),
+                            Expanded(
+                              child: ProductCard(
+                                title: 'Placeholder Product 4',
+                                price: '£25.00',
+                                imageUrl:
+                                    'assets/images/Signature_T-Shirt_Indigo_Blue_2_720x.webp',
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Center(
+                          child: Text(
+                            'PORTSMOUTH CITY COLLECTION',
+                            style: AppStyles.title,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+
+                        const SizedBox(height: 48),
+
+                        const Row(
+                          children: [
+                            Expanded(
+                              child: ProductCard(
+                                title: 'Placeholder Product 5',
+                                price: '£10.00',
+                                imageUrl: 'assets/images/postcard.jpg',
+                              ),
+                            ),
+                            SizedBox(width: 24),
+                            Expanded(
+                              child: ProductCard(
+                                title: 'Placeholder Product 6',
+                                price: '£15.00',
+                                imageUrl: 'assets/images/magnet.jpg',
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 48),
+                        const Row(
+                          children: [
+                            Expanded(
+                              child: ProductCard(
+                                title: 'Placeholder Product 7',
+                                price: '£10.00',
+                                imageUrl: 'assets/images/bookmark.jpg',
+                              ),
+                            ),
+                            SizedBox(width: 24),
+                            Expanded(
+                              child: ProductCard(
+                                title: 'Placeholder Product 8',
+                                price: '£15.00',
+                                imageUrl: 'assets/images/postcard.jpg',
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // VIEW ALL button
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF4d2963),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 32,
+                                vertical: 12,
+                              ),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                            ),
+                            child: const Text(
+                              'VIEW ALL',
+                              style: TextStyle(
+                                letterSpacing: 1,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // 4 square images, centered and same total width
+                        const Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 24,
+                          runSpacing: 24,
+                          children: [
+                            _SquareImage(
+                              imagePath:
+                                  'assets/images/PurpleHoodieFinal_540x.webp',
+                            ),
+                            _SquareImage(
+                              imagePath: 'assets/images/card_holder.jpg',
+                            ),
+                            _SquareImage(
+                              imagePath: 'assets/images/grey_hoodie.webp',
+                            ),
+                            _SquareImage(
+                              imagePath: 'assets/images/purple_notepad.webp',
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    const Center(
-                      child: Text(
-                        'OUR RANGE',
-                        style: AppStyles.title,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // 4 square images, centered
-                    const Center(
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 16,
-                        runSpacing: 16,
-                        children: [
-                          _SquareImage(
-                            imagePath:
-                                'assets/images/PurpleHoodieFinal_540x.webp',
-                          ),
-                          _SquareImage(
-                            imagePath: 'assets/images/card_holder.jpg',
-                          ),
-                          _SquareImage(
-                            imagePath: 'assets/images/grey_hoodie.webp',
-                          ),
-                          _SquareImage(
-                            imagePath: 'assets/images/purple_notepad.webp',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -217,9 +316,12 @@ class ProductCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
+          // was: Expanded(child: Image.asset(...))
+          SizedBox(
+            height: 320, // smaller image height; reduce/increase as needed
+            width: double.infinity,
             child: Image.asset(
-              imageUrl, // e.g. 'assets/images/Pink_Essential_Hoodie_720x.webp'
+              imageUrl,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
@@ -231,21 +333,16 @@ class ProductCard extends StatelessWidget {
               },
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 4),
-              Text(
-                title,
-                style: const TextStyle(fontSize: 14, color: Colors.black),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                price,
-                style: const TextStyle(fontSize: 13, color: Colors.grey),
-              ),
-            ],
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 14, color: Colors.black),
+            maxLines: 2,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            price,
+            style: const TextStyle(fontSize: 13, color: Colors.grey),
           ),
         ],
       ),
