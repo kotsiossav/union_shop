@@ -61,8 +61,8 @@ class AppHeader extends StatelessWidget {
                       GestureDetector(
                         onTap: onHome,
                         child: Image.network(
-                          'https://shop.upsu.net/cdn/shop/files/upsu_300x300.png?v=1614735854',
-                          height: 30,
+                          'assets/images/logo2.png',
+                          height: 80,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
