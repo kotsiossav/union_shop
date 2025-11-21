@@ -269,7 +269,7 @@ class AppFooter extends StatelessWidget {
                       ),
                     ),
                     SizedBox(
-                      height: 40,
+                      height: 48,
                       child: ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(

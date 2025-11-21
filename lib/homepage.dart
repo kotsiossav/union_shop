@@ -271,7 +271,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(height: 48),
 
                         // 4 square images, centered and same total width
-                        const Wrap(
+                        Wrap(
                           alignment: WrapAlignment.center,
                           spacing: 24,
                           runSpacing: 24,
@@ -279,15 +279,19 @@ class HomeScreen extends StatelessWidget {
                             _SquareImage(
                               imagePath:
                                   'assets/images/PurpleHoodieFinal_540x.webp',
+                              label: 'Clothing',
                             ),
                             _SquareImage(
                               imagePath: 'assets/images/card_holder.jpg',
+                              label: 'Merchandise',
                             ),
                             _SquareImage(
                               imagePath: 'assets/images/grey_hoodie.webp',
+                              label: 'Graduation',
                             ),
                             _SquareImage(
                               imagePath: 'assets/images/purple_notepad.webp',
+                              label: 'SALE',
                             ),
                           ],
                         ),
@@ -354,8 +358,13 @@ class ProductCard extends StatelessWidget {
 
 class _SquareImage extends StatelessWidget {
   final String imagePath;
+  final String? label; // optional
 
-  const _SquareImage({Key? key, required this.imagePath}) : super(key: key);
+  const _SquareImage({
+    Key? key,
+    required this.imagePath,
+    this.label, // not required anymore
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -363,6 +372,7 @@ class _SquareImage extends StatelessWidget {
       imageUrl: imagePath,
       width: 250,
       height: 250,
+      label: label,
     );
   }
 }
@@ -371,12 +381,14 @@ class _HoverImage extends StatefulWidget {
   final String imageUrl;
   final double? width;
   final double height;
+  final String? label; // optional
 
   const _HoverImage({
     Key? key,
     required this.imageUrl,
     this.width,
     required this.height,
+    this.label, // optional
   }) : super(key: key);
 
   @override
@@ -395,22 +407,48 @@ class _HoverImageState extends State<_HoverImage> {
         duration: const Duration(milliseconds: 120),
         width: widget.width ?? double.infinity,
         height: widget.height,
-        foregroundDecoration: BoxDecoration(
-          // light overlay when hovering to "brighten"
-          color:
-              _hovering ? Colors.white.withOpacity(0.12) : Colors.transparent,
-        ),
-        child: Image.asset(
-          widget.imageUrl,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              color: Colors.grey[300],
-              child: const Center(
-                child: Icon(Icons.image_not_supported, color: Colors.grey),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // base image
+            Image.asset(
+              widget.imageUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: Colors.grey[300],
+                  child: const Center(
+                    child: Icon(Icons.image_not_supported, color: Colors.grey),
+                  ),
+                );
+              },
+            ),
+
+            // base grey shading (always on)
+            Container(
+              color: Colors.black.withOpacity(0.25),
+            ),
+
+            // extra brighten / change on hover (optional)
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              color: _hovering
+                  ? Colors.white.withOpacity(0.12)
+                  : Colors.transparent,
+            ),
+
+            // centered label if provided
+            if (widget.label != null)
+              Center(
+                child: Text(
+                  widget.label!,
+                  style: AppStyles.title.copyWith(
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
-            );
-          },
+          ],
         ),
       ),
     );
