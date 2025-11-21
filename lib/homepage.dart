@@ -132,25 +132,23 @@ class HomeScreen extends StatelessWidget {
                           title: 'Placeholder Product 1',
                           price: '£10.00',
                           imageUrl:
-                              'https://shop.upsu.net/cdn/shop/files/PortsmouthCityMagnet1_1024x1024@2x.jpg?v=1752230282',
+                              'assets/images/Pink_Essential_Hoodie_720x.webp',
                         ),
                         ProductCard(
                           title: 'Placeholder Product 2',
                           price: '£15.00',
-                          imageUrl:
-                              'https://shop.upsu.net/cdn/shop/files/PortsmouthCityMagnet1_1024x1024@2x.jpg?v=1752230282',
+                          imageUrl: 'assets/images/Sage_T-shirt_720x.webp',
                         ),
                         ProductCard(
                           title: 'Placeholder Product 3',
                           price: '£20.00',
-                          imageUrl:
-                              'https://shop.upsu.net/cdn/shop/files/PortsmouthCityMagnet1_1024x1024@2x.jpg?v=1752230282',
+                          imageUrl: 'assets/images/SageHoodie_720x.webp',
                         ),
                         ProductCard(
                           title: 'Placeholder Product 4',
                           price: '£25.00',
                           imageUrl:
-                              'https://shop.upsu.net/cdn/shop/files/PortsmouthCityMagnet1_1024x1024@2x.jpg?v=1752230282',
+                              'assets/images/Signature_T-Shirt_Indigo_Blue_2_720x.webp',
                         ),
                       ],
                     ),
@@ -190,8 +188,8 @@ class ProductCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Image.network(
-              imageUrl,
+            child: Image.asset(
+              imageUrl, // e.g. 'assets/images/Pink_Essential_Hoodie_720x.webp'
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
