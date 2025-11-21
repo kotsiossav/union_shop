@@ -210,7 +210,7 @@ class AppFooter extends StatelessWidget {
             ),
           ),
 
-          SizedBox(width: 40),
+          const SizedBox(width: 40),
 
           // COLUMN 2
           const Expanded(

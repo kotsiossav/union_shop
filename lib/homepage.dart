@@ -29,7 +29,9 @@ class HomeScreen extends StatelessWidget {
               onShop: placeholderCallbackForButtons,
               onSale: placeholderCallbackForButtons,
               onPrintShack: placeholderCallbackForButtons,
-              onAbout: placeholderCallbackForButtons,
+              onAbout: () {
+                Navigator.pushNamed(context, '/about'); // go to AboutPage
+              },
             ),
 
             // Hero Section
