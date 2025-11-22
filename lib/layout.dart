@@ -226,9 +226,11 @@ class AppFooter extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 12),
-                Text("Search"),
+                // was: Text("Search"),
+                _FooterLink("Search"),
                 SizedBox(height: 4),
-                Text("Terms & Conditions of Sale Policy"),
+                // was: Text("Terms & Conditions of Sale Policy"),
+                _FooterLink("Terms & Conditions of Sale Policy"),
               ],
             ),
           ),
@@ -374,6 +376,34 @@ class _HoverImageState extends State<HoverImage> {
           width: widget.width,
           height: widget.height,
           child: image,
+        ),
+      ),
+    );
+  }
+}
+
+class _FooterLink extends StatefulWidget {
+  final String label;
+
+  const _FooterLink(this.label);
+
+  @override
+  State<_FooterLink> createState() => _FooterLinkState();
+}
+
+class _FooterLinkState extends State<_FooterLink> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      cursor: SystemMouseCursors.click,
+      child: Text(
+        widget.label,
+        style: TextStyle(
+          color: _hovered ? Colors.black54 : Colors.black87,
         ),
       ),
     );
