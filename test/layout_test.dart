@@ -3,9 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:union_shop/layout.dart'; // make sure this path is correct
 
 void main() {
-  testWidgets('AppHeader renders and reacts to Home tap',
+  testWidgets('AppHeader renders and reacts to Home and About tap',
       (WidgetTester tester) async {
     bool homeTapped = false;
+    bool aboutTapped = false;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -15,7 +16,7 @@ void main() {
             onShop: () {},
             onSale: () {},
             onPrintShack: () {},
-            onAbout: () {},
+            onAbout: () => aboutTapped = true,
           ),
         ),
       ),
@@ -27,17 +28,21 @@ void main() {
             "BIG SALE! OUR ESSENTIAL RANGE HAS DROPPED IN PRICE! OVER 20% OFF! COME GRAB YOURS WHILE STOCK LASTS!"),
         findsOneWidget);
 
-    // Navigation labels appear (only on wide screens by default)
+    // Navigation labels appear
     expect(find.text("Home"), findsOneWidget);
     expect(find.text("Shop"), findsOneWidget);
     expect(find.text("SALE!"), findsOneWidget);
     expect(find.text("About"), findsOneWidget);
 
-    // --- TAP TEST ---
+    // --- TAP TEST: Home ---
     await tester.tap(find.text("Home"));
     await tester.pump();
-
     expect(homeTapped, true);
+
+    // --- TAP TEST: About ---
+    await tester.tap(find.text("About"));
+    await tester.pump();
+    expect(aboutTapped, true);
   });
 
   testWidgets('AppFooter renders key sections', (WidgetTester tester) async {
