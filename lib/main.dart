@@ -21,7 +21,7 @@ class UnionShopApp extends StatelessWidget {
       home: const HomeScreen(),
       initialRoute: '/',
       routes: {
-        '/product': (context) => const ProductPage(),
+        // We no longer use a static /product route because ProductPage needs an imageUrl
         '/about': (context) => const AboutPage(),
       },
     );

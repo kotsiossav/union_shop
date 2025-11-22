@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:union_shop/layout.dart';
 import 'package:union_shop/app_styles.dart';
+import 'package:union_shop/product_page.dart'; // <-- add this line
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -539,7 +540,12 @@ class ProductCard extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, '/product');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ProductPage(imageUrl: imageUrl),
+            ),
+          );
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
