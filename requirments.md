@@ -7,11 +7,11 @@
   - [x] Products section showing multiple product cards in rows.
   - [x] “Our Range” section with four square category images and an “Add a Personal Touch” promo block.
 
-- [ ] Convert the **hero section into a slideshow**:
-  - [ ] Use multiple slides that automatically or manually switch.
-  - [ ] Each slide must have a **different title**.
-  - [ ] Each slide must have a **different subtitle**.
-  - [ ] Each slide must have a **button with different text**.
+- [x] Convert the **hero section into a slideshow**:
+  - [x] Use multiple slides that automatically or manually switch.
+  - [x] Each slide must have a **different title**.
+  - [x] Each slide must have a **different subtitle**.
+  - [x] Each slide must have a **button with different text**.
 
 - [x] Implemented reusable **header (`AppHeader`) and footer (`AppFooter`)**:
   - [x] Header with navigation links: Home, Shop, Sale, Print Shack, About.

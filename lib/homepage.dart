@@ -2,8 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:union_shop/layout.dart';
 import 'package:union_shop/app_styles.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final PageController _heroController = PageController();
+  int _currentHeroPage = 0;
+
+  final List<_HeroSlide> _slides = const [
+    _HeroSlide(
+      imagePath: 'assets/images/Pink_Essential_Hoodie_720x.webp',
+      title: 'Essential Range - Over 20% Off!',
+      subtitle:
+          'Over 20% off our essential range.come and grab yours while stock lasts!.',
+      buttonText: 'Browse products',
+    ),
+    _HeroSlide(
+      imagePath: 'assets/images/grey_hoodie.webp',
+      title: 'The Print Shack',
+      subtitle:
+          'Lets create something uniquely you with our personalisation servive-From £3 for one line of text.',
+      buttonText: 'Add personal text',
+    ),
+  ];
 
   void navigateToHome(BuildContext context) {
     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
@@ -15,6 +40,46 @@ class HomeScreen extends StatelessWidget {
 
   void placeholderCallbackForButtons() {
     // This is the event handler for buttons that don't work yet
+  }
+
+  void _onHeroButtonPressed(int index) {
+    if (index == 0) {
+      // e.g. scroll to products / shop later
+      placeholderCallbackForButtons();
+    } else if (index == 1) {
+      // e.g. scroll to "Add a Personal Touch" later
+      placeholderCallbackForButtons();
+    }
+  }
+
+  void _goToPreviousSlide() {
+    // wrap to last slide if on first
+    final int targetIndex =
+        _currentHeroPage > 0 ? _currentHeroPage - 1 : _slides.length - 1;
+
+    _heroController.animateToPage(
+      targetIndex,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _goToNextSlide() {
+    // wrap to first slide if on last
+    final int targetIndex =
+        _currentHeroPage < _slides.length - 1 ? _currentHeroPage + 1 : 0;
+
+    _heroController.animateToPage(
+      targetIndex,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _heroController.dispose();
+    super.dispose();
   }
 
   @override
@@ -34,73 +99,153 @@ class HomeScreen extends StatelessWidget {
               },
             ),
 
-            // Hero Section
+            // Hero Section - slideshow
             SizedBox(
               height: 400,
               width: double.infinity,
               child: Stack(
                 children: [
-                  // Background image
-                  Positioned.fill(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage(
-                            'assets/images/Pink_Essential_Hoodie_720x.webp',
+                  PageView.builder(
+                    controller: _heroController,
+                    itemCount: _slides.length,
+                    onPageChanged: (idx) {
+                      setState(() => _currentHeroPage = idx);
+                    },
+                    itemBuilder: (context, index) {
+                      final slide = _slides[index];
+                      return Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // background image
+                          Image.asset(
+                            slide.imagePath,
+                            fit: BoxFit.cover,
                           ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Content overlay
-                  Positioned(
-                    left: 24,
-                    right: 24,
-                    top: 80,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Placeholder Hero Title',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            height: 1.2,
+                          // dark overlay
+                          Container(
+                            color: Colors.black.withOpacity(0.7),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          "This is placeholder text for the hero section.",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            height: 1.5,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 32),
-                        ElevatedButton(
-                          onPressed: placeholderCallbackForButtons,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4d2963),
-                            foregroundColor: Colors.white,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
+                          // content
+                          Center(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 24),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    slide.title,
+                                    style: const TextStyle(
+                                      fontSize: 48, // was 32  <-- doubled
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      height: 1.2,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    slide.subtitle,
+                                    style: const TextStyle(
+                                      fontSize: 30, // was 20  <-- doubled
+                                      color: Colors.white,
+                                      height: 1.5,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 32),
+                                  ElevatedButton(
+                                    onPressed: () =>
+                                        _onHeroButtonPressed(index),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF4d2963),
+                                      foregroundColor: Colors.white,
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.zero,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      slide.buttonText.toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        letterSpacing: 1,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                          child: const Text(
-                            'BROWSE PRODUCTS',
-                            style: TextStyle(fontSize: 14, letterSpacing: 1),
-                          ),
+                        ],
+                      );
+                    },
+                  ),
+
+                  // arrows + dots in one translucent black box
+                  Positioned(
+                    bottom: 12,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                      ],
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.zero, // squared box
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // LEFT arrow
+                            IconButton(
+                              iconSize: 18, // smaller
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              color: Colors.white70,
+                              onPressed: _goToPreviousSlide,
+                              icon: const Icon(Icons.arrow_back_ios),
+                            ),
+
+                            const SizedBox(width: 6),
+
+                            // dots (smaller, same size; only color changes)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: List.generate(_slides.length, (index) {
+                                final bool isActive = index == _currentHeroPage;
+                                return AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 3),
+                                  width: 8, // smaller
+                                  height: 8, // smaller
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: isActive
+                                        ? Colors.white
+                                        : Colors.white54,
+                                  ),
+                                );
+                              }),
+                            ),
+
+                            const SizedBox(width: 6),
+
+                            // RIGHT arrow
+                            IconButton(
+                              iconSize: 18, // smaller
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              color: Colors.white70,
+                              onPressed: _goToNextSlide,
+                              icon: const Icon(Icons.arrow_forward_ios),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -518,4 +663,18 @@ class _HoverImageState extends State<_HoverImage> {
       ),
     );
   }
+}
+
+class _HeroSlide {
+  final String imagePath;
+  final String title;
+  final String subtitle;
+  final String buttonText;
+
+  const _HeroSlide({
+    required this.imagePath,
+    required this.title,
+    required this.subtitle,
+    required this.buttonText,
+  });
 }
