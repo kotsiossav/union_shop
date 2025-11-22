@@ -137,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Text(
                                     slide.title,
                                     style: const TextStyle(
-                                      fontSize: 48, // was 32  <-- doubled
+                                      fontSize: 48,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                       height: 1.2,
@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Text(
                                     slide.subtitle,
                                     style: const TextStyle(
-                                      fontSize: 30, // was 20  <-- doubled
+                                      fontSize: 30,
                                       color: Colors.white,
                                       height: 1.5,
                                     ),
@@ -212,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             const SizedBox(width: 6),
 
-                            // dots (smaller, same size; only color changes)
+                            // dots
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: List.generate(_slides.length, (index) {
@@ -221,8 +221,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   duration: const Duration(milliseconds: 200),
                                   margin:
                                       const EdgeInsets.symmetric(horizontal: 3),
-                                  width: 8, // smaller
-                                  height: 8, // smaller
+                                  width: 8,
+                                  height: 8,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: isActive
@@ -237,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             // RIGHT arrow
                             IconButton(
-                              iconSize: 18, // smaller
+                              iconSize: 18,
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                               color: Colors.white70,
@@ -543,7 +543,11 @@ class ProductCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => ProductPage(imageUrl: imageUrl),
+              builder: (_) => ProductPage(
+                imageUrl: imageUrl,
+                title: title,
+                price: price,
+              ),
             ),
           );
         },
