@@ -5,7 +5,13 @@ import 'package:union_shop/product_page.dart';
 void main() {
   group('Product Page Tests', () {
     Widget createTestWidget() {
-      return const MaterialApp(home: ProductPage());
+      return const MaterialApp(
+        home: ProductPage(
+          imageUrl: 'assets/images/postcard.jpg',
+          title: 'Test Product',
+          price: '£9.99',
+        ),
+      );
     }
 
     testWidgets('should display product page with basic elements', (
@@ -14,27 +20,12 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
-      // Check that basic UI elements are present
-      expect(
-        find.text('PLACEHOLDER HEADER TEXT - STUDENTS TO UPDATE!'),
-        findsOneWidget,
-      );
-      expect(find.text('Placeholder Product Name'), findsOneWidget);
-      expect(find.text('£15.00'), findsOneWidget);
+      // Title and price passed into ProductPage
+      expect(find.text('Test Product'), findsOneWidget);
+      expect(find.text('£9.99'), findsOneWidget);
+
+      // Description heading (from ProductPage)
       expect(find.text('Description'), findsOneWidget);
-    });
-
-    testWidgets('should display student instruction text', (tester) async {
-      await tester.pumpWidget(createTestWidget());
-      await tester.pump();
-
-      // Check that student instruction is present
-      expect(
-        find.text(
-          'Students should add size options, colour options, quantity selector, add to cart button, and buy now button here.',
-        ),
-        findsOneWidget,
-      );
     });
 
     testWidgets('should display header icons', (tester) async {
@@ -52,11 +43,9 @@ void main() {
       await tester.pump();
 
       // Check that footer is present
-      expect(find.text('Placeholder Footer'), findsOneWidget);
-      expect(
-        find.text('Students should customise this footer section'),
-        findsOneWidget,
-      );
+      // Update these to whatever text your AppFooter actually shows
+      expect(find.text('Opening Hours'), findsOneWidget);
+      expect(find.text('Latest Offers'), findsOneWidget);
     });
   });
 }
