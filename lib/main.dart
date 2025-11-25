@@ -18,11 +18,23 @@ class UnionShopApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4d2963)),
       ),
-      home: const HomeScreen(),
       initialRoute: '/',
       routes: {
-        // We no longer use a static /product route because ProductPage needs an imageUrl
+        '/': (context) => const HomeScreen(),
+
         '/about': (context) => const AboutPage(),
+
+        /// -------------- IMPORTANT: Add THIS route --------------
+        '/product': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
+
+          return ProductPage(
+            imageUrl: args['imageUrl'],
+            title: args['title'],
+            price: args['price'],
+          );
+        },
       },
     );
   }

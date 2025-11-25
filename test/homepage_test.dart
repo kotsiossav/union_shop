@@ -115,38 +115,38 @@ void main() {
       MaterialApp(
         home: const HomeScreen(),
         routes: {
-          '/product': (context) => const Scaffold(
+          '/product': (_) => const Scaffold(
                 body: Center(child: Text('Product Page')),
               ),
         },
       ),
     );
 
-    // Find the title of the first product
+    await tester.pumpAndSettle();
+
     final titleFinder = find.text('Placeholder Product 1');
     expect(titleFinder, findsOneWidget);
 
-    // Find its ProductCard ancestor
-    final cardFinder = find.ancestor(
-      of: titleFinder,
-      matching: find.byType(ProductCard),
+    // Find the internal Scrollable inside the main SingleChildScrollView
+    final scrollableFinder = find.descendant(
+      of: find.byType(SingleChildScrollView),
+      matching: find.byType(Scrollable),
     );
-    expect(cardFinder, findsOneWidget);
 
-    // Get the ProductCard widget and call its onTap via the GestureDetector
-    final gestureFinder = find.descendant(
-      of: cardFinder,
-      matching: find.byType(GestureDetector),
+    // Scroll until the product title appears
+    await tester.scrollUntilVisible(
+      titleFinder,
+      300,
+      scrollable: scrollableFinder.first,
     );
-    expect(gestureFinder, findsOneWidget);
 
-    final GestureDetector detector =
-        tester.widget<GestureDetector>(gestureFinder);
-
-    detector.onTap?.call();
     await tester.pumpAndSettle();
 
-    // Now we should be on the /product page
+    // Tap the product
+    await tester.tap(titleFinder);
+    await tester.pumpAndSettle();
+
+    // Should navigate to test Product Page
     expect(find.text('Product Page'), findsOneWidget);
   });
 

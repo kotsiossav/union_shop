@@ -540,15 +540,14 @@ class ProductCard extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
+          Navigator.pushNamed(
             context,
-            MaterialPageRoute(
-              builder: (_) => ProductPage(
-                imageUrl: imageUrl,
-                title: title,
-                price: price,
-              ),
-            ),
+            '/product',
+            arguments: {
+              'imageUrl': imageUrl,
+              'title': title,
+              'price': price,
+            },
           );
         },
         child: Column(
