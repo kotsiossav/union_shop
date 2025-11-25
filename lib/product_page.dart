@@ -14,7 +14,7 @@ class ProductPage extends StatelessWidget {
   });
 
   void navigateToHome(BuildContext context) {
-    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
   }
 
   void placeholderCallbackForButtons() {}
@@ -27,6 +27,7 @@ class ProductPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // Header
             AppHeader(
               onHome: () => navigateToHome(context),
               onShop: placeholderCallbackForButtons,
@@ -34,104 +35,163 @@ class ProductPage extends StatelessWidget {
               onPrintShack: placeholderCallbackForButtons,
               onAbout: () => Navigator.pushNamed(context, '/about'),
             ),
+
+            // MAIN PRODUCT LAYOUT
             LayoutBuilder(
               builder: (context, constraints) {
-                // If width is small (like in tests), use a narrower image.
                 final bool isNarrow = constraints.maxWidth < 600;
-                final double imageWidth =
-                    isNarrow ? constraints.maxWidth - 40 : 500;
-                final double imageHeight = 400;
 
                 return Container(
                   color: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     vertical: 32,
-                    horizontal: 32,
+                    horizontal: 16,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(left: isNarrow ? 0 : 250),
-                            child: SizedBox(
-                              width: imageWidth,
-                              height: imageHeight,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
+
+                  // ---------- NARROW LAYOUT (Column) ----------
+                  child: isNarrow
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Image
+                            SizedBox(
+                              width: constraints.maxWidth * 0.8,
+                              height: 300,
+                              child: isNetwork
+                                  ? Image.network(
+                                      imageUrl,
+                                      fit: BoxFit.cover,
+                                      key: const Key('product_image'),
+                                    )
+                                  : Image.asset(
+                                      imageUrl,
+                                      fit: BoxFit.cover,
+                                      key: const Key('product_image'),
+                                    ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Title
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+
+                            // Price
+                            Text(
+                              price,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF4d2963),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Description
+                            const Text(
+                              'Description',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'This is a placeholder description for the product.',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        )
+
+                      // ---------- WIDE SCREEN LAYOUT (Row) ----------
+                      : ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxHeight: 450, // Ensures scroll works properly
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // IMAGE
+                              SizedBox(
+                                width: 500,
+                                height: 400,
                                 child: isNetwork
-                                    ? Image.network(imageUrl, fit: BoxFit.cover)
-                                    : Image.asset(imageUrl, fit: BoxFit.cover),
+                                    ? Image.network(
+                                        imageUrl,
+                                        fit: BoxFit.cover,
+                                        key: const Key('product_image'),
+                                      )
+                                    : Image.asset(
+                                        imageUrl,
+                                        fit: BoxFit.cover,
+                                        key: const Key('product_image'),
+                                      ),
                               ),
-                            ),
-                          ),
-                          if (!isNarrow) const SizedBox(width: 40),
-                          if (!isNarrow)
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    title,
-                                    style: const TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                              const SizedBox(width: 16),
+
+                              // TEXT CONTENT (scroll-disabled inner)
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        title,
+                                        style: const TextStyle(
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        price,
+                                        style: const TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF4d2963),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 24),
+                                      const Text(
+                                        'Description',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      const Text(
+                                        'This is a placeholder description for the product.',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    price,
-                                    style: const TextStyle(
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF4d2963),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      // On narrow screens, show title/price below the image instead
-                      if (isNarrow) ...[
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          price,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF4d2963),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                      ],
-                      const Text(
-                        'Description',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'This is a placeholder description for the product.',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                    ],
-                  ),
                 );
               },
             ),
+
+            // Footer
             const AppFooter(),
           ],
         ),

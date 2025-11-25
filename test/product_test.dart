@@ -3,49 +3,64 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:union_shop/product_page.dart';
 
 void main() {
-  group('Product Page Tests', () {
+  group('ProductPage Tests', () {
     Widget createTestWidget() {
       return const MaterialApp(
         home: ProductPage(
-          imageUrl: 'assets/images/postcard.jpg',
-          title: 'Test Product',
-          price: '£9.99',
+          imageUrl: 'assets/images/bookmark.jpg',
+          title: 'Placeholder Product 7',
+          price: '£10.00',
         ),
       );
     }
 
-    testWidgets('should display product page with basic elements', (
-      tester,
-    ) async {
+    testWidgets('displays the product title, price, and description',
+        (tester) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
-      // Title and price passed into ProductPage
-      expect(find.text('Test Product'), findsOneWidget);
-      expect(find.text('£9.99'), findsOneWidget);
+      // Verify the title is displayed
+      expect(find.text('Placeholder Product 7'), findsOneWidget);
 
-      // Description heading (from ProductPage)
+      // Verify the price is displayed
+      expect(find.text('£10.00'), findsOneWidget);
+
+      // Verify the description heading is displayed
       expect(find.text('Description'), findsOneWidget);
+
+      // Verify the placeholder description text is displayed
+      expect(find.text('This is a placeholder description for the product.'),
+          findsOneWidget);
     });
 
-    testWidgets('should display header icons', (tester) async {
+    testWidgets('displays the product image', (tester) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
-      // Check that header icons are present
-      expect(find.byIcon(Icons.search), findsOneWidget);
-      expect(find.byIcon(Icons.shopping_bag_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.menu), findsOneWidget);
+      // Verify the product image widget exists using the key
+      expect(find.byKey(const Key('product_image')), findsOneWidget);
     });
 
-    testWidgets('should display footer', (tester) async {
+    testWidgets('handles narrow layout correctly', (tester) async {
+      await tester.binding
+          .setSurfaceSize(const Size(400, 800)); // Simulate narrow screen
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
-      // Check that footer is present
-      // Update these to whatever text your AppFooter actually shows
-      expect(find.text('Opening Hours'), findsOneWidget);
-      expect(find.text('Latest Offers'), findsOneWidget);
+      // Verify the title and price are displayed below the image
+      expect(find.text('Placeholder Product 7'), findsOneWidget);
+      expect(find.text('£10.00'), findsOneWidget);
+    });
+
+    testWidgets('handles wide layout correctly', (tester) async {
+      await tester.binding
+          .setSurfaceSize(const Size(1200, 800)); // Simulate wide screen
+      await tester.pumpWidget(createTestWidget());
+      await tester.pump();
+
+      // Verify the title and price are displayed to the right of the image
+      expect(find.text('Placeholder Product 7'), findsOneWidget);
+      expect(find.text('£10.00'), findsOneWidget);
     });
   });
 }

@@ -17,156 +17,135 @@ class AppHeader extends StatelessWidget {
     required this.onAbout,
   });
 
-  void _placeholderCallbackForButtons() {
-    // shared placeholder
-  }
+  void _placeholderCallbackForButtons() {}
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 100,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey, // line color
-            width: 1, // thin solid line
+    return Column(
+      children: [
+        // Top banner
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          color: const Color(0xFF4d2963),
+          child: const Text(
+            'BIG SALE! OUR ESSENTIAL RANGE HAS DROPPED IN PRICE! OVER 20% OFF! COME GRAB YOURS WHILE STOCK LASTS!',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white, fontSize: 16),
           ),
         ),
-      ),
-      child: Column(
-        children: [
-          // Top banner
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            color: const Color(0xFF4d2963),
-            child: const Text(
-              'BIG SALE! OUR ESSENTIAL RANGE HAS DROPPED IN PRICE! OVER 20% OFF! COME GRAB YOURS WHILE STOCK LASTS!',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white, fontSize: 16),
+
+        Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.black,
+                width: 1.0,
+              ),
             ),
           ),
-          // Main header
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final isNarrow = constraints.maxWidth < 800;
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final bool isNarrow = constraints.maxWidth < 800;
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    children: [
-                      // Logo
-                      GestureDetector(
-                        onTap: onHome,
-                        child: Image.network(
-                          'assets/images/logo2.png',
-                          height: 80,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey[300],
-                              width: 30,
-                              height: 30,
-                              child: const Center(
-                                child: Icon(Icons.image_not_supported,
-                                    color: Colors.grey),
-                              ),
-                            );
-                          },
-                        ),
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                child: Row(
+                  children: [
+                    // Logo (use local asset, smaller size)
+                    GestureDetector(
+                      onTap: onHome,
+                      child: Image.asset(
+                        'assets/images/logo2.png',
+                        height: 45,
+                        fit: BoxFit.contain,
                       ),
+                    ),
 
-                      const Spacer(),
-
-                      if (!isNarrow) ...[
-                        // NAVIGATION ITEMS – desktop / wide
-                        Row(
+                    // Desktop navigation
+                    if (!isNarrow)
+                      Expanded(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _NavItem(label: "Home", onTap: onHome),
-                            _NavItem(label: "Shop", onTap: onShop),
-                            _NavItem(
-                              label: "The Print Shack",
-                              onTap: onPrintShack,
-                            ),
-                            _NavItem(label: "SALE!", onTap: onSale),
-                            _NavItem(label: "About", onTap: onAbout),
+                            Flexible(
+                                child: _NavItem(label: "Home", onTap: onHome)),
+                            Flexible(
+                                child: _NavItem(label: "Shop", onTap: onShop)),
+                            Flexible(
+                                child: _NavItem(
+                                    label: "The Print Shack",
+                                    onTap: onPrintShack)),
+                            Flexible(
+                                child: _NavItem(label: "SALE!", onTap: onSale)),
+                            Flexible(
+                                child:
+                                    _NavItem(label: "About", onTap: onAbout)),
                           ],
                         ),
-                        const Spacer(),
-                      ],
-
-                      // Right-side icons (always shown)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.search,
-                              size: 18,
-                              color: Colors.grey,
-                            ),
-                            padding: const EdgeInsets.all(8),
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
-                            ),
-                            onPressed: _placeholderCallbackForButtons,
-                          ),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.person_outline,
-                              size: 18,
-                              color: Colors.grey,
-                            ),
-                            padding: const EdgeInsets.all(8),
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
-                            ),
-                            onPressed: _placeholderCallbackForButtons,
-                          ),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.shopping_bag_outlined,
-                              size: 18,
-                              color: Colors.grey,
-                            ),
-                            padding: const EdgeInsets.all(8),
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
-                            ),
-                            onPressed: _placeholderCallbackForButtons,
-                          ),
-
-                          // On narrow screens, show a menu icon instead of the full nav row
-                          if (isNarrow)
-                            IconButton(
-                              icon: const Icon(
-                                Icons.menu,
-                                size: 18,
-                                color: Colors.grey,
-                              ),
-                              padding: const EdgeInsets.all(8),
-                              constraints: const BoxConstraints(
-                                minWidth: 32,
-                                minHeight: 32,
-                              ),
-                              onPressed: _placeholderCallbackForButtons,
-                            ),
-                        ],
                       ),
-                    ],
-                  ),
-                );
-              },
-            ),
+
+                    // Icons on the right (always shown)
+                    Row(
+                      children: [
+                        _icon(Icons.search),
+                        _icon(Icons.person_outline),
+                        _icon(Icons.shopping_bag_outlined),
+
+                        // Mobile menu button
+                        if (isNarrow)
+                          _icon(Icons.menu, onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (_) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ListTile(
+                                        leading: const Icon(Icons.home),
+                                        title: const Text('Home'),
+                                        onTap: onHome),
+                                    ListTile(
+                                        leading: const Icon(Icons.shop),
+                                        title: const Text('Shop'),
+                                        onTap: onShop),
+                                    ListTile(
+                                        leading: const Icon(Icons.print),
+                                        title: const Text('The Print Shack'),
+                                        onTap: onPrintShack),
+                                    ListTile(
+                                        leading: const Icon(Icons.local_offer),
+                                        title: const Text('SALE!'),
+                                        onTap: onSale),
+                                    ListTile(
+                                        leading: const Icon(Icons.info),
+                                        title: const Text('About'),
+                                        onTap: onAbout),
+                                  ],
+                                );
+                              },
+                            );
+                          }),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+  }
+
+  Widget _icon(IconData icon, {VoidCallback? onTap}) {
+    return IconButton(
+      icon: Icon(icon, size: 20, color: Colors.grey),
+      padding: const EdgeInsets.all(6),
+      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+      onPressed: onTap ?? _placeholderCallbackForButtons,
     );
   }
 }
@@ -177,125 +156,160 @@ class AppFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      color: Colors.grey[50],
-      padding: const EdgeInsets.all(40),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // COLUMN 1
-          const Expanded(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isNarrow = constraints.maxWidth < 700;
+
+        // ----------------------------------
+        // NARROW SCREEN (Column layout)
+        // ----------------------------------
+        if (isNarrow) {
+          return Container(
+            width: double.infinity,
+            color: Colors.grey[50],
+            padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Opening Hours",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(height: 12),
-                Text("(Term Time)"),
-                Text("Monday - Friday 9am - 4pm"),
-                SizedBox(height: 8),
-                Text("(Outside of Term Time / Consolidation Weeks)"),
-                Text("Monday - Friday 9am - 3pm"),
-                SizedBox(height: 8),
-                Text("Purchase online 24/7"),
+                _footerColumn1(),
+                const SizedBox(height: 32),
+                _footerColumn2(),
+                const SizedBox(height: 32),
+                _footerColumn3(),
               ],
             ),
+          );
+        }
+
+        // ----------------------------------
+        // DESKTOP / WIDE SCREEN (Row layout)
+        // ----------------------------------
+        return Container(
+          width: double.infinity,
+          color: Colors.grey[50],
+          padding: const EdgeInsets.all(40),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: _footerColumn1()),
+              const SizedBox(width: 40),
+              Expanded(child: _footerColumn2()),
+              const SizedBox(width: 40),
+              Expanded(child: _footerColumn3()),
+            ],
           ),
+        );
+      },
+    );
+  }
 
-          const SizedBox(width: 40),
+  // --------------------------
+  // COLUMN 1: Opening Hours
+  // --------------------------
+  Widget _footerColumn1() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Opening Hours",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        SizedBox(height: 12),
+        Text("(Term Time)"),
+        Text("Monday - Friday 9am - 4pm"),
+        SizedBox(height: 8),
+        Text("(Outside of Term Time / Consolidation Weeks)"),
+        Text("Monday - Friday 9am - 3pm"),
+        SizedBox(height: 8),
+        Text("Purchase online 24/7"),
+      ],
+    );
+  }
 
-          // COLUMN 2
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Help and Information",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+  // --------------------------
+  // COLUMN 2: Help Links
+  // --------------------------
+  Widget _footerColumn2() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Help and Information",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        SizedBox(height: 12),
+        _FooterLink("Search"),
+        SizedBox(height: 4),
+        _FooterLink("Terms & Conditions of Sale Policy"),
+      ],
+    );
+  }
+
+  // --------------------------
+  // COLUMN 3: Email subscribe
+  // --------------------------
+  Widget _footerColumn3() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Latest Offers",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            const Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: "Email address",
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide: BorderSide(color: Colors.grey),
                   ),
                 ),
-                SizedBox(height: 12),
-                // was: Text("Search"),
-                _FooterLink("Search"),
-                SizedBox(height: 4),
-                // was: Text("Terms & Conditions of Sale Policy"),
-                _FooterLink("Terms & Conditions of Sale Policy"),
-              ],
+              ),
             ),
-          ),
-
-          SizedBox(width: 40),
-
-          // COLUMN 3
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Latest Offers",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+            SizedBox(
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4d2963),
+                  foregroundColor: Colors.white,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
                   ),
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "Email address",
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4d2963),
-                          foregroundColor: Colors.white,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ),
-                        child: const Text("Subscribe"),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                child: const Text("Subscribe"),
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }
 
-/// Shared nav item with hover behaviour.
 class _NavItem extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
