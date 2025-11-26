@@ -19,8 +19,36 @@ class CollectionsPage extends StatelessWidget {
     'assets/images/PurpleHoodieFinal_540x.webp',
     'assets/images/card_holder.jpg',
     'assets/images/purple_notepad.webp',
-    'assets/images/The_Union_Print_Shack_Logo.webp',
   ];
+
+  static const List<String> _overlayLabels = [
+    'Autumn Favourites',
+    'Black Friday',
+    'Clothing',
+    'Clothing- Original',
+    'Election Discounts',
+    'Essential Range',
+    'Graduation',
+    'Limited edition essential zip hoodies',
+    'merchandise',
+    'pride collection',
+    'sale',
+    'Signature Range',
+    'Spring Favourites',
+    'Student Essentials',
+    'Summer Collection',
+  ];
+
+  // helper: produce a readable label from an asset path (fallback)
+  String _labelFromPath(String path) {
+    final filename = path.split('/').last;
+    final base = filename.split('.').first;
+    final words = base.replaceAll(RegExp(r'[_\-]+'), ' ').split(' ');
+    return words
+        .where((w) => w.isNotEmpty)
+        .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
+        .join(' ');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,19 +62,23 @@ class CollectionsPage extends StatelessWidget {
             left: 72.0, right: 72.0, top: 36.0, bottom: 36.0),
         child: Row(
           children: List<Widget>.generate(3, (colIndex) {
-            final asset = pick(rowIndex * 3 + colIndex);
+            final globalIndex = rowIndex * 3 + colIndex;
+            final asset = pick(globalIndex);
+            // use explicit label list when available, otherwise fallback to filename label
+            final label = globalIndex < _overlayLabels.length
+                ? _overlayLabels[globalIndex]
+                : _labelFromPath(asset);
+
             return Expanded(
               child: Padding(
                 // gutter between images
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 // compute height based on available width instead of hardcoding
                 child: LayoutBuilder(builder: (context, constraints) {
-                  // constraints.maxWidth is the width allocated to this item
                   final itemWidth = constraints.maxWidth;
 
-                  // make images less tall by using a larger aspectRatio (width/height)
-                  // and cap the computed height as a fraction of the viewport height
-                  const aspectRatio = 0.85; // larger -> less tall
+                  // choose aspect ratio to make images slightly taller than wide
+                  const aspectRatio = 0.85; // width / height
                   final rawHeight = itemWidth / aspectRatio;
                   final maxAllowedHeight =
                       MediaQuery.of(context).size.height * 0.35;
@@ -54,12 +86,40 @@ class CollectionsPage extends StatelessWidget {
 
                   return SizedBox(
                     height: computedHeight,
-                    child: HoverImage(
-                      imageUrl: asset,
-                      // pass computed sizes if HoverImage uses them; if not, it will size to parent
-                      width: itemWidth,
-                      height: computedHeight,
-                      fit: BoxFit.cover,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.zero,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // image (preserve existing HoverImage usage)
+                          HoverImage(
+                            imageUrl: asset,
+                            width: itemWidth,
+                            height: computedHeight,
+                            fit: BoxFit.cover,
+                          ),
+
+                          // centered white text (no background) with subtle shadow for readability
+                          Center(
+                            child: Text(
+                              label,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22, // increased size
+                                fontWeight: FontWeight.bold, // stronger weight
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(0, 1),
+                                    blurRadius: 6,
+                                    color: Colors.black54,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }),
@@ -75,29 +135,20 @@ class CollectionsPage extends StatelessWidget {
         child: Column(
           children: [
             const AppHeader(),
-
-            // Centered bold "collections" heading — vertical padding tripled (was 32)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 96.0),
-              child: Center(
-                child: Text(
-                  'collections',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
+            const SizedBox(height: 24),
+            // Centered bold "collections" heading (removed extra padding)
+            const Center(
+              child: Text(
+                'collections',
+                style: TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
                 ),
+                textAlign: TextAlign.center,
               ),
             ),
 
-            // small intro / placeholder — padding tripled (was 16)
-            Container(
-              padding: const EdgeInsets.all(48),
-              child: const Text('Collections Page Content Here'),
-            ),
-
-            const SizedBox(height: 48),
+            const SizedBox(height: 24),
 
             // 5 rows with 3 images each
             ...rows,

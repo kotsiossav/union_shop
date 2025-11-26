@@ -368,9 +368,17 @@ class _HoverImageState extends State<HoverImage> {
 
   @override
   Widget build(BuildContext context) {
-    final image = Image.network(
+    // ALWAYS load local assets via Image.asset (no network requests)
+    final image = Image.asset(
       widget.imageUrl,
       fit: widget.fit,
+      width: widget.width,
+      height: widget.height,
+      errorBuilder: (ctx, err, stack) => Container(
+        color: Colors.grey.shade200,
+        alignment: Alignment.center,
+        child: const Icon(Icons.broken_image, color: Colors.grey),
+      ),
     );
 
     return MouseRegion(

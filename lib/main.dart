@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:union_shop/product_page.dart';
 import 'package:union_shop/homepage.dart';
 import 'package:union_shop/about_page.dart';
-import 'package:union_shop/collections_page.dart'; // ensure this import is present
+import 'package:union_shop/collections_page.dart';
 
 void main() {
   runApp(const UnionShopApp());

@@ -68,6 +68,22 @@
 
 - [x] Inlined **text styles** directly in `about_page.dart` (no dependency on `app_styles.dart`).
 
+## Collections Page (lib/collections_page.dart)
+- [x] CollectionsPage widget created (StatelessWidget).
+- [x] Uses SingleChildScrollView + Column for vertical scrolling.
+- [x] Includes shared header and footer: `const AppHeader()` and `const AppFooter()`.
+- [x] Centered, bold page heading "collections" with vertical padding.
+- [x] Defined local asset list: `static const List<String> _assetImages`.
+- [x] Generates 5 rows, each row containing 3 images.
+- [x] Per-row outer padding (left/right/top/bottom) applied.
+- [x] Per-item horizontal gutter padding between images.
+- [x] Images built with `LayoutBuilder` to compute `itemWidth` from available space.
+- [x] Image height computed (no hardcoded height) using an `aspectRatio` and capped by a fraction of screen height (`MediaQuery`).
+- [x] Each image rendered with `HoverImage` and `BoxFit.cover`.
+- [x] Images are taller-than-wide by aspect-ratio calculation (visually elongated).
+- [x] Row padding was adjusted (tripled) per request.
+- [ ] Text overlay on all images: each image should display centered white text without background (labels for category/square images and optional captions for products).
+
 ## General
 
 - [x] Used `SingleChildScrollView` + `Column` for vertically scrollable pages.
