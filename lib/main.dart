@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:union_shop/product_page.dart';
 import 'package:union_shop/homepage.dart';
 import 'package:union_shop/about_page.dart';
-import 'package:union_shop/collections_page.dart'; // Added import for CollectionsPage
+import 'package:union_shop/collections_page.dart'; // ensure this import is present
 
 void main() {
   runApp(const UnionShopApp());
@@ -25,6 +25,7 @@ class UnionShopApp extends StatelessWidget {
           path: '/about',
           builder: (context, state) => const AboutPage(),
         ),
+        // Added route for /collections
         GoRoute(
           path: '/collections',
           builder: (context, state) => const CollectionsPage(),
@@ -35,13 +36,10 @@ class UnionShopApp extends StatelessWidget {
             final args = state.extra as Map<String, dynamic>?;
             final imageUrl = args?['imageUrl']?.toString() ?? '';
             final title = args?['title']?.toString() ?? '';
-
-            // safe price conversion: handle int/double/String/null
             double parsePrice(Object? raw) {
               if (raw == null) return 0.0;
               if (raw is num) return raw.toDouble();
-              final s = raw.toString();
-              return double.tryParse(s) ?? 0.0;
+              return double.tryParse(raw.toString()) ?? 0.0;
             }
 
             final price = parsePrice(args?['price']);
@@ -53,15 +51,6 @@ class UnionShopApp extends StatelessWidget {
             );
           },
         ),
-        // Example of a path param route if you prefer using an id:
-        // GoRoute(
-        //   path: '/product/:id',
-        //   builder: (context, state) {
-        //     final id = state.params['id']!;
-        //     // use id to fetch product or pass extra data
-        //     return ProductPage(...);
-        //   },
-        // ),
       ],
     );
 
