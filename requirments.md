@@ -100,3 +100,19 @@
 - [x] Used `SingleChildScrollView` + `Column` for vertically scrollable pages.
 - [x] Used `SizedBox` / `ConstrainedBox` to keep content centred and limited to a max width on large screens.
 - [x] All image paths correctly configured as Flutter **assets** in `pubspec.yaml`.
+
+## TODO / Next Work
+
+- [ ] Move shared UI classes from homepage.dart into layout.dart:
+  - AppHeader, AppFooter, HoverImage, ProductCard, _SquareImage (and any helpers).
+- [ ] Fix imports across the project to reference the new layout.dart exports:
+  - Replace imports of homepage.dart classes with `package:union_shop/layout.dart`.
+  - Remove now-unused imports from homepage.dart.
+- [ ] Add product cards to SalePage (lib/sale_page.dart):
+  - Create a product list (image, title, price) and render ProductCard widgets in a responsive grid.
+  - Ensure ProductCard supports tap/navigation to ProductPage.
+- [ ] Add/update widget tests:
+  - Verify SalePage renders product grid and ProductCard widgets.
+  - Update any tests that referenced moved classes to import layout.dart.
+- [ ] Run `flutter analyze` and `dart format` and fix any resulting issues.
+
