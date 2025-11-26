@@ -6,14 +6,14 @@ class SalePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const AppHeader(),
+            AppHeader(),
 
             // Added promotional text below the header
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 24.0, horizontal: 12.0),
               child: Center(
                 child: Column(
@@ -48,36 +48,7 @@ class SalePage extends StatelessWidget {
               ),
             ),
 
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 48.0),
-              child: Center(
-                child: Text(
-                  'sale',
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-
-            // Placeholder for sale content
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1100),
-                child: Column(
-                  children: const [
-                    SizedBox(height: 8),
-                    Text('Sale items will appear here.'),
-                    SizedBox(height: 200),
-                  ],
-                ),
-              ),
-            ),
-
-            const AppFooter(),
+            AppFooter(),
           ],
         ),
       ),
