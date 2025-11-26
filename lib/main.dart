@@ -4,6 +4,7 @@ import 'package:union_shop/product_page.dart';
 import 'package:union_shop/homepage.dart';
 import 'package:union_shop/about_page.dart';
 import 'package:union_shop/collections_page.dart';
+import 'package:union_shop/sign_in.dart'; // added import for login route
 
 void main() {
   runApp(const UnionShopApp());
@@ -29,6 +30,11 @@ class UnionShopApp extends StatelessWidget {
         GoRoute(
           path: '/collections',
           builder: (context, state) => const CollectionsPage(),
+        ),
+        // Added route for /login_page
+        GoRoute(
+          path: '/login_page',
+          builder: (context, state) => const SignInPage(),
         ),
         GoRoute(
           path: '/product',
