@@ -82,7 +82,18 @@
 - [x] Each image rendered with `HoverImage` and `BoxFit.cover`.
 - [x] Images are taller-than-wide by aspect-ratio calculation (visually elongated).
 - [x] Row padding was adjusted (tripled) per request.
-- [ ] Text overlay on all images: each image should display centered white text without background (labels for category/square images and optional captions for products).
+- [x] Text overlay on all images: each image displays centered white text without background (labels for category/square images and optional captions for products).
+
+## Sign In Page (lib/sign_in.dart)
+
+- [x] SignInPage widget created (StatefulWidget).
+- [x] Centered white card in the middle of the screen (max width constraint, rounded corners, subtle shadow).
+- [x] Displays logo image at top of the card: `assets/images/logo2.png`.
+- [x] Heading "Sign in" shown below the logo (bold, centered).
+- [x] Email input field (TextFormField) present and wired to a controller.
+- [x] Continue button present below the email field and initially deactivated (onPressed == null).
+- [ ] Continue button becomes enabled when a valid email address is entered (validation + enable/disable behavior).
+- [ ] Continue button action: navigate or proceed when enabled (implement and test).
 
 ## General
 
