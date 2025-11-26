@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:union_shop/homepage.dart';
-
 // Add this import so ProductCard is visible to the test
 import 'package:union_shop/homepage.dart' show ProductCard;
 
@@ -111,17 +111,19 @@ void main() {
   });
 
   testWidgets('Tapping a ProductCard navigates to /product', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: const HomeScreen(),
-        routes: {
-          '/product': (_) => const Scaffold(
-                body: Center(child: Text('Product Page')),
-              ),
-        },
+    final router = GoRouter(routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const HomeScreen(),
       ),
-    );
+      GoRoute(
+        path: '/product',
+        builder: (context, state) =>
+            const Scaffold(body: Center(child: Text('Product Page'))),
+      ),
+    ]);
 
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
     await tester.pumpAndSettle();
 
     final titleFinder = find.text('Placeholder Product 1');

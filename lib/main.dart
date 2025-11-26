@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:union_shop/product_page.dart';
 import 'package:union_shop/homepage.dart';
 import 'package:union_shop/about_page.dart';
@@ -13,32 +14,64 @@ class UnionShopApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    final _router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const HomeScreen(),
+        ),
+        GoRoute(
+          path: '/about',
+          builder: (context, state) => const AboutPage(),
+        ),
+        GoRoute(
+          path: '/collections',
+          builder: (context, state) => const CollectionsPage(),
+        ),
+        GoRoute(
+          path: '/product',
+          builder: (context, state) {
+            final args = state.extra as Map<String, dynamic>?;
+            final imageUrl = args?['imageUrl']?.toString() ?? '';
+            final title = args?['title']?.toString() ?? '';
+
+            // safe price conversion: handle int/double/String/null
+            double parsePrice(Object? raw) {
+              if (raw == null) return 0.0;
+              if (raw is num) return raw.toDouble();
+              final s = raw.toString();
+              return double.tryParse(s) ?? 0.0;
+            }
+
+            final price = parsePrice(args?['price']);
+
+            return ProductPage(
+              imageUrl: imageUrl,
+              title: title,
+              price: price,
+            );
+          },
+        ),
+        // Example of a path param route if you prefer using an id:
+        // GoRoute(
+        //   path: '/product/:id',
+        //   builder: (context, state) {
+        //     final id = state.params['id']!;
+        //     // use id to fetch product or pass extra data
+        //     return ProductPage(...);
+        //   },
+        // ),
+      ],
+    );
+
+    return MaterialApp.router(
       title: 'Union Shop',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4d2963)),
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const HomeScreen(),
-
-        '/about': (context) => const AboutPage(),
-
-        '/collections': (context) => const CollectionsPage(), // Added route for CollectionsPage
-
-        /// -------------- IMPORTANT: Add THIS route --------------
-        '/product': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments
-              as Map<String, dynamic>;
-
-          return ProductPage(
-            imageUrl: args['imageUrl'],
-            title: args['title'],
-            price: args['price'],
-          );
-        },
-      },
+      routerConfig: _router,
     );
   }
 }

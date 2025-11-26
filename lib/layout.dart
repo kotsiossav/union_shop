@@ -1,21 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 /// Shared navigation bar used on all pages.
 class AppHeader extends StatelessWidget {
-  final VoidCallback onHome;
-  final VoidCallback onShop;
-  final VoidCallback onSale;
-  final VoidCallback onPrintShack;
-  final VoidCallback onAbout;
-
-  const AppHeader({
-    super.key,
-    required this.onHome,
-    required this.onShop,
-    required this.onSale,
-    required this.onPrintShack,
-    required this.onAbout,
-  });
+  const AppHeader({super.key});
 
   void _placeholderCallbackForButtons() {}
 
@@ -56,7 +44,7 @@ class AppHeader extends StatelessWidget {
                   children: [
                     // Logo (use local asset, smaller size)
                     GestureDetector(
-                      onTap: onHome,
+                      onTap: () => context.go('/'),
                       child: Image.asset(
                         'assets/images/logo2.png',
                         height: 45,
@@ -71,18 +59,25 @@ class AppHeader extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Flexible(
-                                child: _NavItem(label: "Home", onTap: onHome)),
+                                child: _NavItem(
+                                    label: "Home",
+                                    onTap: () => context.go('/'))),
                             Flexible(
-                                child: _NavItem(label: "Shop", onTap: onShop)),
+                                child: _NavItem(
+                                    label: "Shop",
+                                    onTap: () => context.go('/collections'))),
                             Flexible(
                                 child: _NavItem(
                                     label: "The Print Shack",
-                                    onTap: onPrintShack)),
+                                    onTap: () => context.go('/printshack'))),
                             Flexible(
-                                child: _NavItem(label: "SALE!", onTap: onSale)),
+                                child: _NavItem(
+                                    label: "SALE!",
+                                    onTap: () => context.go('/sale'))),
                             Flexible(
-                                child:
-                                    _NavItem(label: "About", onTap: onAbout)),
+                                child: _NavItem(
+                                    label: "About",
+                                    onTap: () => context.go('/about'))),
                           ],
                         ),
                       ),
@@ -106,23 +101,24 @@ class AppHeader extends StatelessWidget {
                                     ListTile(
                                         leading: const Icon(Icons.home),
                                         title: const Text('Home'),
-                                        onTap: onHome),
+                                        onTap: () => context.go('/')),
                                     ListTile(
                                         leading: const Icon(Icons.shop),
                                         title: const Text('Shop'),
-                                        onTap: onShop),
+                                        onTap: () =>
+                                            context.go('/collections')),
                                     ListTile(
                                         leading: const Icon(Icons.print),
                                         title: const Text('The Print Shack'),
-                                        onTap: onPrintShack),
+                                        onTap: () => context.go('/printshack')),
                                     ListTile(
                                         leading: const Icon(Icons.local_offer),
                                         title: const Text('SALE!'),
-                                        onTap: onSale),
+                                        onTap: () => context.go('/sale')),
                                     ListTile(
                                         leading: const Icon(Icons.info),
                                         title: const Text('About'),
-                                        onTap: onAbout),
+                                        onTap: () => context.go('/about')),
                                   ],
                                 );
                               },

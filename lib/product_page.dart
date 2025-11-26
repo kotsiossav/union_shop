@@ -4,7 +4,7 @@ import 'package:union_shop/layout.dart';
 class ProductPage extends StatelessWidget {
   final String imageUrl; // asset or network
   final String title;
-  final String price;
+  final double price;
 
   const ProductPage({
     super.key,
@@ -24,17 +24,12 @@ class ProductPage extends StatelessWidget {
     final bool isNetwork = imageUrl.startsWith('http');
 
     return Scaffold(
+      appBar: AppBar(title: Text(title)),
       body: SingleChildScrollView(
         child: Column(
           children: [
             // Header
-            AppHeader(
-              onHome: () => navigateToHome(context),
-              onShop: placeholderCallbackForButtons,
-              onSale: placeholderCallbackForButtons,
-              onPrintShack: placeholderCallbackForButtons,
-              onAbout: () => Navigator.pushNamed(context, '/about'),
-            ),
+            const AppHeader(),
 
             // MAIN PRODUCT LAYOUT
             LayoutBuilder(
@@ -54,21 +49,22 @@ class ProductPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             // Image
-                            SizedBox(
-                              width: constraints.maxWidth * 0.8,
-                              height: 300,
-                              child: isNetwork
-                                  ? Image.network(
-                                      imageUrl,
-                                      fit: BoxFit.cover,
-                                      key: const Key('product_image'),
-                                    )
-                                  : Image.asset(
-                                      imageUrl,
-                                      fit: BoxFit.cover,
-                                      key: const Key('product_image'),
-                                    ),
-                            ),
+                            if (imageUrl.isNotEmpty)
+                              SizedBox(
+                                width: constraints.maxWidth * 0.8,
+                                height: 300,
+                                child: isNetwork
+                                    ? Image.network(
+                                        imageUrl,
+                                        fit: BoxFit.cover,
+                                        key: const Key('product_image'),
+                                      )
+                                    : Image.asset(
+                                        imageUrl,
+                                        fit: BoxFit.cover,
+                                        key: const Key('product_image'),
+                                      ),
+                              ),
                             const SizedBox(height: 16),
 
                             // Title
@@ -84,7 +80,7 @@ class ProductPage extends StatelessWidget {
 
                             // Price
                             Text(
-                              price,
+                              '\$${price.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -123,21 +119,22 @@ class ProductPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // IMAGE
-                              SizedBox(
-                                width: 500,
-                                height: 400,
-                                child: isNetwork
-                                    ? Image.network(
-                                        imageUrl,
-                                        fit: BoxFit.cover,
-                                        key: const Key('product_image'),
-                                      )
-                                    : Image.asset(
-                                        imageUrl,
-                                        fit: BoxFit.cover,
-                                        key: const Key('product_image'),
-                                      ),
-                              ),
+                              if (imageUrl.isNotEmpty)
+                                SizedBox(
+                                  width: 500,
+                                  height: 400,
+                                  child: isNetwork
+                                      ? Image.network(
+                                          imageUrl,
+                                          fit: BoxFit.cover,
+                                          key: const Key('product_image'),
+                                        )
+                                      : Image.asset(
+                                          imageUrl,
+                                          fit: BoxFit.cover,
+                                          key: const Key('product_image'),
+                                        ),
+                                ),
                               const SizedBox(width: 16),
 
                               // TEXT CONTENT (scroll-disabled inner)
@@ -157,7 +154,7 @@ class ProductPage extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 16),
                                       Text(
-                                        price,
+                                        '\$${price.toStringAsFixed(2)}',
                                         style: const TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.bold,

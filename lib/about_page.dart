@@ -5,11 +5,7 @@ import 'package:union_shop/app_styles.dart';
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
 
-  void navigateToHome(BuildContext context) {
-    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-  }
-
-  void placeholderCallbackForButtons() {}
+  // Navigation handled inside AppHeader via go_router; no callbacks needed.
 
   @override
   Widget build(BuildContext context) {
@@ -18,13 +14,7 @@ class AboutPage extends StatelessWidget {
         child: Column(
           children: [
             // Header from layout.dart
-            AppHeader(
-              onHome: () => navigateToHome(context),
-              onShop: placeholderCallbackForButtons,
-              onSale: placeholderCallbackForButtons,
-              onPrintShack: placeholderCallbackForButtons,
-              onAbout: placeholderCallbackForButtons,
-            ),
+            const AppHeader(),
 
             // About content
             Padding(

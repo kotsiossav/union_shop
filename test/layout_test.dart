@@ -1,26 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:union_shop/layout.dart'; // make sure this path is correct
 
 void main() {
-  testWidgets('AppHeader renders and reacts to Home and About tap',
+  testWidgets('AppHeader renders and navigates Home and About',
       (WidgetTester tester) async {
-    bool homeTapped = false;
-    bool aboutTapped = false;
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: AppHeader(
-            onHome: () => homeTapped = true,
-            onShop: () {},
-            onSale: () {},
-            onPrintShack: () {},
-            onAbout: () => aboutTapped = true,
+    final router = GoRouter(routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const Scaffold(
+          body: Column(
+            children: [
+              AppHeader(),
+              Text('HOME_PAGE'),
+            ],
           ),
         ),
       ),
-    );
+      GoRoute(
+        path: '/about',
+        builder: (context, state) => const Scaffold(
+          body: Column(
+            children: [
+              AppHeader(),
+              Text('ABOUT_PAGE'),
+            ],
+          ),
+        ),
+      ),
+      // include other routes the header may reference to avoid unknown route errors
+      GoRoute(
+        path: '/collections',
+        builder: (context, state) => const Scaffold(
+            body: Column(children: [AppHeader(), Text('COLLECTIONS')])),
+      ),
+      GoRoute(
+        path: '/sale',
+        builder: (context, state) => const Scaffold(
+            body: Column(children: [AppHeader(), Text('SALE_PAGE')])),
+      ),
+      GoRoute(
+        path: '/printshack',
+        builder: (context, state) => const Scaffold(
+            body: Column(children: [AppHeader(), Text('PRINT_PAGE')])),
+      ),
+    ]);
+
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
 
     // --- BASIC CHECKS ---
     expect(
@@ -34,15 +61,18 @@ void main() {
     expect(find.text("SALE!"), findsOneWidget);
     expect(find.text("About"), findsOneWidget);
 
+    // initial route is '/', so HOME_PAGE should be visible
+    expect(find.text('HOME_PAGE'), findsOneWidget);
+
+    // --- TAP TEST: About --- (header should navigate using go_router)
+    await tester.tap(find.text("About"));
+    await tester.pumpAndSettle();
+    expect(find.text('ABOUT_PAGE'), findsOneWidget);
+
     // --- TAP TEST: Home ---
     await tester.tap(find.text("Home"));
-    await tester.pump();
-    expect(homeTapped, true);
-
-    // --- TAP TEST: About ---
-    await tester.tap(find.text("About"));
-    await tester.pump();
-    expect(aboutTapped, true);
+    await tester.pumpAndSettle();
+    expect(find.text('HOME_PAGE'), findsOneWidget);
   });
 
   testWidgets('AppFooter renders key sections', (WidgetTester tester) async {

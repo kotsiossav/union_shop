@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:union_shop/layout.dart';
 import 'package:union_shop/app_styles.dart';
 import 'package:union_shop/product_page.dart'; // <-- add this line
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -90,15 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             // Header from layout.dart
-            AppHeader(
-              onHome: () => navigateToHome(context),
-              onShop: placeholderCallbackForButtons,
-              onSale: placeholderCallbackForButtons,
-              onPrintShack: placeholderCallbackForButtons,
-              onAbout: () {
-                Navigator.pushNamed(context, '/about'); // go to AboutPage
-              },
-            ),
+            const AppHeader(),
 
             // Hero Section - slideshow
             SizedBox(
@@ -540,15 +533,16 @@ class ProductCard extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(
-            context,
-            '/product',
-            arguments: {
-              'imageUrl': imageUrl,
-              'title': title,
-              'price': price,
-            },
-          );
+          // convert price string like "£10.00" -> 10.00 (numeric) before passing
+          final numericPrice =
+              double.tryParse(price.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
+
+          // navigate using go_router and pass product data via extra
+          context.push('/product', extra: {
+            'imageUrl': imageUrl,
+            'title': title,
+            'price': numericPrice,
+          });
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

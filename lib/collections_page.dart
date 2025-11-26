@@ -10,14 +10,7 @@ class CollectionsPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            AppHeader(
-              onHome: () =>
-                  Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false),
-              onShop: () {},
-              onSale: () {},
-              onPrintShack: () {},
-              onAbout: () => Navigator.pushNamed(context, '/about'),
-            ),
+            const AppHeader(),
             // Main content for collections (placeholder)
             Container(
               padding: const EdgeInsets.all(16),
