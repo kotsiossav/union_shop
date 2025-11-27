@@ -103,10 +103,10 @@
 
 ## TODO / Next Work
 
-- [ ] Move shared UI classes from homepage.dart into layout.dart:
-  - AppHeader, AppFooter, HoverImage, ProductCard, _SquareImage (and any helpers).
-- [ ] Fix imports across the project to reference the new layout.dart exports:
-  - Replace imports of homepage.dart classes with `package:union_shop/layout.dart`.
+- [x] Move shared UI classes from homepage.dart into images_layout.dart:
+  - HoverImage, ProductCard, _SquareImage (and any helpers).
+- [x] Fix imports across the project to reference the new layout.dart exports:
+  - Replace imports of homepage.dart classes with images_layout.dart.
   - Remove now-unused imports from homepage.dart.
 - [ ] Add product cards to SalePage (lib/sale_page.dart):
   - Create a product list (image, title, price) and render ProductCard widgets in a responsive grid.

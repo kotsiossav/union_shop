@@ -3,6 +3,7 @@ import 'package:union_shop/layout.dart';
 import 'package:union_shop/app_styles.dart';
 import 'package:union_shop/views/product_page.dart'; // <-- add this line
 import 'package:go_router/go_router.dart';
+import 'package:union_shop/images_layout.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,15 +16,15 @@ class _HomeScreenState extends State<HomeScreen> {
   final PageController _heroController = PageController();
   int _currentHeroPage = 0;
 
-  final List<_HeroSlide> _slides = const [
-    _HeroSlide(
+  final List<HeroSlide> _slides = const [
+    HeroSlide(
       imagePath: 'assets/images/Pink_Essential_Hoodie_720x.webp',
       title: 'Essential Range - Over 20% Off!',
       subtitle:
           'Over 20% off our essential range.come and grab yours while stock lasts!.',
       buttonText: 'Browse products',
     ),
-    _HeroSlide(
+    HeroSlide(
       imagePath: 'assets/images/grey_hoodie.webp',
       title: 'The Print Shack',
       subtitle:
@@ -417,20 +418,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           spacing: 24,
                           runSpacing: 24,
                           children: [
-                            _SquareImage(
+                            SquareImage(
                               imagePath:
                                   'assets/images/PurpleHoodieFinal_540x.webp',
                               label: 'Clothing',
                             ),
-                            _SquareImage(
+                            SquareImage(
                               imagePath: 'assets/images/card_holder.jpg',
                               label: 'Merchandise',
                             ),
-                            _SquareImage(
+                            SquareImage(
                               imagePath: 'assets/images/grey_hoodie.webp',
                               label: 'Graduation',
                             ),
-                            _SquareImage(
+                            SquareImage(
                               imagePath: 'assets/images/purple_notepad.webp',
                               label: 'SALE',
                             ),
@@ -513,171 +514,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
-
-class ProductCard extends StatelessWidget {
-  final String title;
-  final String price;
-  final String imageUrl;
-
-  const ProductCard({
-    super.key,
-    required this.title,
-    required this.price,
-    required this.imageUrl,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () {
-          // convert price string like "£10.00" -> 10.00 (numeric) before passing
-          final numericPrice =
-              double.tryParse(price.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
-
-          // navigate using go_router and pass product data via extra
-          context.push('/product', extra: {
-            'imageUrl': imageUrl,
-            'title': title,
-            'price': numericPrice,
-          });
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _HoverImage(
-              imageUrl: imageUrl,
-              height: 320,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 14, color: Colors.black),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              price,
-              style: const TextStyle(fontSize: 13, color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SquareImage extends StatelessWidget {
-  final String imagePath;
-  final String? label; // optional
-
-  const _SquareImage({
-    Key? key,
-    required this.imagePath,
-    this.label, // not required anymore
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return _HoverImage(
-      imageUrl: imagePath,
-      width: 250,
-      height: 250,
-      label: label,
-    );
-  }
-}
-
-class _HoverImage extends StatefulWidget {
-  final String imageUrl;
-  final double? width;
-  final double height;
-  final String? label; // optional
-
-  const _HoverImage({
-    Key? key,
-    required this.imageUrl,
-    this.width,
-    required this.height,
-    this.label, // optional
-  }) : super(key: key);
-
-  @override
-  State<_HoverImage> createState() => _HoverImageState();
-}
-
-class _HoverImageState extends State<_HoverImage> {
-  bool _hovering = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 120),
-        width: widget.width ?? double.infinity,
-        height: widget.height,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // base image
-            Image.asset(
-              widget.imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.grey[300],
-                  child: const Center(
-                    child: Icon(Icons.image_not_supported, color: Colors.grey),
-                  ),
-                );
-              },
-            ),
-
-            // base grey shading (always on)
-            Container(
-              color: Colors.black.withOpacity(0.25),
-            ),
-
-            // extra brighten / change on hover (optional)
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 120),
-              color: _hovering
-                  ? Colors.white.withOpacity(0.12)
-                  : Colors.transparent,
-            ),
-
-            // centered label if provided
-            if (widget.label != null)
-              Center(
-                child: Text(
-                  widget.label!,
-                  style: AppStyles.title.copyWith(
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _HeroSlide {
-  final String imagePath;
-  final String title;
-  final String subtitle;
-  final String buttonText;
-
-  const _HeroSlide({
-    required this.imagePath,
-    required this.title,
-    required this.subtitle,
-    required this.buttonText,
-  });
 }
