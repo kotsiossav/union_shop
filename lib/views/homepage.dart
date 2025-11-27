@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:union_shop/layout.dart';
 import 'package:union_shop/app_styles.dart';
-import 'package:union_shop/product_page.dart'; // <-- add this line
+import 'package:union_shop/views/product_page.dart'; // <-- add this line
 import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {

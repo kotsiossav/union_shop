@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:union_shop/homepage.dart';
+import 'package:union_shop/views/homepage.dart';
 // Add this import so ProductCard is visible to the test
-import 'package:union_shop/homepage.dart' show ProductCard;
+import 'package:union_shop/views/homepage.dart' show ProductCard;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
