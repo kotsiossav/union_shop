@@ -115,4 +115,14 @@
   - Verify SalePage renders product grid and ProductCard widgets.
   - Update any tests that referenced moved classes to import layout.dart.
 - [ ] Run `flutter analyze` and `dart format` and fix any resulting issues.
+- [ ] Implement Firebase backend to store product card details:
+  - Add Firebase / Firestore integration, model schema for products (image, title, price, category, stock).
+  - Implement CRUD helpers and sync with local UI.
+  - Add basic security rules and auth gating for admin edits.
+  - Add migration / seed script or instructions for initial product data.
+- [ ] Design a universal ProductPage that adapts to the current collection:
+  - ProductPage should accept a collection/category identifier or query and load matching products (from Firestore or local source).
+  - Support navigation so CollectionsPage taps open ProductPage scoped to that collection.
+  - Ensure deep-linking / route params are supported (e.g. /products?collection=Clothing).
+  - Add tests for ProductPage filtering behaviour.
 
