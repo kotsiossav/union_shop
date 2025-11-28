@@ -271,6 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: ProductCard(
                                 title: 'Placeholder Product 1',
                                 price: '£10.00',
+discountPrice: '£8.00',
                                 imageUrl:
                                     'assets/images/Pink_Essential_Hoodie_720x.webp',
                               ),
@@ -280,6 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: ProductCard(
                                 title: 'Placeholder Product 2',
                                 price: '£15.00',
+discountPrice: '£12.00',
                                 imageUrl:
                                     'assets/images/Sage_T-shirt_720x.webp',
                               ),
