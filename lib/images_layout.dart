@@ -7,12 +7,14 @@ class ProductCard extends StatelessWidget {
   final String title;
   final String price;
   final String imageUrl;
+  final String? discountPrice; // optional
 
   const ProductCard({
     super.key,
     required this.title,
     required this.price,
     required this.imageUrl,
+    this.discountPrice,
   });
 
   @override
@@ -46,10 +48,34 @@ class ProductCard extends StatelessWidget {
               maxLines: 2,
             ),
             const SizedBox(height: 4),
-            Text(
-              price,
-              style: const TextStyle(fontSize: 13, color: Colors.grey),
-            ),
+            // show either single price or original+discount with strikethrough
+            if (discountPrice == null)
+              Text(
+                price,
+                style: const TextStyle(fontSize: 13, color: Colors.grey),
+              )
+            else
+              Row(
+                children: [
+                  Text(
+                    price,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey,
+                      decoration: TextDecoration.lineThrough,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    discountPrice!,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
