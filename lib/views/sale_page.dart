@@ -95,6 +95,7 @@ class SalePage extends StatelessWidget {
                           final imageUrl = (data['image_url'] as String?) ?? '';
                           final title = (data['title'] as String?) ?? '';
                           final rawPrice = data['price'];
+                          final disc_price = data['disc_price'];
                           double priceNum;
                           if (rawPrice is num) {
                             priceNum = rawPrice.toDouble();
@@ -105,11 +106,21 @@ class SalePage extends StatelessWidget {
                           }
                           final priceStr = '£${priceNum.toStringAsFixed(2)}';
 
+                          double disc_priceNum;
+                          if (disc_price is num) {
+                            disc_priceNum = disc_price.toDouble();
+                          } else {
+                            disc_priceNum =
+                                double.tryParse(disc_price?.toString() ?? '') ??
+                                    0.0;
+                          }
+                          final disc_priceStr = '£${disc_priceNum.toStringAsFixed(2)}';
+                          
                           return ProductCard(
                             imageUrl: imageUrl,
                             title: title,
                             price: priceStr,
-                            discountPrice: null, // no discount field in DB
+                            discountPrice: disc_priceStr, // no discount field in DB
                           );
                         },
                       );
