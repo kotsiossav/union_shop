@@ -6,6 +6,8 @@ import 'package:union_shop/views/about_page.dart';
 import 'package:union_shop/views/collections_page.dart';
 import 'package:union_shop/views/sign_in.dart';
 import 'package:union_shop/views/sale_page.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() {
   runApp(const UnionShopApp());

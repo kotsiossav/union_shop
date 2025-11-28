@@ -16,7 +16,7 @@ class AboutPage extends StatelessWidget {
             // Header from layout.dart
             const AppHeader(),
 
-            // About content
+            // About content  
             Padding(
               padding: const EdgeInsets.all(40.0),
               child: Center(
