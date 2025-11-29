@@ -120,13 +120,25 @@ class _SalePageState extends State<SalePage> {
 
                     final docs = snapshot.data?.docs ?? [];
 
-                    // client-side filter: only keep documents whose `coll` field equals 'sale'
+                    // include documents where the `coll` field contains 'sale'
+                    // (supports values like "sale", "sale,halloween", "halloween,sale", etc.)
                     final saleDocs = docs.where((doc) {
                       final rawColl = doc.data()['coll'];
-                      final coll = rawColl == null
-                          ? ''
-                          : rawColl.toString().replaceAll(RegExp("^['\"]+|['\"]+\$"), '').trim().toLowerCase();
-                      return coll == 'sale';
+                      if (rawColl == null) return false;
+
+                      // strip surrounding quotes, normalize and split on common separators
+                      final cleaned = rawColl
+                          .toString()
+                          .replaceAll(RegExp("^['\"]+|['\"]+\$"), '')
+                          .trim()
+                          .toLowerCase();
+
+                      final parts = cleaned
+                          .split(RegExp(r'[,;|]')) // split on comma/semicolon/pipe
+                          .map((s) => s.trim())
+                          .where((s) => s.isNotEmpty);
+
+                      return parts.contains('sale');
                     }).toList();
 
                     if (saleDocs.isEmpty) {
