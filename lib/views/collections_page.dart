@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:union_shop/layout.dart';
 
 class CollectionsPage extends StatelessWidget {
@@ -50,6 +51,16 @@ class CollectionsPage extends StatelessWidget {
         .join(' ');
   }
 
+  // create a URL-friendly slug from a label
+  String _slugify(String label) {
+    return label
+        .toLowerCase()
+        .replaceAll(RegExp("['\"]"), '') // remove quotes
+        .replaceAll(RegExp(r'[^a-z0-9\s\-]'), '') // remove non-alnum/space/hyphen
+        .trim()
+        .replaceAll(RegExp(r'\s+'), '-'); // spaces -> hyphens
+  }
+
   @override
   Widget build(BuildContext context) {
     // ensure we have enough images by cycling through the list
@@ -84,41 +95,49 @@ class CollectionsPage extends StatelessWidget {
                       MediaQuery.of(context).size.height * 0.35;
                   final computedHeight = min(rawHeight, maxAllowedHeight);
 
+                  final slug = _slugify(label);
+
                   return SizedBox(
                     height: computedHeight,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.zero,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          // image (preserve existing HoverImage usage)
-                          HoverImage(
-                            imageUrl: asset,
-                            width: itemWidth,
-                            height: computedHeight,
-                            fit: BoxFit.cover,
-                          ),
+                    child: GestureDetector(
+                      onTap: () {
+                        // navigate to /collection/$slug
+                        GoRouter.of(context).go('/collection/$slug');
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.zero,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            // image (preserve existing HoverImage usage)
+                            HoverImage(
+                              imageUrl: asset,
+                              width: itemWidth,
+                              height: computedHeight,
+                              fit: BoxFit.cover,
+                            ),
 
-                          // centered white text (no background) with subtle shadow for readability
-                          Center(
-                            child: Text(
-                              label,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22, // increased size
-                                fontWeight: FontWeight.bold, // stronger weight
-                                shadows: [
-                                  Shadow(
-                                    offset: Offset(0, 1),
-                                    blurRadius: 6,
-                                    color: Colors.black54,
-                                  ),
-                                ],
+                            // centered white text (no background) with subtle shadow for readability
+                            Center(
+                              child: Text(
+                                label,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22, // increased size
+                                  fontWeight: FontWeight.bold, // stronger weight
+                                  shadows: [
+                                    Shadow(
+                                      offset: Offset(0, 1),
+                                      blurRadius: 6,
+                                      color: Colors.black54,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   );
