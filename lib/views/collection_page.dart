@@ -13,6 +13,7 @@ class CollectionPage extends StatefulWidget {
 
 class _CollectionPageState extends State<CollectionPage> {
   String _selectedSort = 'Featured';
+  String _selectedFilter = 'Display all';
 
   // sanitize + split coll field into normalized parts
   List<String> _collParts(dynamic raw) {
@@ -29,6 +30,27 @@ class _CollectionPageState extends State<CollectionPage> {
         .toList();
   }
 
+  // sanitize + split category field (cat)
+  List<String> _catParts(dynamic raw) {
+    if (raw == null) return [];
+    final cleaned = raw
+        .toString()
+        .replaceAll(RegExp("^['\"]+|['\"]+\$"), '')
+        .trim()
+        .toLowerCase();
+    return cleaned
+        .split(RegExp(r'[,;|]'))
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+  }
+
+  bool _catMatches(dynamic raw, String desired) {
+    if (desired.toLowerCase() == 'display all' || desired.isEmpty) return true;
+    final parts = _catParts(raw);
+    return parts.contains(desired.toLowerCase());
+  }
+
   double _parsePrice(dynamic raw) {
     if (raw == null) return 0.0;
     if (raw is num) {
@@ -36,7 +58,10 @@ class _CollectionPageState extends State<CollectionPage> {
       if (raw is int && raw.abs() > 1000) return v / 100.0;
       return v;
     }
-    final s = raw.toString().replaceAll(RegExp("^['\"]+|['\"]+\$"), '').trim();
+    final s = raw
+        .toString()
+        .replaceAll(RegExp("^['\"]+|['\"]+\$"), '')
+        .trim();
     final numeric = s.replaceAll(RegExp(r'[^0-9.]'), '');
     final p = double.tryParse(numeric);
     if (p != null) return p > 1000 ? p / 100.0 : p;
@@ -108,10 +133,16 @@ class _CollectionPageState extends State<CollectionPage> {
                   );
                 }
 
+                // apply category filter (client-side) based on _selectedFilter
+                final filteredMatched = matched.where((doc) {
+                  final data = doc.data();
+                  return _catMatches(data['cat'], _selectedFilter);
+                }).toList();
+
                 // Build a list of product maps with numeric effective price for sorting
                 final products = <Map<String, dynamic>>[];
-                for (var i = 0; i < matched.length; i++) {
-                  final data = matched[i].data();
+                for (var i = 0; i < filteredMatched.length; i++) {
+                  final data = filteredMatched[i].data();
                   final rawImage = (data['image_url'] as String?) ?? '';
                   final imageUrl = rawImage
                       .replaceAll(RegExp("^['\"]+|['\"]+\$"), '')
@@ -138,8 +169,7 @@ class _CollectionPageState extends State<CollectionPage> {
                     'priceStr': _formatPrice(priceNum),
                     'discStr': discNum != null ? _formatPrice(discNum) : null,
                     'effectivePrice': effectivePrice,
-                    'index':
-                        i, // preserve DB order in this matched list for "Featured"
+                    'index': i,
                   });
                 }
 
@@ -180,10 +210,10 @@ class _CollectionPageState extends State<CollectionPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // row: dropdown on the left, item count on the right
+                        // row: dropdowns on the left, item count on the right
                         Row(
                           children: [
-                            // left-aligned: Sort control
+                            // left-aligned: Sort + Filter controls
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -211,6 +241,27 @@ class _CollectionPageState extends State<CollectionPage> {
                                   onChanged: (v) {
                                     if (v == null) return;
                                     setState(() => _selectedSort = v);
+                                  },
+                                ),
+                                const SizedBox(width: 18),
+                                const Text('Filter by'),
+                                const SizedBox(width: 12),
+                                DropdownButton<String>(
+                                  value: _selectedFilter,
+                                  items: const [
+                                    DropdownMenuItem(
+                                        value: 'Display all',
+                                        child: Text('Display all')),
+                                    DropdownMenuItem(
+                                        value: 'Clothing',
+                                        child: Text('Clothing')),
+                                    DropdownMenuItem(
+                                        value: 'Merchandise',
+                                        child: Text('Merchandise')),
+                                  ],
+                                  onChanged: (v) {
+                                    if (v == null) return;
+                                    setState(() => _selectedFilter = v);
                                   },
                                 ),
                               ],
