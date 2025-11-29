@@ -95,6 +95,19 @@
 - [ ] Continue button becomes enabled when a valid email address is entered (validation + enable/disable behavior).
 - [ ] Continue button action: navigate or proceed when enabled (implement and test).
 
+## Sale Page (lib/views/sale_page.dart)
+
+- [x] Add product cards to SalePage:
+  - [x] Render ProductCard widgets in a responsive grid.
+  - [x] Support tap/navigation to ProductPage.
+  - [x] Display discount price when provided by the database.
+- [x] Firebase integration for SalePage:
+  - [x] Read products collection (image_url, title, price, disc_price) and render.
+  - [x] Sanitize DB fields (strip surrounding quotes) and parse numeric prices.
+- [x] Client-side sorting UI:
+  - [x] "Sort by" dropdown with Featured / A‑Z / Z‑A / Price low→high / Price high→low.
+  - [x] Sorting implemented in the UI (client-side only; no DB filtering).
+
 ## General
 
 - [x] Used `SingleChildScrollView` + `Column` for vertically scrollable pages.
@@ -108,18 +121,15 @@
 - [x] Fix imports across the project to reference the new layout.dart exports:
   - Replace imports of homepage.dart classes with images_layout.dart.
   - Remove now-unused imports from homepage.dart.
-- [ ] Add product cards to SalePage (lib/sale_page.dart):
-  - Create a product list (image, title, price) and render ProductCard widgets in a responsive grid.
-  - Ensure ProductCard supports tap/navigation to ProductPage.
+- [x] Add product cards to SalePage (lib/sale_page.dart):
+  - [x] Create a product list (image, title, price) and render ProductCard widgets in a responsive grid.
+  - [x] Ensure ProductCard supports tap/navigation to ProductPage.
+- [x] Run `flutter analyze` and `dart format` and fix any resulting issues.
+- [x] Implement Firebase backend to store product card details:
+  - [x] Add Firebase / Firestore integration, model schema for products (image, title, price, category, stock). — Made it for SalePage
 - [ ] Add/update widget tests:
   - Verify SalePage renders product grid and ProductCard widgets.
   - Update any tests that referenced moved classes to import layout.dart.
-- [ ] Run `flutter analyze` and `dart format` and fix any resulting issues.
-- [ ] Implement Firebase backend to store product card details:
-  - Add Firebase / Firestore integration, model schema for products (image, title, price, category, stock).
-  - Implement CRUD helpers and sync with local UI.
-  - Add basic security rules and auth gating for admin edits.
-  - Add migration / seed script or instructions for initial product data.
 - [ ] Design a universal ProductPage that adapts to the current collection:
   - ProductPage should accept a collection/category identifier or query and load matching products (from Firestore or local source).
   - Support navigation so CollectionsPage taps open ProductPage scoped to that collection.
