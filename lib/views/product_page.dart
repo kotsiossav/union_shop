@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:union_shop/layout.dart';
 
-class ProductPage extends StatelessWidget {
+class ProductPage extends StatefulWidget {
   final String imageUrl; // asset or network
   final String title;
   final double price;
@@ -13,6 +14,14 @@ class ProductPage extends StatelessWidget {
     required this.price,
   });
 
+  @override
+  State<ProductPage> createState() => _ProductPageState();
+}
+
+class _ProductPageState extends State<ProductPage> {
+  int _quantity = 1;
+  late final TextEditingController _qtyController;
+
   void navigateToHome(BuildContext context) {
     Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
   }
@@ -20,11 +29,39 @@ class ProductPage extends StatelessWidget {
   void placeholderCallbackForButtons() {}
 
   @override
+  void initState() {
+    super.initState();
+    _qtyController = TextEditingController(text: '$_quantity');
+  }
+
+  @override
+  void dispose() {
+    _qtyController.dispose();
+    super.dispose();
+  }
+
+  void _increment() {
+    setState(() {
+      _quantity++;
+      _qtyController.text = '$_quantity';
+    });
+  }
+
+  void _decrement() {
+    if (_quantity > 1) {
+      setState(() {
+        _quantity--;
+        _qtyController.text = '$_quantity';
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final bool isNetwork = imageUrl.startsWith('http');
+    final bool isNetwork = widget.imageUrl.startsWith('http');
 
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(title: Text(widget.title)),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -49,18 +86,18 @@ class ProductPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             // Image
-                            if (imageUrl.isNotEmpty)
+                            if (widget.imageUrl.isNotEmpty)
                               SizedBox(
                                 width: constraints.maxWidth * 0.8,
                                 height: 300,
                                 child: isNetwork
                                     ? Image.network(
-                                        imageUrl,
+                                        widget.imageUrl,
                                         fit: BoxFit.cover,
                                         key: const Key('product_image'),
                                       )
                                     : Image.asset(
-                                        imageUrl,
+                                        widget.imageUrl,
                                         fit: BoxFit.cover,
                                         key: const Key('product_image'),
                                       ),
@@ -69,7 +106,7 @@ class ProductPage extends StatelessWidget {
 
                             // Title
                             Text(
-                              title,
+                              widget.title,
                               style: const TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -80,7 +117,7 @@ class ProductPage extends StatelessWidget {
 
                             // Price
                             Text(
-                              '\$${price.toStringAsFixed(2)}',
+                              '\$${widget.price.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -107,6 +144,76 @@ class ProductPage extends StatelessWidget {
                               ),
                               textAlign: TextAlign.center,
                             ),
+
+                            const SizedBox(height: 16),
+                            // Quantity selector
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Quantity',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      onPressed: _decrement,
+                                      icon: const Icon(
+                                          Icons.remove_circle_outline),
+                                    ),
+                                    // wider, editable field
+                                    SizedBox(
+                                      width: 100,
+                                      child: TextField(
+                                        controller: _qtyController,
+                                        textAlign: TextAlign.center,
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
+                                        decoration: InputDecoration(
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 8),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                          ),
+                                        ),
+                                        onChanged: (value) {
+                                          final v = int.tryParse(value);
+                                          if (v == null || v < 1) {
+                                            // don't update state for empty/invalid while typing
+                                            return;
+                                          }
+                                          setState(() => _quantity = v);
+                                        },
+                                        onEditingComplete: () {
+                                          var v = int.tryParse(
+                                                  _qtyController.text) ??
+                                              1;
+                                          if (v < 1) v = 1;
+                                          setState(() {
+                                            _quantity = v;
+                                            _qtyController.text = '$_quantity';
+                                          });
+                                          FocusScope.of(context).unfocus();
+                                        },
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: _increment,
+                                      icon:
+                                          const Icon(Icons.add_circle_outline),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ],
                         )
 
@@ -119,18 +226,18 @@ class ProductPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // IMAGE
-                              if (imageUrl.isNotEmpty)
+                              if (widget.imageUrl.isNotEmpty)
                                 SizedBox(
                                   width: 500,
                                   height: 400,
                                   child: isNetwork
                                       ? Image.network(
-                                          imageUrl,
+                                          widget.imageUrl,
                                           fit: BoxFit.cover,
                                           key: const Key('product_image'),
                                         )
                                       : Image.asset(
-                                          imageUrl,
+                                          widget.imageUrl,
                                           fit: BoxFit.cover,
                                           key: const Key('product_image'),
                                         ),
@@ -146,7 +253,7 @@ class ProductPage extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        title,
+                                        widget.title,
                                         style: const TextStyle(
                                           fontSize: 32,
                                           fontWeight: FontWeight.bold,
@@ -154,7 +261,7 @@ class ProductPage extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 16),
                                       Text(
-                                        '\$${price.toStringAsFixed(2)}',
+                                        '\$${widget.price.toStringAsFixed(2)}',
                                         style: const TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.bold,
@@ -176,6 +283,85 @@ class ProductPage extends StatelessWidget {
                                           fontSize: 16,
                                           color: Colors.grey,
                                         ),
+                                      ),
+
+                                      const SizedBox(height: 16),
+                                      // Quantity selector (wide)
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Quantity',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              IconButton(
+                                                onPressed: _decrement,
+                                                icon: const Icon(Icons
+                                                    .remove_circle_outline),
+                                              ),
+                                              // wider, editable field
+                                              SizedBox(
+                                                width: 100,
+                                                child: TextField(
+                                                  controller: _qtyController,
+                                                  textAlign: TextAlign.center,
+                                                  keyboardType:
+                                                      TextInputType.number,
+                                                  inputFormatters: [
+                                                    FilteringTextInputFormatter
+                                                        .digitsOnly
+                                                  ],
+                                                  decoration: InputDecoration(
+                                                    contentPadding:
+                                                        const EdgeInsets
+                                                            .symmetric(
+                                                            vertical: 8),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              6),
+                                                    ),
+                                                  ),
+                                                  onChanged: (value) {
+                                                    final v =
+                                                        int.tryParse(value);
+                                                    if (v == null || v < 1) {
+                                                      // don't update state for empty/invalid while typing
+                                                      return;
+                                                    }
+                                                    setState(
+                                                        () => _quantity = v);
+                                                  },
+                                                  onEditingComplete: () {
+                                                    var v = int.tryParse(
+                                                            _qtyController
+                                                                .text) ??
+                                                        1;
+                                                    if (v < 1) v = 1;
+                                                    setState(() {
+                                                      _quantity = v;
+                                                      _qtyController.text =
+                                                          '$_quantity';
+                                                    });
+                                                    FocusScope.of(context)
+                                                        .unfocus();
+                                                  },
+                                                ),
+                                              ),
+                                              IconButton(
+                                                onPressed: _increment,
+                                                icon: const Icon(
+                                                    Icons.add_circle_outline),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),

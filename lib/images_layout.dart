@@ -8,6 +8,7 @@ class ProductCard extends StatelessWidget {
   final String price;
   final String imageUrl;
   final String? discountPrice; // optional
+  //final String? category; // optional
 
   const ProductCard({
     super.key,
@@ -15,6 +16,7 @@ class ProductCard extends StatelessWidget {
     required this.price,
     required this.imageUrl,
     this.discountPrice,
+    //this.category,
   });
 
   @override
