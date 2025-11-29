@@ -3,15 +3,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:union_shop/layout.dart'; // AppHeader, AppFooter
 import 'package:union_shop/images_layout.dart'; // ProductCard
 
-class CollectionPage extends StatelessWidget {
+class CollectionPage extends StatefulWidget {
   final String slug;
   const CollectionPage({super.key, this.slug = ''});
+
+  @override
+  State<CollectionPage> createState() => _CollectionPageState();
+}
+
+class _CollectionPageState extends State<CollectionPage> {
+  String _selectedSort = 'Featured';
 
   // sanitize + split coll field into normalized parts
   List<String> _collParts(dynamic raw) {
     if (raw == null) return [];
-    final cleaned = raw.toString().replaceAll(RegExp("^['\"]+|['\"]+\$"), '').trim().toLowerCase();
-    return cleaned.split(RegExp(r'[,;|]')).map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+    final cleaned = raw
+        .toString()
+        .replaceAll(RegExp("^['\"]+|['\"]+\$"), '')
+        .trim()
+        .toLowerCase();
+    return cleaned
+        .split(RegExp(r'[,;|]'))
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
   }
 
   double _parsePrice(dynamic raw) {
@@ -40,8 +55,11 @@ class CollectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = slug.isEmpty ? 'Collection' : slug.replaceAll('-', ' ').toUpperCase();
-    final productsStream = FirebaseFirestore.instance.collection('products').snapshots();
+    final title = widget.slug.isEmpty
+        ? 'Collection'
+        : widget.slug.replaceAll('-', ' ').toUpperCase();
+    final productsStream =
+        FirebaseFirestore.instance.collection('products').snapshots();
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -49,12 +67,50 @@ class CollectionPage extends StatelessWidget {
           children: [
             const AppHeader(),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
               child: Center(
                 child: Text(
                   title,
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 28, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+
+            // Sort row (below collection title, above products)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1100),
+                child: Row(
+                  children: [
+                    // keep the label+dropdown on the left
+                    const Text('Sort by'),
+                    const SizedBox(width: 12),
+                    DropdownButton<String>(
+                      value: _selectedSort,
+                      items: const [
+                        DropdownMenuItem(
+                            value: 'Featured', child: Text('Featured')),
+                        DropdownMenuItem(
+                            value: 'A-Z', child: Text('Alphabetical A‑Z')),
+                        DropdownMenuItem(
+                            value: 'Z-A', child: Text('Alphabetical Z‑A')),
+                        DropdownMenuItem(
+                            value: 'PriceLowHigh',
+                            child: Text('Price: Low → High')),
+                        DropdownMenuItem(
+                            value: 'PriceHighLow',
+                            child: Text('Price: High → Low')),
+                      ],
+                      onChanged: (v) {
+                        if (v == null) return;
+                        setState(() => _selectedSort = v);
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -63,37 +119,108 @@ class CollectionPage extends StatelessWidget {
               stream: productsStream,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Center(child: Text('Error loading products: ${snapshot.error}', style: const TextStyle(color: Colors.red)));
+                  return Center(
+                    child: Text('Error loading products: ${snapshot.error}',
+                        style: const TextStyle(color: Colors.red)),
+                  );
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
                 final docs = snapshot.data?.docs ?? [];
+                // filter to only products that belong to this collection (coll contains slug/label)
                 final matched = docs.where((doc) {
                   final parts = _collParts(doc.data()['coll']);
-                  return _matchesSlug(parts, slug);
+                  return _matchesSlug(parts, widget.slug);
                 }).toList();
 
                 if (matched.isEmpty) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-                    child: Center(child: Text('No products found for "$title".', style: const TextStyle(color: Colors.grey))),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 24.0),
+                    child: Center(
+                        child: Text('No products found for "$title".',
+                            style: const TextStyle(color: Colors.grey))),
                   );
                 }
 
+                // Build a list of product maps with numeric effective price for sorting
+                final products = <Map<String, dynamic>>[];
+                for (var i = 0; i < matched.length; i++) {
+                  final data = matched[i].data();
+                  final rawImage = (data['image_url'] as String?) ?? '';
+                  final imageUrl = rawImage
+                      .replaceAll(RegExp("^['\"]+|['\"]+\$"), '')
+                      .trim();
+
+                  final rawTitle = (data['title'] as String?) ?? '';
+                  final titleText = rawTitle
+                      .replaceAll(RegExp("^['\"]+|['\"]+\$"), '')
+                      .trim();
+
+                  final priceNum = _parsePrice(data['price']);
+                  final discRaw = data['disc_price'] ??
+                      data['discPrice'] ??
+                      data['discount_price'];
+                  final discNum = discRaw != null ? _parsePrice(discRaw) : null;
+
+                  // effective price = disc if present else regular price
+                  final effectivePrice = discNum ?? priceNum;
+
+                  products.add({
+                    'imageUrl': imageUrl,
+                    'title': titleText,
+                    'priceNum': priceNum,
+                    'priceStr': _formatPrice(priceNum),
+                    'discStr': discNum != null ? _formatPrice(discNum) : null,
+                    'effectivePrice': effectivePrice,
+                    'index':
+                        i, // preserve DB order in this matched list for "Featured"
+                  });
+                }
+
+                // apply client-side sorting
+                final sorted = List<Map<String, dynamic>>.from(products);
+                switch (_selectedSort) {
+                  case 'A-Z':
+                    sorted.sort((a, b) => (a['title'] as String)
+                        .toLowerCase()
+                        .compareTo((b['title'] as String).toLowerCase()));
+                    break;
+                  case 'Z-A':
+                    sorted.sort((a, b) => (b['title'] as String)
+                        .toLowerCase()
+                        .compareTo((a['title'] as String).toLowerCase()));
+                    break;
+                  case 'PriceLowHigh':
+                    sorted.sort((a, b) => (a['effectivePrice'] as double)
+                        .compareTo((b['effectivePrice'] as double)));
+                    break;
+                  case 'PriceHighLow':
+                    sorted.sort((a, b) => (b['effectivePrice'] as double)
+                        .compareTo((a['effectivePrice'] as double)));
+                    break;
+                  case 'Featured':
+                  default:
+                    sorted.sort((a, b) =>
+                        (a['index'] as int).compareTo(b['index'] as int));
+                }
+
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 18.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24.0, vertical: 18.0),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1100),
                     child: LayoutBuilder(builder: (context, constraints) {
                       final width = constraints.maxWidth;
-                      final crossAxisCount = width > 900 ? 3 : (width > 600 ? 2 : 1);
+                      final crossAxisCount =
+                          width > 900 ? 3 : (width > 600 ? 2 : 1);
 
                       return GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
-                        itemCount: matched.length,
+                        itemCount: sorted.length,
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: crossAxisCount,
                           crossAxisSpacing: 16,
@@ -101,23 +228,12 @@ class CollectionPage extends StatelessWidget {
                           childAspectRatio: 0.68,
                         ),
                         itemBuilder: (context, index) {
-                          final data = matched[index].data();
-                          final rawImage = (data['image_url'] as String?) ?? '';
-                          final imageUrl = rawImage.replaceAll(RegExp("^['\"]+|['\"]+\$"), '').trim();
-                          final rawTitle = (data['title'] as String?) ?? '';
-                          final title = rawTitle.replaceAll(RegExp("^['\"]+|['\"]+\$"), '').trim();
-
-                          final priceNum = _parsePrice(data['price']);
-                          final priceStr = _formatPrice(priceNum);
-
-                          final discRaw = data['disc_price'] ?? data['discPrice'] ?? data['discount_price'];
-                          final discStr = discRaw != null ? _formatPrice(_parsePrice(discRaw)) : null;
-
+                          final p = sorted[index];
                           return ProductCard(
-                            imageUrl: imageUrl,
-                            title: title,
-                            price: priceStr,
-                            discountPrice: discStr,
+                            imageUrl: p['imageUrl'] as String,
+                            title: p['title'] as String,
+                            price: p['priceStr'] as String,
+                            discountPrice: p['discStr'] as String?,
                           );
                         },
                       );
