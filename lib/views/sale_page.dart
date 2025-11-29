@@ -119,14 +119,24 @@ class _SalePageState extends State<SalePage> {
                     }
 
                     final docs = snapshot.data?.docs ?? [];
-                    if (docs.isEmpty) {
-                      return const Center(child: Text('No products found.'));
+
+                    // client-side filter: only keep documents whose `coll` field equals 'sale'
+                    final saleDocs = docs.where((doc) {
+                      final rawColl = doc.data()['coll'];
+                      final coll = rawColl == null
+                          ? ''
+                          : rawColl.toString().replaceAll(RegExp("^['\"]+|['\"]+\$"), '').trim().toLowerCase();
+                      return coll == 'sale';
+                    }).toList();
+
+                    if (saleDocs.isEmpty) {
+                      return const Center(child: Text('No sale products found.'));
                     }
 
                     // build in-memory list (no DB filtering) and parse prices for sorting
                     final products = <Map<String, dynamic>>[];
-                    for (var i = 0; i < docs.length; i++) {
-                      final data = docs[i].data();
+                    for (var i = 0; i < saleDocs.length; i++) {
+                      final data = saleDocs[i].data();
                       final rawImage = (data['image_url'] as String?) ?? '';
                       final imageUrl = rawImage.replaceAll(RegExp('^["\']|["\']\$'), '').trim();
 
