@@ -4,6 +4,7 @@ import 'package:union_shop/views/product_page.dart';
 import 'package:union_shop/views/homepage.dart';
 import 'package:union_shop/views/about_page.dart';
 import 'package:union_shop/views/collections_page.dart';
+import 'package:union_shop/views/collection_page.dart';
 import 'package:union_shop/views/sign_in.dart';
 import 'package:union_shop/views/sale_page.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -35,17 +36,25 @@ class UnionShopApp extends StatelessWidget {
           path: '/about',
           builder: (context, state) => const AboutPage(),
         ),
-        // Added route for /collections
+        // collections index
         GoRoute(
-          path: '/collections',
+          path: '/collection',
           builder: (context, state) => const CollectionsPage(),
         ),
-        // Added route for /sale
+        // dynamic collection route (use slug in the URL, e.g. /collection/autumn-favourites)
+        GoRoute(
+          path: '/collection/:slug',
+          builder: (context, state) {
+            final slug = state.pathParameters['slug'] ?? '';
+            return CollectionPage(slug: slug);
+          },
+        ),
+        // sale page
         GoRoute(
           path: '/sale',
           builder: (context, state) => const SalePage(),
         ),
-        // Added route for /login_page
+        // login page
         GoRoute(
           path: '/login_page',
           builder: (context, state) => const SignInPage(),
