@@ -26,7 +26,7 @@ class CollectionsPage extends StatelessWidget {
     'Autumn Favourites',
     'Black Friday',
     'Clothing',
-    'Clothing- Original',
+    'Clothing Original',
     'Election Discounts',
     'Essential Range',
     'Graduation',
@@ -56,7 +56,8 @@ class CollectionsPage extends StatelessWidget {
     return label
         .toLowerCase()
         .replaceAll(RegExp("['\"]"), '') // remove quotes
-        .replaceAll(RegExp(r'[^a-z0-9\s\-]'), '') // remove non-alnum/space/hyphen
+        .replaceAll(
+            RegExp(r'[^a-z0-9\s\-]'), '') // remove non-alnum/space/hyphen
         .trim()
         .replaceAll(RegExp(r'\s+'), '-'); // spaces -> hyphens
   }
@@ -125,7 +126,8 @@ class CollectionsPage extends StatelessWidget {
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 22, // increased size
-                                  fontWeight: FontWeight.bold, // stronger weight
+                                  fontWeight:
+                                      FontWeight.bold, // stronger weight
                                   shadows: [
                                     Shadow(
                                       offset: Offset(0, 1),

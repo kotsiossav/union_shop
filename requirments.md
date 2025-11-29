@@ -131,8 +131,8 @@
   - Verify SalePage renders product grid and ProductCard widgets.
   - Update any tests that referenced moved classes to import layout.dart.
 - [ ] Design a universal ProductPage that adapts to the current collection:
-  - ProductPage should accept a collection/category identifier or query and load matching products (from Firestore or local source).
-  - Support navigation so CollectionsPage taps open ProductPage scoped to that collection.
-  - Ensure deep-linking / route params are supported (e.g. /products?collection=Clothing).
-  - Add tests for ProductPage filtering behaviour.
+  - [x] ProductPage accepts a collection/category identifier or query and loads matching products (from Firestore or local source) — Added dynamic routing for ProductPage
+  - [x] Support navigation so CollectionsPage taps open ProductPage scoped to that collection.
+  - [x] Ensure deep-linking / route params are supported (e.g. /products?collection=Clothing).
+  - [ ] Add tests for ProductPage filtering behaviour.
 
