@@ -78,43 +78,6 @@ class _CollectionPageState extends State<CollectionPage> {
                 ),
               ),
             ),
-
-            // Sort row (below collection title, above products)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1100),
-                child: Row(
-                  children: [
-                    // keep the label+dropdown on the left
-                    const Text('Sort by'),
-                    const SizedBox(width: 12),
-                    DropdownButton<String>(
-                      value: _selectedSort,
-                      items: const [
-                        DropdownMenuItem(
-                            value: 'Featured', child: Text('Featured')),
-                        DropdownMenuItem(
-                            value: 'A-Z', child: Text('Alphabetical A‑Z')),
-                        DropdownMenuItem(
-                            value: 'Z-A', child: Text('Alphabetical Z‑A')),
-                        DropdownMenuItem(
-                            value: 'PriceLowHigh',
-                            child: Text('Price: Low → High')),
-                        DropdownMenuItem(
-                            value: 'PriceHighLow',
-                            child: Text('Price: High → Low')),
-                      ],
-                      onChanged: (v) {
-                        if (v == null) return;
-                        setState(() => _selectedSort = v);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
             StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
               stream: productsStream,
               builder: (context, snapshot) {
@@ -207,42 +170,94 @@ class _CollectionPageState extends State<CollectionPage> {
                         (a['index'] as int).compareTo(b['index'] as int));
                 }
 
+                final itemCount = sorted.length;
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 24.0, vertical: 18.0),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1100),
-                    child: LayoutBuilder(builder: (context, constraints) {
-                      final width = constraints.maxWidth;
-                      final crossAxisCount =
-                          width > 900 ? 3 : (width > 600 ? 2 : 1);
-
-                      return GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: sorted.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 20,
-                          childAspectRatio: 0.68,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // row: dropdown on the left, item count on the right
+                        Row(
+                          children: [
+                            // left-aligned: Sort control
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text('Sort by'),
+                                const SizedBox(width: 12),
+                                DropdownButton<String>(
+                                  value: _selectedSort,
+                                  items: const [
+                                    DropdownMenuItem(
+                                        value: 'Featured',
+                                        child: Text('Featured')),
+                                    DropdownMenuItem(
+                                        value: 'A-Z',
+                                        child: Text('Alphabetical A‑Z')),
+                                    DropdownMenuItem(
+                                        value: 'Z-A',
+                                        child: Text('Alphabetical Z‑A')),
+                                    DropdownMenuItem(
+                                        value: 'PriceLowHigh',
+                                        child: Text('Price: Low → High')),
+                                    DropdownMenuItem(
+                                        value: 'PriceHighLow',
+                                        child: Text('Price: High → Low')),
+                                  ],
+                                  onChanged: (v) {
+                                    if (v == null) return;
+                                    setState(() => _selectedSort = v);
+                                  },
+                                ),
+                              ],
+                            ),
+                            const Spacer(), // push the count to the right
+                            // right-aligned: item count
+                            Text(
+                              '$itemCount item${itemCount == 1 ? '' : 's'}',
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w600),
+                            ),
+                          ],
                         ),
-                        itemBuilder: (context, index) {
-                          final p = sorted[index];
-                          return ProductCard(
-                            imageUrl: p['imageUrl'] as String,
-                            title: p['title'] as String,
-                            price: p['priceStr'] as String,
-                            discountPrice: p['discStr'] as String?,
+                        const SizedBox(height: 12),
+                        LayoutBuilder(builder: (context, constraints) {
+                          final width = constraints.maxWidth;
+                          final crossAxisCount =
+                              width > 900 ? 3 : (width > 600 ? 2 : 1);
+
+                          return GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: sorted.length,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: crossAxisCount,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 20,
+                              childAspectRatio: 0.68,
+                            ),
+                            itemBuilder: (context, index) {
+                              final p = sorted[index];
+                              return ProductCard(
+                                imageUrl: p['imageUrl'] as String,
+                                title: p['title'] as String,
+                                price: p['priceStr'] as String,
+                                discountPrice: p['discStr'] as String?,
+                              );
+                            },
                           );
-                        },
-                      );
-                    }),
+                        }),
+                      ],
+                    ),
                   ),
                 );
               },
             ),
-
             const SizedBox(height: 48),
             const AppFooter(),
           ],
