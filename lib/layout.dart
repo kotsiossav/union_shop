@@ -176,7 +176,7 @@ class _AppHeaderState extends State<AppHeader> {
                     // Icons on the right (always shown)
                     Row(
                       children: [
-                        _icon(Icons.search),
+                        _icon(Icons.search, onTap: () => context.go('/search')),
                         // navigate to SignInPage when person icon is pressed
                         _icon(Icons.person_outline,
                             onTap: () => context.go('/login_page')),

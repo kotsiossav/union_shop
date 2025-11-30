@@ -9,6 +9,7 @@ import 'package:union_shop/views/collections_page.dart';
 import 'package:union_shop/views/collection_page.dart';
 import 'package:union_shop/views/sign_in.dart';
 import 'package:union_shop/views/cart_screen.dart';
+import 'package:union_shop/views/search_page.dart';
 import 'package:union_shop/models/cart_model.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -102,6 +103,12 @@ class UnionShopApp extends StatelessWidget {
           ],
         ),
         // sale page
+
+        // search page
+        GoRoute(
+          path: '/search',
+          builder: (context, state) => const SearchPage(),
+        ),
 
         // cart page
         GoRoute(
