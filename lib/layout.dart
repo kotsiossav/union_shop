@@ -67,9 +67,40 @@ class AppHeader extends StatelessWidget {
                                     label: "Shop",
                                     onTap: () => context.go('/collections'))),
                             Flexible(
-                                child: _NavItem(
-                                    label: "The Print Shack",
-                                    onTap: () => context.go('/printshack'))),
+                                child: PopupMenuButton<String>(
+                              onSelected: (value) {
+                                if (value == 'about') {
+                                  context.go('/print_shack_about');
+                                } else if (value == 'personalisation') {
+                                  context.go('/print_shack_personalisation');
+                                }
+                              },
+                              itemBuilder: (ctx) => const [
+                                PopupMenuItem(
+                                  value: 'about',
+                                  child: Text('About'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'personalisation',
+                                  child: Text('Personalisation'),
+                                ),
+                              ],
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: Text(
+                                    'The Print Shack',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )),
                             Flexible(
                                 child: _NavItem(
                                     label: "SALE!",
