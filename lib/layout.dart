@@ -158,7 +158,8 @@ class AppHeader extends StatelessWidget {
                         // navigate to SignInPage when person icon is pressed
                         _icon(Icons.person_outline,
                             onTap: () => context.go('/login_page')),
-                        _icon(Icons.shopping_bag_outlined),
+                        _icon(Icons.shopping_bag_outlined,
+                            onTap: () => context.go('/cart')),
 
                         // Mobile menu button
                         if (isNarrow)

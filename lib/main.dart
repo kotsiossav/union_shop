@@ -8,10 +8,15 @@ import 'package:union_shop/views/print_shack/personalisation.dart';
 import 'package:union_shop/views/collections_page.dart';
 import 'package:union_shop/views/collection_page.dart';
 import 'package:union_shop/views/sign_in.dart';
+import 'package:union_shop/views/cart_screen.dart';
+import 'package:union_shop/models/cart_model.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'firebase_options.dart';
+
+// Global cart instance shared across the app
+final globalCart = CartModel();
 
 Future<void> main() async {
   // remove the hash (#) from web URLs
@@ -90,12 +95,19 @@ class UnionShopApp extends StatelessWidget {
                   title: title,
                   price: parsePrice(args?['price']),
                   category: args?['category'] ?? 'unknown',
+                  cart: globalCart,
                 );
               },
             ),
           ],
         ),
         // sale page
+
+        // cart page
+        GoRoute(
+          path: '/cart',
+          builder: (context, state) => CartScreen(cart: globalCart),
+        ),
 
         // login page
         GoRoute(
@@ -126,6 +138,7 @@ class UnionShopApp extends StatelessWidget {
               title: title,
               price: parsePrice(args?['price']),
               category: args?['category'] ?? 'unknown',
+              cart: globalCart,
             );
           },
         ),

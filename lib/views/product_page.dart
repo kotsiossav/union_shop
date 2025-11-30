@@ -8,6 +8,7 @@ class ProductPage extends StatefulWidget {
   final String title;
   final double price;
   final String category;
+  final CartModel cart;
 
   const ProductPage({
     super.key,
@@ -15,6 +16,7 @@ class ProductPage extends StatefulWidget {
     required this.title,
     required this.price,
     required this.category,
+    required this.cart,
   });
 
   @override
@@ -24,7 +26,6 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
   int _quantity = 1;
   late final TextEditingController _qtyController;
-  final CartModel _cart = CartModel();
 
   // dropdown state for clothing
   final List<String> _colors = ['Black', 'White', 'Navy', 'Red'];
@@ -70,7 +71,7 @@ class _ProductPageState extends State<ProductPage> {
 
   void _addToCart() {
     for (int i = 0; i < _quantity; i++) {
-      _cart.addProduct(
+      widget.cart.addProduct(
         title: widget.title,
         imageUrl: widget.imageUrl,
         price: widget.price,
