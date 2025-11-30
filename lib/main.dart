@@ -56,19 +56,47 @@ class UnionShopApp extends StatelessWidget {
         ),
         // collections index
         GoRoute(
-          path: '/collection',
+          path: '/collections',
           builder: (context, state) => const CollectionsPage(),
         ),
-        // dynamic collection route (use slug in the URL, e.g. /collection/autumn-favourites)
+        // dynamic collection route (use slug in the URL, e.g. /collections/autumn-favourites)
         GoRoute(
-          path: '/collection/:slug',
+          path: '/collections/:slug',
           builder: (context, state) {
             final slug = state.pathParameters['slug'] ?? '';
             return CollectionPage(slug: slug);
           },
+          routes: [
+            // nested product route: /collections/:slug/products/:productSlug
+            GoRoute(
+              path: 'products/:productSlug',
+              builder: (context, state) {
+                final args = state.extra as Map<String, dynamic>?;
+                final slug = state.pathParameters['productSlug']!;
+                final title = Uri.decodeComponent(slug).replaceAll('-', ' ');
+
+                double parsePrice(Object? raw) {
+                  if (raw is num) return raw.toDouble();
+                  if (raw is String) {
+                    return double.tryParse(
+                            raw.replaceAll(RegExp(r'[^0-9.]'), '')) ??
+                        0.0;
+                  }
+                  return 0.0;
+                }
+
+                return ProductPage(
+                  imageUrl: args?['imageUrl'] ?? '',
+                  title: title,
+                  price: parsePrice(args?['price']),
+                  category: args?['category'] ?? 'unknown',
+                );
+              },
+            ),
+          ],
         ),
         // sale page
-        
+
         // login page
         GoRoute(
           path: '/login_page',

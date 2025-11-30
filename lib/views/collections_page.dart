@@ -102,8 +102,8 @@ class CollectionsPage extends StatelessWidget {
                     height: computedHeight,
                     child: GestureDetector(
                       onTap: () {
-                        // navigate to /collection/$slug
-                        GoRouter.of(context).go('/collection/$slug');
+                        // navigate to /collections/$slug
+                        GoRouter.of(context).go('/collections/$slug');
                       },
                       child: ClipRRect(
                         borderRadius: BorderRadius.zero,

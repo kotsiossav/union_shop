@@ -31,14 +31,18 @@ class ProductCard extends StatelessWidget {
           final numericPrice =
               double.tryParse(price.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
 
-          // create a URL-safe slug from the product title and push it into the route
-          final slug = Uri.encodeComponent(
+          // create URL-safe slugs from collection and product title
+          final productSlug = Uri.encodeComponent(
               title.toLowerCase().replaceAll(RegExp(r'\s+'), '-'));
-          // push slug at the app root (e.g. /tshirt)
-          context.push('/$slug', extra: {
+
+          // use collection slug if provided, otherwise use category or 'all'
+          final collectionSlug = collection ?? category ?? 'all';
+
+          // navigate to /collections/:collectionSlug/products/:productSlug
+          context.push('/collections/$collectionSlug/products/$productSlug', extra: {
             'imageUrl': imageUrl,
             'price': numericPrice,
-            'category': category, // pass category if available
+            'category': category,
           });
         },
         child: Column(

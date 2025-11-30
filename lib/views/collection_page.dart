@@ -58,10 +58,7 @@ class _CollectionPageState extends State<CollectionPage> {
       if (raw is int && raw.abs() > 1000) return v / 100.0;
       return v;
     }
-    final s = raw
-        .toString()
-        .replaceAll(RegExp("^['\"]+|['\"]+\$"), '')
-        .trim();
+    final s = raw.toString().replaceAll(RegExp("^['\"]+|['\"]+\$"), '').trim();
     final numeric = s.replaceAll(RegExp(r'[^0-9.]'), '');
     final p = double.tryParse(numeric);
     if (p != null) return p > 1000 ? p / 100.0 : p;
@@ -308,7 +305,8 @@ class _CollectionPageState extends State<CollectionPage> {
                                 price: p['priceStr'] as String,
                                 discountPrice: p['discStr'] as String?,
                                 category: p['category'] as String,
-                                
+                                collection:
+                                    widget.slug, // pass current collection slug
                               );
                             },
                           );

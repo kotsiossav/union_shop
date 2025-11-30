@@ -86,8 +86,7 @@ class AppHeader extends StatelessWidget {
                                 ),
                               ],
                               child: const Padding(
-                                padding:
-                                    EdgeInsets.symmetric(horizontal: 12),
+                                padding: EdgeInsets.symmetric(horizontal: 12),
                                 child: MouseRegion(
                                   cursor: SystemMouseCursors.click,
                                   child: Text(
@@ -104,7 +103,8 @@ class AppHeader extends StatelessWidget {
                             Flexible(
                                 child: _NavItem(
                                     label: "SALE!",
-                                    onTap: () => context.go('/collection/sale'))),
+                                    onTap: () =>
+                                        context.go('/collections/sale'))),
                             Flexible(
                                 child: _NavItem(
                                     label: "About",
