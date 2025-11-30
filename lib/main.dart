@@ -8,10 +8,16 @@ import 'package:union_shop/views/collection_page.dart';
 import 'package:union_shop/views/sign_in.dart';
 import 'package:union_shop/views/sale_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:url_strategy/url_strategy.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
+  // remove the hash (#) from web URLs
+  setPathUrlStrategy();
+
   WidgetsFlutterBinding.ensureInitialized();
+
+  GoRouter.optionURLReflectsImperativeAPIs = true; // ← IMPORTANT
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -59,24 +65,29 @@ class UnionShopApp extends StatelessWidget {
           path: '/login_page',
           builder: (context, state) => const SignInPage(),
         ),
+        // product routes at root using slug (keep this last so other routes match first)
         GoRoute(
-          path: '/product',
+          path: '/:productSlug',
           builder: (context, state) {
             final args = state.extra as Map<String, dynamic>?;
-            final imageUrl = args?['imageUrl']?.toString() ?? '';
-            final title = args?['title']?.toString() ?? '';
+
+            final slug = state.pathParameters['productSlug']!;
+            final title = Uri.decodeComponent(slug).replaceAll('-', ' ');
+
             double parsePrice(Object? raw) {
-              if (raw == null) return 0.0;
               if (raw is num) return raw.toDouble();
-              return double.tryParse(raw.toString()) ?? 0.0;
+              if (raw is String) {
+                return double.tryParse(
+                        raw.replaceAll(RegExp(r'[^0-9.]'), '')) ??
+                    0.0;
+              }
+              return 0.0;
             }
 
-            final price = parsePrice(args?['price']);
-
             return ProductPage(
-              imageUrl: imageUrl,
+              imageUrl: args?['imageUrl'] ?? '',
               title: title,
-              price: price,
+              price: parsePrice(args?['price']),
             );
           },
         ),

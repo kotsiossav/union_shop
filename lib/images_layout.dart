@@ -29,10 +29,12 @@ class ProductCard extends StatelessWidget {
           final numericPrice =
               double.tryParse(price.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
 
-          // navigate using go_router and pass product data via extra
-          context.push('/product', extra: {
+          // create a URL-safe slug from the product title and push it into the route
+          final slug = Uri.encodeComponent(
+              title.toLowerCase().replaceAll(RegExp(r'\s+'), '-'));
+          // push slug at the app root (e.g. /tshirt)
+          context.push('/$slug', extra: {
             'imageUrl': imageUrl,
-            'title': title,
             'price': numericPrice,
           });
         },
