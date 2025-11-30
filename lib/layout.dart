@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'main.dart';
+import 'services/auth_service.dart';
 
 /// Shared navigation bar used on all pages.
 class AppHeader extends StatefulWidget {
@@ -14,11 +16,21 @@ class _AppHeaderState extends State<AppHeader> {
   void _placeholderCallbackForButtons() {}
   bool _showSearchBar = false;
   final TextEditingController _searchController = TextEditingController();
+  final AuthService _authService = AuthService();
+  User? _currentUser;
 
   @override
   void initState() {
     super.initState();
     globalCart.addListener(_onCartChanged);
+    _currentUser = _authService.currentUser;
+    _authService.authStateChanges.listen((user) {
+      if (mounted) {
+        setState(() {
+          _currentUser = user;
+        });
+      }
+    });
   }
 
   @override
@@ -260,9 +272,12 @@ class _AppHeaderState extends State<AppHeader> {
                           ),
                         _icon(Icons.search,
                             onTap: () => _handleSearchIconPress(context)),
-                        // navigate to SignInPage when person icon is pressed
-                        _icon(Icons.person_outline,
-                            onTap: () => context.go('/login_page')),
+                        // User account icon with menu
+                        if (_currentUser != null)
+                          _userIconWithMenu(context)
+                        else
+                          _icon(Icons.person_outline,
+                              onTap: () => context.go('/login_page')),
                         _cartIconWithBadge(context),
 
                         // Mobile menu button
@@ -359,6 +374,49 @@ class _AppHeaderState extends State<AppHeader> {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _userIconWithMenu(BuildContext context) {
+    return PopupMenuButton<String>(
+      onSelected: (value) async {
+        if (value == 'signout') {
+          await _authService.signOut();
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Signed out successfully')),
+            );
+            context.go('/');
+          }
+        }
+      },
+      itemBuilder: (ctx) => [
+        PopupMenuItem(
+          enabled: false,
+          child: Text(
+            _currentUser?.email ?? '',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(
+          value: 'signout',
+          child: Row(
+            children: [
+              Icon(Icons.logout, size: 18),
+              SizedBox(width: 8),
+              Text('Sign Out'),
+            ],
+          ),
+        ),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.all(6),
+        child: Icon(Icons.person, size: 20, color: Colors.grey),
+      ),
     );
   }
 
