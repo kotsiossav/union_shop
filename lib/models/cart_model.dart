@@ -6,6 +6,8 @@ class CartItem {
   final double price;
   final String? category;
   final String? collection;
+  final String? color;
+  final String? size;
   int quantity;
 
   CartItem({
@@ -14,6 +16,8 @@ class CartItem {
     required this.price,
     this.category,
     this.collection,
+    this.color,
+    this.size,
     this.quantity = 1,
   });
 
@@ -39,6 +43,8 @@ class CartModel extends ChangeNotifier {
     required double price,
     String? category,
     String? collection,
+    String? color,
+    String? size,
   }) {
     final key = title.toLowerCase();
 
@@ -51,6 +57,8 @@ class CartModel extends ChangeNotifier {
         price: price,
         category: category,
         collection: collection,
+        color: color,
+        size: size,
       );
     }
     notifyListeners();

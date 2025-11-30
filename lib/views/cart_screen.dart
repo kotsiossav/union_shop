@@ -147,6 +147,26 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
+                if (item.color != null) ...[
+                  Text(
+                    'Color: ${item.color}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                ],
+                if (item.size != null) ...[
+                  Text(
+                    'Size: ${item.size}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                ],
                 Text(
                   '£${item.price.toStringAsFixed(2)}',
                   style: const TextStyle(

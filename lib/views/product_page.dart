@@ -76,6 +76,8 @@ class _ProductPageState extends State<ProductPage> {
         imageUrl: widget.imageUrl,
         price: widget.price,
         category: widget.category,
+        color: _selectedColor,
+        size: _selectedSize,
       );
     }
 
