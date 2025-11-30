@@ -13,7 +13,6 @@ import 'package:union_shop/views/cart_screen.dart';
 import 'package:union_shop/views/search_page.dart';
 import 'package:union_shop/views/order_history_page.dart';
 import 'package:union_shop/models/cart_model.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'firebase_options.dart';
