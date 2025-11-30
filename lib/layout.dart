@@ -12,6 +12,8 @@ class AppHeader extends StatefulWidget {
 
 class _AppHeaderState extends State<AppHeader> {
   void _placeholderCallbackForButtons() {}
+  bool _showSearchBar = false;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -21,12 +23,37 @@ class _AppHeaderState extends State<AppHeader> {
 
   @override
   void dispose() {
+    _searchController.dispose();
     globalCart.removeListener(_onCartChanged);
     super.dispose();
   }
 
   void _onCartChanged() {
     setState(() {});
+  }
+
+  void _handleSearchIconPress(BuildContext context) {
+    if (_showSearchBar) {
+      // Second press - perform search if there's text, otherwise navigate
+      if (_searchController.text.trim().isNotEmpty) {
+        context.go(
+            '/search?q=${Uri.encodeComponent(_searchController.text.trim())}');
+        setState(() {
+          _showSearchBar = false;
+          _searchController.clear();
+        });
+      } else {
+        context.go('/search');
+        setState(() {
+          _showSearchBar = false;
+        });
+      }
+    } else {
+      // First press - show search bar
+      setState(() {
+        _showSearchBar = true;
+      });
+    }
   }
 
   @override
@@ -176,7 +203,63 @@ class _AppHeaderState extends State<AppHeader> {
                     // Icons on the right (always shown)
                     Row(
                       children: [
-                        _icon(Icons.search, onTap: () => context.go('/search')),
+                        // Search bar (when shown) - compact next to search icon
+                        if (_showSearchBar)
+                          Container(
+                            width: 200,
+                            margin: const EdgeInsets.only(right: 8),
+                            child: TextField(
+                              controller: _searchController,
+                              autofocus: true,
+                              style: const TextStyle(fontSize: 14),
+                              decoration: InputDecoration(
+                                hintText: 'Search...',
+                                isDense: true,
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 8,
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.close, size: 16),
+                                  padding: const EdgeInsets.all(4),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 24,
+                                    minHeight: 24,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _showSearchBar = false;
+                                      _searchController.clear();
+                                    });
+                                  },
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                  borderSide: const BorderSide(
+                                      color: Colors.grey, width: 1),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                  borderSide: const BorderSide(
+                                      color: Color(0xFF4d2963), width: 2),
+                                ),
+                              ),
+                              onSubmitted: (value) {
+                                if (value.trim().isNotEmpty) {
+                                  context.go(
+                                      '/search?q=${Uri.encodeComponent(value.trim())}');
+                                  setState(() {
+                                    _showSearchBar = false;
+                                    _searchController.clear();
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        _icon(Icons.search,
+                            onTap: () => _handleSearchIconPress(context)),
                         // navigate to SignInPage when person icon is pressed
                         _icon(Icons.person_outline,
                             onTap: () => context.go('/login_page')),

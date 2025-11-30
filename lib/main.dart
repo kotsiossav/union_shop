@@ -107,7 +107,10 @@ class UnionShopApp extends StatelessWidget {
         // search page
         GoRoute(
           path: '/search',
-          builder: (context, state) => const SearchPage(),
+          builder: (context, state) {
+            final query = state.uri.queryParameters['q'];
+            return SearchPage(initialQuery: query);
+          },
         ),
 
         // cart page
