@@ -145,6 +145,21 @@ class _PersonilationPageState extends State<PersonilationPage> {
 
         final title = _extractTitle(data);
         final price = _parsePrice(data['price']);
+        // compute extra charge based on selected personalisation:
+        final sel = (_selectedPersonalisation ?? '').toLowerCase();
+        int linesCount = 0;
+        if (sel.startsWith('one'))
+          linesCount = 1;
+        else if (sel.startsWith('two'))
+          linesCount = 2;
+        else if (sel.startsWith('three'))
+          linesCount = 3;
+        else if (sel.startsWith('four')) linesCount = 4;
+        // extra only applies to "lines of text" options: £2 per extra line beyond the first
+        final double extra = sel.contains('line') && linesCount > 1
+            ? (linesCount - 1) * 2.0
+            : 0.0;
+        final double totalPrice = price + extra;
         final bool isNetwork = imageUrl.startsWith('http');
 
         // Single scroll view for the whole page (no nested scrollables).
@@ -203,7 +218,8 @@ class _PersonilationPageState extends State<PersonilationPage> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                _formatPrice(price),
+                                // show base + extra dynamically
+                                _formatPrice(totalPrice),
                                 style: const TextStyle(
                                     fontSize: 18, color: Colors.black87),
                               ),
@@ -265,11 +281,48 @@ class _PersonilationPageState extends State<PersonilationPage> {
                         TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 const Text(
-                  'Placeholder content for personalisation. Add form fields, pricing details or upload instructions here.',
+                  'Placeholder content for personalisation.',
                   style: TextStyle(fontSize: 16, color: Colors.black87),
                 ),
 
                 const SizedBox(height: 32),
+
+                // Add to cart button
+                Center(
+                  child: SizedBox(
+                    width: 280,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final lines = _lineControllers
+                            .map((c) => c.text.trim())
+                            .where((t) => t.isNotEmpty)
+                            .toList();
+                        final details = [
+                          _selectedPersonalisation ?? '',
+                          if (lines.isNotEmpty) 'Text: ${lines.join(" • ")}'
+                        ].where((s) => s.isNotEmpty).join(' — ');
+
+                        final titleLabel =
+                            title.isNotEmpty ? title : 'Personalisation';
+                        final priceLabel = _formatPrice(totalPrice);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                'Added "$titleLabel"${details.isNotEmpty ? " ($details)" : ""} — $priceLabel to cart'),
+                          ),
+                        );
+                        // TODO: hook into real cart state / backend
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12.0),
+                        child:
+                            Text('Add to cart', style: TextStyle(fontSize: 16)),
+                      ),
+                    ),
+                  ),
+                ),
+
                 const AppFooter(),
               ],
             ),
