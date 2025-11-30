@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:union_shop/layout.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:union_shop/images_layout.dart';
+import 'package:go_router/go_router.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -172,26 +172,9 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        Wrap(
-                          spacing: 16,
-                          runSpacing: 16,
-                          children: _searchResults.map((product) {
-                            return SizedBox(
-                              width: 250,
-                              child: ProductCard(
-                                imageUrl: product['imageUrl'],
-                                title: product['title'],
-                                price:
-                                    '£${product['price'].toStringAsFixed(2)}',
-                                discountPrice: product['discPrice'] != null
-                                    ? '£${product['discPrice'].toStringAsFixed(2)}'
-                                    : null,
-                                category: product['category'],
-                                collection: product['collection'],
-                              ),
-                            );
-                          }).toList(),
-                        ),
+                        ..._searchResults.map((product) {
+                          return _buildProductItem(context, product);
+                        }),
                       ],
                     ),
                 ],
@@ -199,6 +182,113 @@ class _SearchPageState extends State<SearchPage> {
             ),
 
             const AppFooter(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductItem(BuildContext context, Map<String, dynamic> product) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey, width: 0.5),
+        ),
+      ),
+      child: InkWell(
+        onTap: () {
+          final productSlug = Uri.encodeComponent(product['title']
+              .toString()
+              .toLowerCase()
+              .replaceAll(RegExp(r'\s+'), '-'));
+          final collectionSlug = product['collection'] ?? 'all';
+          context.push(
+            '/collections/$collectionSlug/products/$productSlug',
+            extra: {
+              'imageUrl': product['imageUrl'],
+              'price': product['price'],
+              'category': product['category'],
+            },
+          );
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Product image
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Image.asset(
+                product['imageUrl'],
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stack) =>
+                    const Icon(Icons.image),
+              ),
+            ),
+            const SizedBox(width: 16),
+
+            // Product details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product['title'],
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (product['discPrice'] != null) ...[
+                    Text(
+                      '£${product['discPrice'].toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '£${product['price'].toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                  ] else ...[
+                    Text(
+                      '£${product['price'].toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 4),
+                  Text(
+                    'Category: ${product['category']}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Arrow icon
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
+            ),
           ],
         ),
       ),
