@@ -63,9 +63,47 @@ class AppHeader extends StatelessWidget {
                                     label: "Home",
                                     onTap: () => context.go('/'))),
                             Flexible(
-                                child: _NavItem(
-                                    label: "Shop",
-                                    onTap: () => context.go('/collections'))),
+                                child: PopupMenuButton<String>(
+                              onSelected: (value) {
+                                context.go('/collections/$value');
+                              },
+                              itemBuilder: (ctx) => const [
+                                PopupMenuItem(
+                                  value: 'essential-range',
+                                  child: Text('Essential Range'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'signature-range',
+                                  child: Text('Signature Range'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'portsmouth-city',
+                                  child: Text('Portsmouth City Collection'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'autumn-favourites',
+                                  child: Text('Autumn Favourites'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'sale',
+                                  child: Text('Sale'),
+                                ),
+                              ],
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: Text(
+                                    'Shop',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )),
                             Flexible(
                                 child: PopupMenuButton<String>(
                               onSelected: (value) {
