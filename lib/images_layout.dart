@@ -8,7 +8,7 @@ class ProductCard extends StatelessWidget {
   final String price;
   final String imageUrl;
   final String? discountPrice; // optional
-  //final String? category; // optional
+  final String? category; // optional
 
   const ProductCard({
     super.key,
@@ -16,7 +16,7 @@ class ProductCard extends StatelessWidget {
     required this.price,
     required this.imageUrl,
     this.discountPrice,
-    //this.category,
+    this.category,
   });
 
   @override
@@ -36,6 +36,7 @@ class ProductCard extends StatelessWidget {
           context.push('/$slug', extra: {
             'imageUrl': imageUrl,
             'price': numericPrice,
+            'category': category, // pass category if available
           });
         },
         child: Column(

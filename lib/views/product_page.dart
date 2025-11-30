@@ -6,12 +6,14 @@ class ProductPage extends StatefulWidget {
   final String imageUrl; // asset or network
   final String title;
   final double price;
+  final String category;
 
   const ProductPage({
     super.key,
     required this.imageUrl,
     required this.title,
     required this.price,
+    required this.category,
   });
 
   @override
@@ -21,6 +23,12 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
   int _quantity = 1;
   late final TextEditingController _qtyController;
+
+  // dropdown state for clothing
+  final List<String> _colors = ['Black', 'White', 'Navy', 'Red'];
+  final List<String> _sizes = ['S', 'M', 'L', 'XL'];
+  String? _selectedColor;
+  String? _selectedSize;
 
   void navigateToHome(BuildContext context) {
     Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
@@ -32,6 +40,8 @@ class _ProductPageState extends State<ProductPage> {
   void initState() {
     super.initState();
     _qtyController = TextEditingController(text: '$_quantity');
+    _selectedColor = _colors.isNotEmpty ? _colors.first : null;
+    _selectedSize = _sizes.isNotEmpty ? _sizes.first : null;
   }
 
   @override
@@ -214,6 +224,71 @@ class _ProductPageState extends State<ProductPage> {
                                 ),
                               ],
                             ),
+
+                            // color & size for clothing (narrow) - only when appropriate
+                            if (widget.category.toLowerCase() ==
+                                'clothing') ...[
+                              const SizedBox(height: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    'Color',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  DropdownButton<String>(
+                                    value: _selectedColor,
+                                    items: _colors
+                                        .map((c) => DropdownMenuItem(
+                                              value: c,
+                                              child: Text(c),
+                                            ))
+                                        .toList(),
+                                    onChanged: (v) =>
+                                        setState(() => _selectedColor = v),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const Text(
+                                    'Size',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  DropdownButton<String>(
+                                    value: _selectedSize,
+                                    items: _sizes
+                                        .map((s) => DropdownMenuItem(
+                                              value: s,
+                                              child: Text(s),
+                                            ))
+                                        .toList(),
+                                    onChanged: (v) =>
+                                        setState(() => _selectedSize = v),
+                                  ),
+                                ],
+                              ),
+                            ],
+
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: 220,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'Added $_quantity × ${widget.title} to cart'),
+                                    ),
+                                  );
+                                  // TODO: actually add to cart logic here
+                                },
+                                child: const Text('Add to cart'),
+                              ),
+                            ),
                           ],
                         )
 
@@ -362,6 +437,89 @@ class _ProductPageState extends State<ProductPage> {
                                             ],
                                           ),
                                         ],
+                                      ),
+
+                                      // color & size for clothing (wide) - only when appropriate
+                                      if (widget.category.toLowerCase() ==
+                                          'clothing') ...[
+                                        const SizedBox(height: 16),
+                                        Row(
+                                          children: [
+                                            // Color
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'Color',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                DropdownButton<String>(
+                                                  value: _selectedColor,
+                                                  items: _colors
+                                                      .map((c) =>
+                                                          DropdownMenuItem(
+                                                            value: c,
+                                                            child: Text(c),
+                                                          ))
+                                                      .toList(),
+                                                  onChanged: (v) => setState(
+                                                      () => _selectedColor = v),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(width: 32),
+                                            // Size
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'Size',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                DropdownButton<String>(
+                                                  value: _selectedSize,
+                                                  items: _sizes
+                                                      .map((s) =>
+                                                          DropdownMenuItem(
+                                                            value: s,
+                                                            child: Text(s),
+                                                          ))
+                                                      .toList(),
+                                                  onChanged: (v) => setState(
+                                                      () => _selectedSize = v),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+
+                                      const SizedBox(height: 16),
+                                      SizedBox(
+                                        width: 220,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    'Added $_quantity × ${widget.title} to cart'),
+                                              ),
+                                            );
+                                            // TODO: hook into cart state
+                                          },
+                                          child: const Text('Add to cart'),
+                                        ),
                                       ),
                                     ],
                                   ),

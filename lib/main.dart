@@ -88,6 +88,7 @@ class UnionShopApp extends StatelessWidget {
               imageUrl: args?['imageUrl'] ?? '',
               title: title,
               price: parsePrice(args?['price']),
+              category: args?['category'] ?? 'unknown',
             );
           },
         ),

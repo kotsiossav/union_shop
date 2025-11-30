@@ -162,6 +162,13 @@ class _CollectionPageState extends State<CollectionPage> {
                   // effective price = disc if present else regular price
                   final effectivePrice = discNum ?? priceNum;
 
+                  // read and normalize category (cat) from DB
+                  final rawCat = (data['cat'] as String?) ?? '';
+                  final category = rawCat
+                      .toString()
+                      .replaceAll(RegExp("^['\"]+|['\"]+\$"), '')
+                      .trim();
+
                   products.add({
                     'imageUrl': imageUrl,
                     'title': titleText,
@@ -169,6 +176,7 @@ class _CollectionPageState extends State<CollectionPage> {
                     'priceStr': _formatPrice(priceNum),
                     'discStr': discNum != null ? _formatPrice(discNum) : null,
                     'effectivePrice': effectivePrice,
+                    'category': category,
                     'index': i,
                   });
                 }
@@ -299,6 +307,8 @@ class _CollectionPageState extends State<CollectionPage> {
                                 title: p['title'] as String,
                                 price: p['priceStr'] as String,
                                 discountPrice: p['discStr'] as String?,
+                                category: p['category'] as String,
+                                
                               );
                             },
                           );

@@ -12,6 +12,7 @@ void main() {
           imageUrl: 'assets/images/bookmark.jpg',
           title: 'Placeholder Product 7',
           price: 10.0,
+          category: 'test-category',
         ),
       );
     }

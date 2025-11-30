@@ -274,6 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
 discountPrice: '£8.00',
                                 imageUrl:
                                     'assets/images/Pink_Essential_Hoodie_720x.webp',
+                                    category: 'clothing',
                               ),
                             ),
                             SizedBox(width: 24),
