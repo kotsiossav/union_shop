@@ -380,7 +380,9 @@ class _AppHeaderState extends State<AppHeader> {
   Widget _userIconWithMenu(BuildContext context) {
     return PopupMenuButton<String>(
       onSelected: (value) async {
-        if (value == 'signout') {
+        if (value == 'orders') {
+          context.go('/order_history');
+        } else if (value == 'signout') {
           await _authService.signOut();
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -399,6 +401,17 @@ class _AppHeaderState extends State<AppHeader> {
               fontWeight: FontWeight.bold,
               color: Colors.black87,
             ),
+          ),
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(
+          value: 'orders',
+          child: Row(
+            children: [
+              Icon(Icons.receipt_long, size: 18),
+              SizedBox(width: 8),
+              Text('Order History'),
+            ],
           ),
         ),
         const PopupMenuDivider(),
