@@ -1,11 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'main.dart';
 
 /// Shared navigation bar used on all pages.
-class AppHeader extends StatelessWidget {
+class AppHeader extends StatefulWidget {
   const AppHeader({super.key});
 
+  @override
+  State<AppHeader> createState() => _AppHeaderState();
+}
+
+class _AppHeaderState extends State<AppHeader> {
   void _placeholderCallbackForButtons() {}
+
+  @override
+  void initState() {
+    super.initState();
+    globalCart.addListener(_onCartChanged);
+  }
+
+  @override
+  void dispose() {
+    globalCart.removeListener(_onCartChanged);
+    super.dispose();
+  }
+
+  void _onCartChanged() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,8 +180,7 @@ class AppHeader extends StatelessWidget {
                         // navigate to SignInPage when person icon is pressed
                         _icon(Icons.person_outline,
                             onTap: () => context.go('/login_page')),
-                        _icon(Icons.shopping_bag_outlined,
-                            onTap: () => context.go('/cart')),
+                        _cartIconWithBadge(context),
 
                         // Mobile menu button
                         if (isNarrow)
@@ -212,6 +233,48 @@ class AppHeader extends StatelessWidget {
             },
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _cartIconWithBadge(BuildContext context) {
+    final itemCount = globalCart.itemCount;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.shopping_bag_outlined,
+              size: 20, color: Colors.grey),
+          padding: const EdgeInsets.all(6),
+          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          onPressed: () => context.go('/cart'),
+        ),
+        if (itemCount > 0)
+          Positioned(
+            right: 0,
+            top: 0,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Color(0xFF4d2963),
+                shape: BoxShape.circle,
+              ),
+              constraints: const BoxConstraints(
+                minWidth: 18,
+                minHeight: 18,
+              ),
+              child: Text(
+                '$itemCount',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
       ],
     );
   }
