@@ -8,7 +8,7 @@ import 'package:union_shop/views/print_shack/personalisation.dart';
 import 'package:union_shop/views/collections_page.dart';
 import 'package:union_shop/views/collection_page.dart';
 import 'package:union_shop/views/sign_in.dart';
-import 'package:union_shop/views/sale_page.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'firebase_options.dart';
@@ -68,10 +68,7 @@ class UnionShopApp extends StatelessWidget {
           },
         ),
         // sale page
-        GoRoute(
-          path: '/sale',
-          builder: (context, state) => const SalePage(),
-        ),
+        
         // login page
         GoRoute(
           path: '/login_page',

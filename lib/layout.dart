@@ -85,14 +85,14 @@ class AppHeader extends StatelessWidget {
                                   child: Text('Personalisation'),
                                 ),
                               ],
-                              child: Padding(
+                              child: const Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(horizontal: 12),
+                                    EdgeInsets.symmetric(horizontal: 12),
                                 child: MouseRegion(
                                   cursor: SystemMouseCursors.click,
                                   child: Text(
                                     'The Print Shack',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.black87,
                                       fontWeight: FontWeight.w500,
@@ -104,7 +104,7 @@ class AppHeader extends StatelessWidget {
                             Flexible(
                                 child: _NavItem(
                                     label: "SALE!",
-                                    onTap: () => context.go('/sale'))),
+                                    onTap: () => context.go('/collection/sale'))),
                             Flexible(
                                 child: _NavItem(
                                     label: "About",
