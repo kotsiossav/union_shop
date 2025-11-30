@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:union_shop/layout.dart';
+import 'package:union_shop/models/cart_model.dart';
 
 class ProductPage extends StatefulWidget {
   final String imageUrl; // asset or network
@@ -23,6 +24,7 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
   int _quantity = 1;
   late final TextEditingController _qtyController;
+  final CartModel _cart = CartModel();
 
   // dropdown state for clothing
   final List<String> _colors = ['Black', 'White', 'Navy', 'Red'];
@@ -64,6 +66,24 @@ class _ProductPageState extends State<ProductPage> {
         _qtyController.text = '$_quantity';
       });
     }
+  }
+
+  void _addToCart() {
+    for (int i = 0; i < _quantity; i++) {
+      _cart.addProduct(
+        title: widget.title,
+        imageUrl: widget.imageUrl,
+        price: widget.price,
+        category: widget.category,
+      );
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Added $_quantity × ${widget.title} to cart'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -277,15 +297,7 @@ class _ProductPageState extends State<ProductPage> {
                             SizedBox(
                               width: 220,
                               child: ElevatedButton(
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          'Added $_quantity × ${widget.title} to cart'),
-                                    ),
-                                  );
-                                  // TODO: actually add to cart logic here
-                                },
+                                onPressed: _addToCart,
                                 child: const Text('Add to cart'),
                               ),
                             ),
@@ -508,16 +520,7 @@ class _ProductPageState extends State<ProductPage> {
                                       SizedBox(
                                         width: 220,
                                         child: ElevatedButton(
-                                          onPressed: () {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                    'Added $_quantity × ${widget.title} to cart'),
-                                              ),
-                                            );
-                                            // TODO: hook into cart state
-                                          },
+                                          onPressed: _addToCart,
                                           child: const Text('Add to cart'),
                                         ),
                                       ),
