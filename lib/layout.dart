@@ -99,8 +99,8 @@ class _AppHeaderState extends State<AppHeader> {
                                   child: Text('Signature Range'),
                                 ),
                                 PopupMenuItem(
-                                  value: 'portsmouth-city',
-                                  child: Text('Portsmouth City Collection'),
+                                  value: 'graduation',
+                                  child: Text('Graduation'),
                                 ),
                                 PopupMenuItem(
                                   value: 'autumn-favourites',
