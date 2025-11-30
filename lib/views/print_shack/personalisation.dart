@@ -72,7 +72,7 @@ class PersonilationPage extends StatelessWidget {
                     .toString()
                     .replaceAll(RegExp("^['\"]+|['\"]+\$"), '')
                     .trim();
-  
+
                 final title = _extractTitle(data);
                 final category = _extractCategory(data);
                 final price = _parsePrice(data['price']);
@@ -137,11 +137,7 @@ class PersonilationPage extends StatelessWidget {
                                               fontSize: 16,
                                               color: Colors.black87)),
                                       const SizedBox(height: 6),
-                                      Text(
-                                          'Category: ${category.isNotEmpty ? category : 'Personalisation'}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey)),
+                                      
                                     ],
                                   ),
                                 ),
@@ -151,18 +147,6 @@ class PersonilationPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-
-                      // rest of the page content / description
-                      const Text(
-                        'Personalisation',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Placeholder content for personalisation. Add form fields, pricing details or upload instructions here.',
-                        style: TextStyle(fontSize: 16, color: Colors.black87),
-                      ),
                     ],
                   ),
                 );
