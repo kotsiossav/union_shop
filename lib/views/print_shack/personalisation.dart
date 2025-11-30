@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:union_shop/views/product_page.dart';
 import 'package:union_shop/layout.dart';
 
-class PersonilationPage extends StatelessWidget {
+class PersonilationPage extends StatefulWidget {
   const PersonilationPage({super.key});
+
+  @override
+  State<PersonilationPage> createState() => _PersonilationPageState();
+}
+
+class _PersonilationPageState extends State<PersonilationPage> {
+  final List<String> _personalisationOptions = [
+    'One line of text',
+    'Two lines of text',
+    'Three lines of text',
+    'Four lines of text',
+    'Small logo',
+    'Large logo',
+  ];
+  String? _selectedPersonalisation;
 
   Future<Map<String, dynamic>?> _fetchPersonalisationProduct() async {
     final col = FirebaseFirestore.instance.collection('products');
-    // try by category first
     var q = await col.where('cat', isEqualTo: 'personalisation').limit(1).get();
     if (q.docs.isEmpty) {
-      // fallback to title match
       q = await col.where('title', isEqualTo: 'Personalisation').limit(1).get();
     }
     if (q.docs.isEmpty) return null;
@@ -36,6 +48,14 @@ class PersonilationPage extends StatelessWidget {
     final s = raw.toString();
     final numeric = s.replaceAll(RegExp(r'[^0-9.]'), '');
     return double.tryParse(numeric) ?? 0.0;
+  }
+
+  String _formatPrice(double p) => '£${p.toStringAsFixed(2)}';
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedPersonalisation = _personalisationOptions.first;
   }
 
   @override
@@ -80,7 +100,6 @@ class PersonilationPage extends StatelessWidget {
         }
 
         final data = snap.data!;
-        // normalize image string from DB (remove surrounding quotes/whitespace)
         final rawImage = _extractImage(data);
         final imageUrl = rawImage
             .toString()
@@ -89,17 +108,110 @@ class PersonilationPage extends StatelessWidget {
             .trim();
 
         final title = _extractTitle(data);
-        final category = _extractCategory(data).isNotEmpty
-            ? _extractCategory(data)
-            : 'Personalisation';
         final price = _parsePrice(data['price']);
+        final bool isNetwork = imageUrl.startsWith('http');
 
-        // Use the existing ProductPage layout by returning it directly.
-        return ProductPage(
-          imageUrl: imageUrl.isEmpty ? 'assets/images/personalisation_placeholder.png' : imageUrl,
-          title: title.isNotEmpty ? title : 'Personalisation',
-          price: price,
-          category: category,
+        // Single scroll view for the whole page (no nested scrollables).
+        // Product header (image/title/price) will be part of the same scroll,
+        // avoiding nested scrolling behaviour.
+        return Scaffold(
+          appBar: AppBar(title: const Text('Print Shack — Personalisation')),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const AppHeader(),
+
+                // product preview card: image left, title on right, price below title
+                Card(
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 260,
+                          height: 260,
+                          child: isNetwork
+                              ? Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (ctx, err, st) => const Center(
+                                      child: Icon(Icons.image,
+                                          size: 56, color: Colors.grey)),
+                                )
+                              : Image.asset(
+                                  imageUrl.isEmpty
+                                      ? 'assets/images/personalisation_placeholder.png'
+                                      : imageUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (ctx, err, st) => const Center(
+                                      child: Icon(Icons.image,
+                                          size: 56, color: Colors.grey)),
+                                ),
+                        ),
+                        const SizedBox(width: 20),
+
+                        // limit details column width so it doesn't take the whole row
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 360),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title.isNotEmpty ? title : 'Personalisation',
+                                style: const TextStyle(
+                                    fontSize: 22, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _formatPrice(price),
+                                style: const TextStyle(
+                                    fontSize: 18, color: Colors.black87),
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Choose personalisation option',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 8),
+                              DropdownButton<String>(
+                                value: _selectedPersonalisation,
+                                isExpanded: true,
+                                items: _personalisationOptions
+                                    .map((opt) => DropdownMenuItem(
+                                        value: opt, child: Text(opt)))
+                                    .toList(),
+                                onChanged: (v) => setState(
+                                    () => _selectedPersonalisation = v),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                const Text('Personalisation',
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                const Text(
+                  'Placeholder content for personalisation. Add form fields, pricing details or upload instructions here.',
+                  style: TextStyle(fontSize: 16, color: Colors.black87),
+                ),
+
+                const SizedBox(height: 32),
+                const AppFooter(),
+              ],
+            ),
+          ),
         );
       },
     );
