@@ -72,7 +72,7 @@ class AppHeader extends StatelessWidget {
                                 if (value == 'about') {
                                   context.go('/print_shack_about');
                                 } else if (value == 'personalisation') {
-                                  context.go('/print_shack_personalisation');
+                                  context.go('/personalisation');
                                 }
                               },
                               itemBuilder: (ctx) => const [
@@ -142,8 +142,16 @@ class AppHeader extends StatelessWidget {
                                             context.go('/collections')),
                                     ListTile(
                                         leading: const Icon(Icons.print),
-                                        title: const Text('The Print Shack'),
-                                        onTap: () => context.go('/printshack')),
+                                        title:
+                                            const Text('Print Shack - About'),
+                                        onTap: () =>
+                                            context.go('/print_shack_about')),
+                                    ListTile(
+                                        leading: const Icon(Icons.person),
+                                        title: const Text(
+                                            'Print Shack - Personalisation'),
+                                        onTap: () =>
+                                            context.go('/personalisation')),
                                     ListTile(
                                         leading: const Icon(Icons.local_offer),
                                         title: const Text('SALE!'),
