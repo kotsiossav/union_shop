@@ -20,6 +20,33 @@ class _PersonilationPageState extends State<PersonilationPage> {
   ];
   String? _selectedPersonalisation;
 
+  // controllers for the dynamic text boxes
+  final List<TextEditingController> _lineControllers = [];
+
+  // keep controllers count in sync with selection
+  void _updateControllersForSelection(String? selection) {
+    int count = 1;
+    final s = (selection ?? '').toLowerCase();
+    if (s.startsWith('one'))
+      count = 1;
+    else if (s.startsWith('two'))
+      count = 2;
+    else if (s.startsWith('three'))
+      count = 3;
+    else if (s.startsWith('four'))
+      count = 4;
+    else if (s.contains('small') || s.contains('large')) count = 1;
+
+    // add controllers if needed
+    while (_lineControllers.length < count) {
+      _lineControllers.add(TextEditingController());
+    }
+    // remove extra controllers
+    while (_lineControllers.length > count) {
+      _lineControllers.removeLast().dispose();
+    }
+  }
+
   Future<Map<String, dynamic>?> _fetchPersonalisationProduct() async {
     final col = FirebaseFirestore.instance.collection('products');
     var q = await col.where('cat', isEqualTo: 'personalisation').limit(1).get();
@@ -56,6 +83,15 @@ class _PersonilationPageState extends State<PersonilationPage> {
   void initState() {
     super.initState();
     _selectedPersonalisation = _personalisationOptions.first;
+    _updateControllersForSelection(_selectedPersonalisation);
+  }
+
+  @override
+  void dispose() {
+    for (final c in _lineControllers) {
+      c.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -183,10 +219,36 @@ class _PersonilationPageState extends State<PersonilationPage> {
                                 isExpanded: true,
                                 items: _personalisationOptions
                                     .map((opt) => DropdownMenuItem(
-                                        value: opt, child: Text(opt)))
+                                          value: opt,
+                                          child: Text(opt),
+                                        ))
                                     .toList(),
-                                onChanged: (v) => setState(
-                                    () => _selectedPersonalisation = v),
+                                onChanged: (v) {
+                                  setState(() {
+                                    _selectedPersonalisation = v;
+                                    _updateControllersForSelection(v);
+                                  });
+                                },
+                              ),
+
+                              const SizedBox(height: 12),
+                              // dynamic text boxes based on selection
+                              Column(
+                                children: List.generate(
+                                  _lineControllers.length,
+                                  (i) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: TextField(
+                                      controller: _lineControllers[i],
+                                      decoration: InputDecoration(
+                                        labelText: _lineControllers.length > 1
+                                            ? 'Line ${i + 1}'
+                                            : 'Text',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
