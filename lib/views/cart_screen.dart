@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:union_shop/layout.dart';
 import 'package:union_shop/models/cart_model.dart';
+import 'package:union_shop/services/order_service.dart';
 
 class CartScreen extends StatefulWidget {
   final CartModel cart;
@@ -13,6 +14,9 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  final OrderService _orderService = OrderService();
+  bool _isProcessingCheckout = false;
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +31,54 @@ class _CartScreenState extends State<CartScreen> {
 
   void _onCartChanged() {
     setState(() {});
+  }
+
+  Future<void> _handleCheckout() async {
+    if (widget.cart.items.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Your cart is empty')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isProcessingCheckout = true;
+    });
+
+    try {
+      final orderId = await _orderService.createOrderFromCart(widget.cart);
+
+      if (orderId != null) {
+        // Clear cart after successful order
+        widget.cart.clearCart();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Order placed successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Navigate to order history
+          context.go('/order_history');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessingCheckout = false;
+        });
+      }
+    }
   }
 
   @override
@@ -246,13 +298,7 @@ class _CartScreenState extends State<CartScreen> {
           SizedBox(
             height: 50,
             child: ElevatedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Checkout functionality coming soon'),
-                  ),
-                );
-              },
+              onPressed: _isProcessingCheckout ? null : _handleCheckout,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4d2963),
                 foregroundColor: Colors.white,
@@ -260,13 +306,22 @@ class _CartScreenState extends State<CartScreen> {
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
-              child: const Text(
-                'CHECK OUT',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: _isProcessingCheckout
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text(
+                      'CHECK OUT',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
           ),
         ],
