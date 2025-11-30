@@ -173,6 +173,26 @@ class _SignInPageState extends State<SignInPage> {
                           : const Text('Sign In'),
                     ),
                   ),
+
+                  const SizedBox(height: 16),
+
+                  // Register link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Don\'t have an account? '),
+                      TextButton(
+                        onPressed: () => context.go('/register'),
+                        child: const Text(
+                          'Sign Up',
+                          style: TextStyle(
+                            color: Color(0xFF4d2963),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
