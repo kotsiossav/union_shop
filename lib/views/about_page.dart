@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:union_shop/layout.dart';
-import 'package:union_shop/app_styles.dart';
+
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
