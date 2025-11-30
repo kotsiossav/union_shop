@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:union_shop/layout.dart';
 import 'package:union_shop/app_styles.dart';
-import 'package:union_shop/views/product_page.dart'; // <-- add this line
-import 'package:go_router/go_router.dart';
 import 'package:union_shop/images_layout.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,6 +42,78 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void placeholderCallbackForButtons() {
     // This is the event handler for buttons that don't work yet
+  }
+
+  double _parsePrice(dynamic raw) {
+    if (raw is num) return raw.toDouble();
+    if (raw is String) {
+      String cleaned = raw.replaceAll(RegExp(r'[^0-9.]'), '');
+      double? val = double.tryParse(cleaned);
+      if (val != null) {
+        return val < 10 ? val * 100 : val;
+      }
+    }
+    return 0.0;
+  }
+
+  String _formatPrice(double v) => '£${v.toStringAsFixed(2)}';
+
+  List<String> _collParts(dynamic raw) {
+    if (raw == null) return [];
+    return raw
+        .toString()
+        .replaceAll(RegExp("^['\"]+|['\"]+\$"), '')
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .where((s) => s.isNotEmpty)
+        .toList();
+  }
+
+  Widget _buildProductCard(String productTitle) {
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('products')
+          .where('title', isEqualTo: productTitle)
+          .limit(1)
+          .get()
+          .then((snapshot) => snapshot.docs.isNotEmpty
+              ? snapshot.docs.first
+              : throw Exception('Product not found')),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return const Center(child: Text('Error loading product'));
+        }
+
+        final data = snapshot.data!.data() as Map<String, dynamic>;
+        final rawImage = (data['image_url'] as String?) ?? '';
+        final imageUrl =
+            rawImage.replaceAll(RegExp("^['\"]+|['\"]+\$"), '').trim();
+        final rawTitle = (data['title'] as String?) ?? '';
+        final titleText =
+            rawTitle.replaceAll(RegExp("^['\"]+|['\"]+\$"), '').trim();
+        final priceNum = _parsePrice(data['price']);
+        final discRaw =
+            data['disc_price'] ?? data['discPrice'] ?? data['discount_price'];
+        final discNum = discRaw != null ? _parsePrice(discRaw) : null;
+        final rawCat = (data['cat'] as String?) ?? '';
+        final category =
+            rawCat.replaceAll(RegExp("^['\"]+|['\"]+\$"), '').trim();
+        final collParts = _collParts(data['coll']);
+        final collection = collParts.isNotEmpty ? collParts.first : 'all';
+
+        return ProductCard(
+          imageUrl: imageUrl,
+          title: titleText,
+          price: _formatPrice(priceNum),
+          discountPrice: discNum != null ? _formatPrice(discNum) : null,
+          category: category,
+          collection: collection,
+        );
+      },
+    );
   }
 
   void _onHeroButtonPressed(int index) {
@@ -265,27 +336,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         SizedBox(height: 48),
 
                         // First 2 products in a row
-                        const Row(
+                        Row(
                           children: [
                             Expanded(
-                              child: ProductCard(
-                                title: 'Placeholder Product 1',
-                                price: '£10.00',
-discountPrice: '£8.00',
-                                imageUrl:
-                                    'assets/images/Pink_Essential_Hoodie_720x.webp',
-                                    category: 'clothing',
-                              ),
+                              child: _buildProductCard('Placeholder Product 1'),
                             ),
-                            SizedBox(width: 24),
+                            const SizedBox(width: 24),
                             Expanded(
-                              child: ProductCard(
-                                title: 'Placeholder Product 2',
-                                price: '£15.00',
-discountPrice: '£12.00',
-                                imageUrl:
-                                    'assets/images/Sage_T-shirt_720x.webp',
-                              ),
+                              child: _buildProductCard('Placeholder Product 2'),
                             ),
                           ],
                         ),
@@ -304,23 +362,14 @@ discountPrice: '£12.00',
                         SizedBox(height: 48),
 
                         // Last 2 products in a row
-                        const Row(
+                        Row(
                           children: [
                             Expanded(
-                              child: ProductCard(
-                                title: 'Placeholder Product 3',
-                                price: '£20.00',
-                                imageUrl: 'assets/images/SageHoodie_720x.webp',
-                              ),
+                              child: _buildProductCard('Placeholder Product 3'),
                             ),
-                            SizedBox(width: 24),
+                            const SizedBox(width: 24),
                             Expanded(
-                              child: ProductCard(
-                                title: 'Placeholder Product 4',
-                                price: '£25.00',
-                                imageUrl:
-                                    'assets/images/Signature_T-Shirt_Indigo_Blue_2_720x.webp',
-                              ),
+                              child: _buildProductCard('Placeholder Product 4'),
                             ),
                           ],
                         ),
@@ -335,42 +384,26 @@ discountPrice: '£12.00',
 
                         const SizedBox(height: 48),
 
-                        const Row(
+                        Row(
                           children: [
                             Expanded(
-                              child: ProductCard(
-                                title: 'Placeholder Product 5',
-                                price: '£10.00',
-                                imageUrl: 'assets/images/postcard.jpg',
-                              ),
+                              child: _buildProductCard('Placeholder Product 5'),
                             ),
-                            SizedBox(width: 24),
+                            const SizedBox(width: 24),
                             Expanded(
-                              child: ProductCard(
-                                title: 'Placeholder Product 6',
-                                price: '£15.00',
-                                imageUrl: 'assets/images/magnet.jpg',
-                              ),
+                              child: _buildProductCard('Placeholder Product 6'),
                             ),
                           ],
                         ),
                         const SizedBox(height: 48),
-                        const Row(
+                        Row(
                           children: [
                             Expanded(
-                              child: ProductCard(
-                                title: 'Placeholder Product 7',
-                                price: '£10.00',
-                                imageUrl: 'assets/images/bookmark.jpg',
-                              ),
+                              child: _buildProductCard('Placeholder Product 7'),
                             ),
-                            SizedBox(width: 24),
+                            const SizedBox(width: 24),
                             Expanded(
-                              child: ProductCard(
-                                title: 'Placeholder Product 8',
-                                price: '£15.00',
-                                imageUrl: 'assets/images/postcard.jpg',
-                              ),
+                              child: _buildProductCard('Placeholder Product 8'),
                             ),
                           ],
                         ),

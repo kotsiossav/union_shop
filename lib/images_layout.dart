@@ -9,6 +9,7 @@ class ProductCard extends StatelessWidget {
   final String imageUrl;
   final String? discountPrice; // optional
   final String? category; // optional
+  final String? collection; // collection slug for routing
 
   const ProductCard({
     super.key,
@@ -17,6 +18,7 @@ class ProductCard extends StatelessWidget {
     required this.imageUrl,
     this.discountPrice,
     this.category,
+    this.collection,
   });
 
   @override
