@@ -276,16 +276,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
 
                 const SizedBox(height: 24),
 
-                const Text('Personalisation',
-                    style:
-                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                const Text(
-                  'Placeholder content for personalisation.',
-                  style: TextStyle(fontSize: 16, color: Colors.black87),
-                ),
-
-                const SizedBox(height: 32),
+                
 
                 // Add to cart button
                 Center(
@@ -312,7 +303,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
                                 'Added "$titleLabel"${details.isNotEmpty ? " ($details)" : ""} — $priceLabel to cart'),
                           ),
                         );
-                        // TODO: hook into real cart state / backend
+                        // TODO: hook into real cart state / backend/add quantity field
                       },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(vertical: 12.0),
@@ -322,7 +313,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
                     ),
                   ),
                 ),
-
+                const SizedBox(height: 24),
                 const AppFooter(),
               ],
             ),
