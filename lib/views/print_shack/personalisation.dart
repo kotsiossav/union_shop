@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:union_shop/layout.dart';
+import 'package:union_shop/main.dart';
 
 class PersonilationPage extends StatefulWidget {
   const PersonilationPage({super.key});
@@ -354,9 +355,22 @@ class _PersonilationPageState extends State<PersonilationPage> {
 
                         final titleLabel =
                             title.isNotEmpty ? title : 'Personalisation';
+                        final titleWithDetails = details.isNotEmpty
+                            ? '$titleLabel ($details)'
+                            : titleLabel;
                         final priceLabel = _formatPrice(totalPrice);
                         final quantityText =
                             _quantity.value > 1 ? ' (×${_quantity.value})' : '';
+
+                        // Add to cart with the specified quantity
+                        for (int i = 0; i < _quantity.value; i++) {
+                          globalCart.addProduct(
+                            title: titleWithDetails,
+                            imageUrl: imageUrl,
+                            price: totalPrice,
+                            category: 'personalisation',
+                          );
+                        }
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -364,7 +378,6 @@ class _PersonilationPageState extends State<PersonilationPage> {
                                 'Added "$titleLabel"${details.isNotEmpty ? " ($details)" : ""}$quantityText — $priceLabel to cart'),
                           ),
                         );
-                        // TODO: hook into real cart state / backend
                       },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(vertical: 12.0),
