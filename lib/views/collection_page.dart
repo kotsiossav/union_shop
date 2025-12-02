@@ -5,7 +5,8 @@ import 'package:union_shop/images_layout.dart'; // ProductCard
 
 class CollectionPage extends StatefulWidget {
   final String slug;
-  const CollectionPage({super.key, this.slug = ''});
+  final FirebaseFirestore? firestore;
+  const CollectionPage({super.key, this.slug = '', this.firestore});
 
   @override
   State<CollectionPage> createState() => _CollectionPageState();
@@ -80,8 +81,9 @@ class _CollectionPageState extends State<CollectionPage> {
     final title = widget.slug.isEmpty
         ? 'Collection'
         : widget.slug.replaceAll('-', ' ').toUpperCase();
+    final firestore = widget.firestore ?? FirebaseFirestore.instance;
     final productsStream =
-        FirebaseFirestore.instance.collection('products').snapshots();
+        firestore.collection('products').snapshots();
 
     return Scaffold(
       body: SingleChildScrollView(
