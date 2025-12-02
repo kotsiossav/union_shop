@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:union_shop/layout.dart';
@@ -67,97 +65,13 @@ class CollectionsPage extends StatelessWidget {
     // ensure we have enough images by cycling through the list
     String pick(int index) => _assetImages[index % _assetImages.length];
 
-    // build 5 rows, each row with 3 images (add explicit left/right padding per row)
-    final rows = List<Widget>.generate(5, (rowIndex) {
-      return Padding(
-        padding: const EdgeInsets.only(
-            left: 72.0, right: 72.0, top: 36.0, bottom: 36.0),
-        child: Row(
-          children: List<Widget>.generate(3, (colIndex) {
-            final globalIndex = rowIndex * 3 + colIndex;
-            final asset = pick(globalIndex);
-            // use explicit label list when available, otherwise fallback to filename label
-            final label = globalIndex < _overlayLabels.length
-                ? _overlayLabels[globalIndex]
-                : _labelFromPath(asset);
-
-            return Expanded(
-              child: Padding(
-                // gutter between images
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                // compute height based on available width instead of hardcoding
-                child: LayoutBuilder(builder: (context, constraints) {
-                  final itemWidth = constraints.maxWidth;
-
-                  // choose aspect ratio to make images slightly taller than wide
-                  const aspectRatio = 0.85; // width / height
-                  final rawHeight = itemWidth / aspectRatio;
-                  final maxAllowedHeight =
-                      MediaQuery.of(context).size.height * 0.35;
-                  final computedHeight = min(rawHeight, maxAllowedHeight);
-
-                  final slug = _slugify(label);
-
-                  return SizedBox(
-                    height: computedHeight,
-                    child: GestureDetector(
-                      onTap: () {
-                        // navigate to /collections/$slug
-                        GoRouter.of(context).go('/collections/$slug');
-                      },
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.zero,
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            // image (preserve existing HoverImage usage)
-                            HoverImage(
-                              imageUrl: asset,
-                              width: itemWidth,
-                              height: computedHeight,
-                              fit: BoxFit.cover,
-                            ),
-
-                            // centered white text (no background) with subtle shadow for readability
-                            Center(
-                              child: Text(
-                                label,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 22, // increased size
-                                  fontWeight:
-                                      FontWeight.bold, // stronger weight
-                                  shadows: [
-                                    Shadow(
-                                      offset: Offset(0, 1),
-                                      blurRadius: 6,
-                                      color: Colors.black54,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            );
-          }),
-        ),
-      );
-    });
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
             const AppHeader(),
             const SizedBox(height: 24),
-            // Centered bold "collections" heading (removed extra padding)
+            // Centered bold "collections" heading
             const Center(
               child: Text(
                 'collections',
@@ -168,11 +82,93 @@ class CollectionsPage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-
             const SizedBox(height: 24),
 
-            // 5 rows with 3 images each
-            ...rows,
+            // Responsive grid layout
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final screenWidth = constraints.maxWidth;
+                final isMobile = screenWidth < 600;
+                final isTablet = screenWidth >= 600 && screenWidth < 900;
+
+                // Determine columns based on screen size
+                final crossAxisCount = isMobile ? 1 : (isTablet ? 2 : 3);
+
+                // Calculate padding based on screen size
+                final horizontalPadding =
+                    isMobile ? 16.0 : (isTablet ? 36.0 : 72.0);
+                final verticalPadding = isMobile ? 12.0 : 36.0;
+                final itemSpacing = isMobile ? 16.0 : 24.0;
+
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: verticalPadding,
+                  ),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: itemSpacing,
+                      mainAxisSpacing: itemSpacing,
+                      childAspectRatio: 0.85,
+                    ),
+                    itemCount: 15, // 5 rows × 3 items
+                    itemBuilder: (context, index) {
+                      final asset = pick(index);
+                      final label = index < _overlayLabels.length
+                          ? _overlayLabels[index]
+                          : _labelFromPath(asset);
+                      final slug = _slugify(label);
+
+                      return GestureDetector(
+                        onTap: () {
+                          GoRouter.of(context).go('/collections/$slug');
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.zero,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              // image
+                              HoverImage(
+                                imageUrl: asset,
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                              // centered white text with shadow
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    label,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: isMobile ? 18 : 22,
+                                      fontWeight: FontWeight.bold,
+                                      shadows: const [
+                                        Shadow(
+                                          offset: Offset(0, 1),
+                                          blurRadius: 6,
+                                          color: Colors.black54,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
 
             const AppFooter(),
           ],
