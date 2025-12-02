@@ -56,10 +56,14 @@ class CartItem {
 
 class CartModel extends ChangeNotifier {
   final Map<String, CartItem> _items = {};
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth;
+  final FirebaseFirestore _firestore;
 
-  CartModel() {
+  CartModel({
+    FirebaseAuth? auth,
+    FirebaseFirestore? firestore,
+  })  : _auth = auth ?? FirebaseAuth.instance,
+        _firestore = firestore ?? FirebaseFirestore.instance {
     // Listen to auth state changes and load cart when user signs in
     _auth.authStateChanges().listen((user) {
       if (user != null) {

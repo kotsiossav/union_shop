@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:union_shop/models/cart_model.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 void main() {
   group('CartItem', () {
@@ -159,12 +161,440 @@ void main() {
     });
   });
 
-  // Note: CartModel tests are skipped because they require Firebase initialization.
-  // These tests would need integration testing or proper mocking libraries.
-  // The CartItem class (which handles the data structure) is fully tested above.
+  group('CartModel - Basic Operations', () {
+    late CartModel cart;
+    late MockFirebaseAuth mockAuth;
+    late FakeFirebaseFirestore mockFirestore;
+    late MockUser mockUser;
 
-  // To test CartModel in the future, consider:
-  // 1. Using fake_cloud_firestore and firebase_auth_mocks packages
-  // 2. Refactoring CartModel to use dependency injection for easier testing
-  // 3. Running integration tests with Firebase Test Lab
+    setUp(() async {
+      // Create mock user
+      mockUser = MockUser(
+        uid: 'test-user-id',
+        email: 'test@example.com',
+        displayName: 'Test User',
+      );
+
+      // Create mock auth (signed in)
+      mockAuth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+
+      // Create fake firestore
+      mockFirestore = FakeFirebaseFirestore();
+
+      // Create CartModel with mocked dependencies
+      cart = CartModel(auth: mockAuth, firestore: mockFirestore);
+
+      // Wait for initialization
+      await Future.delayed(Duration.zero);
+    });
+
+    test('should start with empty cart', () {
+      expect(cart.items, isEmpty);
+      expect(cart.itemCount, 0);
+      expect(cart.totalQuantity, 0);
+      expect(cart.totalPrice, 0.0);
+    });
+
+    test('should add a product to cart', () async {
+      cart.addProduct(
+        title: 'Test Hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.itemCount, 1);
+      expect(cart.totalQuantity, 1);
+      expect(cart.totalPrice, 45.00);
+      expect(cart.items.containsKey('test hoodie'), true);
+    });
+
+    test('should add product with all optional parameters', () async {
+      cart.addProduct(
+        title: 'Premium Hoodie',
+        imageUrl: 'https://example.com/premium.jpg',
+        price: 55.00,
+        category: 'clothing',
+        collection: 'signature-range',
+        color: 'Navy',
+        size: 'L',
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      final item = cart.items['premium hoodie'];
+      expect(item, isNotNull);
+      expect(item!.category, 'clothing');
+      expect(item.collection, 'signature-range');
+      expect(item.color, 'Navy');
+      expect(item.size, 'L');
+    });
+
+    test('should increment quantity when adding existing product', () async {
+      cart.addProduct(
+        title: 'T-Shirt',
+        imageUrl: 'https://example.com/tshirt.jpg',
+        price: 20.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      cart.addProduct(
+        title: 'T-Shirt',
+        imageUrl: 'https://example.com/tshirt.jpg',
+        price: 20.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.itemCount, 1);
+      expect(cart.totalQuantity, 2);
+      expect(cart.totalPrice, 40.00);
+      expect(cart.items['t-shirt']!.quantity, 2);
+    });
+
+    test('should handle case-insensitive product titles', () async {
+      cart.addProduct(
+        title: 'HOODIE',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      cart.addProduct(
+        title: 'hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.itemCount, 1);
+      expect(cart.items['hoodie']!.quantity, 2);
+    });
+
+    test('should add multiple different products', () async {
+      cart.addProduct(
+        title: 'Hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+
+      cart.addProduct(
+        title: 'T-Shirt',
+        imageUrl: 'https://example.com/tshirt.jpg',
+        price: 20.00,
+      );
+
+      cart.addProduct(
+        title: 'Sweatshirt',
+        imageUrl: 'https://example.com/sweatshirt.jpg',
+        price: 35.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.itemCount, 3);
+      expect(cart.totalQuantity, 3);
+      expect(cart.totalPrice, 100.00);
+    });
+
+    test('should calculate totalPrice correctly with multiple items', () async {
+      cart.addProduct(
+        title: 'Item 1',
+        imageUrl: 'https://example.com/1.jpg',
+        price: 10.00,
+      );
+      cart.addProduct(
+        title: 'Item 1',
+        imageUrl: 'https://example.com/1.jpg',
+        price: 10.00,
+      );
+
+      cart.addProduct(
+        title: 'Item 2',
+        imageUrl: 'https://example.com/2.jpg',
+        price: 25.50,
+      );
+
+      cart.addProduct(
+        title: 'Item 3',
+        imageUrl: 'https://example.com/3.jpg',
+        price: 15.75,
+      );
+      cart.addProduct(
+        title: 'Item 3',
+        imageUrl: 'https://example.com/3.jpg',
+        price: 15.75,
+      );
+      cart.addProduct(
+        title: 'Item 3',
+        imageUrl: 'https://example.com/3.jpg',
+        price: 15.75,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      // 2x10 + 1x25.50 + 3x15.75 = 20 + 25.50 + 47.25 = 92.75
+      expect(cart.totalQuantity, 6);
+      expect(cart.totalPrice, 92.75);
+    });
+
+    test('should remove one quantity when removeProduct is called', () async {
+      cart.addProduct(
+        title: 'Hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+      cart.addProduct(
+        title: 'Hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+      cart.addProduct(
+        title: 'Hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.items['hoodie']!.quantity, 3);
+
+      cart.removeProduct('Hoodie');
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.items['hoodie']!.quantity, 2);
+      expect(cart.totalQuantity, 2);
+      expect(cart.totalPrice, 90.00);
+    });
+
+    test('should remove item completely when quantity reaches 0', () async {
+      cart.addProduct(
+        title: 'T-Shirt',
+        imageUrl: 'https://example.com/tshirt.jpg',
+        price: 20.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      cart.removeProduct('T-Shirt');
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.itemCount, 0);
+      expect(cart.items.containsKey('t-shirt'), false);
+    });
+
+    test('should handle removeProduct with case-insensitive title', () async {
+      cart.addProduct(
+        title: 'HOODIE',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+      cart.addProduct(
+        title: 'HOODIE',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      cart.removeProduct('hoodie');
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.items['hoodie']!.quantity, 1);
+    });
+
+    test('should do nothing when removing non-existent product', () async {
+      cart.addProduct(
+        title: 'Hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      cart.removeProduct('Non-Existent Product');
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.itemCount, 1);
+      expect(cart.totalQuantity, 1);
+    });
+
+    test('should remove product completely with removeProductCompletely',
+        () async {
+      cart.addProduct(
+        title: 'Hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+      cart.addProduct(
+        title: 'Hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+      cart.addProduct(
+        title: 'Hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.items['hoodie']!.quantity, 3);
+
+      cart.removeProductCompletely('Hoodie');
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.itemCount, 0);
+      expect(cart.items.containsKey('hoodie'), false);
+    });
+
+    test('should handle removeProductCompletely with case-insensitive title',
+        () async {
+      cart.addProduct(
+        title: 'SWEATSHIRT',
+        imageUrl: 'https://example.com/sweatshirt.jpg',
+        price: 35.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      cart.removeProductCompletely('sweatshirt');
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.items.containsKey('sweatshirt'), false);
+    });
+
+    test('should clear all items from cart', () async {
+      cart.addProduct(
+        title: 'Hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+      cart.addProduct(
+        title: 'T-Shirt',
+        imageUrl: 'https://example.com/tshirt.jpg',
+        price: 20.00,
+      );
+      cart.addProduct(
+        title: 'Sweatshirt',
+        imageUrl: 'https://example.com/sweatshirt.jpg',
+        price: 35.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.itemCount, 3);
+
+      cart.clearCart();
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.itemCount, 0);
+      expect(cart.totalQuantity, 0);
+      expect(cart.totalPrice, 0.0);
+      expect(cart.items, isEmpty);
+    });
+
+    test('should return a copy of items map', () async {
+      cart.addProduct(
+        title: 'Hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      final items1 = cart.items;
+      final items2 = cart.items;
+
+      expect(identical(items1, items2), false);
+      expect(items1, equals(items2));
+    });
+
+    test('should persist cart to Firestore when adding product', () async {
+      cart.addProduct(
+        title: 'Hoodie',
+        imageUrl: 'https://example.com/hoodie.jpg',
+        price: 45.00,
+        category: 'clothing',
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      // Verify cart was saved to Firestore
+      final cartDocs = await mockFirestore
+          .collection('users')
+          .doc('test-user-id')
+          .collection('cart')
+          .get();
+
+      expect(cartDocs.docs.length, 1);
+      expect(cartDocs.docs.first.data()['title'], 'Hoodie');
+      expect(cartDocs.docs.first.data()['price'], 45.00);
+    });
+
+    test('should load cart from Firestore on auth state change', () async {
+      // Create a fresh mock setup for this test
+      final testUser = MockUser(
+        uid: 'load-test-user',
+        email: 'loadtest@example.com',
+        displayName: 'Load Test User',
+      );
+      final testAuth = MockFirebaseAuth(mockUser: testUser, signedIn: true);
+      final testFirestore = FakeFirebaseFirestore();
+
+      // Add items to Firestore directly BEFORE creating CartModel
+      await testFirestore
+          .collection('users')
+          .doc('load-test-user')
+          .collection('cart')
+          .add({
+        'title': 'Preloaded Item',
+        'imageUrl': 'https://example.com/preloaded.jpg',
+        'price': 30.00,
+        'quantity': 2,
+        'category': 'clothing',
+        'collection': null,
+        'color': null,
+        'size': null,
+      });
+
+      // Create new cart instance to trigger load
+      final newCart = CartModel(auth: testAuth, firestore: testFirestore);
+
+      // Wait for async operations to complete
+      await Future.delayed(Duration(milliseconds: 500));
+
+      expect(newCart.itemCount, 1);
+      expect(newCart.items['preloaded item']!.quantity, 2);
+      expect(newCart.totalPrice, 60.00);
+    });
+
+    test('should handle decimal prices correctly', () async {
+      cart.addProduct(
+        title: 'Item 1',
+        imageUrl: 'https://example.com/1.jpg',
+        price: 19.99,
+      );
+      cart.addProduct(
+        title: 'Item 2',
+        imageUrl: 'https://example.com/2.jpg',
+        price: 25.50,
+      );
+
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(cart.totalPrice, closeTo(45.49, 0.01));
+    });
+  });
 }
