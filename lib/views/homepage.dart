@@ -122,8 +122,8 @@ class _HomeScreenState extends State<HomeScreen> {
       // Navigate to Essential Range collection
       context.go('/collections/essential-range');
     } else if (index == 1) {
-      // e.g. scroll to "Add a Personal Touch" later
-      placeholderCallbackForButtons();
+      // Navigate to Print Shack personalisation page
+      context.go('/personalisation');
     }
   }
 
