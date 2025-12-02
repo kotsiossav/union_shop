@@ -18,7 +18,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
     'Small logo',
     'Large logo',
   ];
-  String? _selectedPersonalisation;
+  late final ValueNotifier<String?> _selectedPersonalisation;
 
   // controllers for the dynamic text boxes
   final List<TextEditingController> _lineControllers = [];
@@ -85,8 +85,9 @@ class _PersonilationPageState extends State<PersonilationPage> {
   @override
   void initState() {
     super.initState();
-    _selectedPersonalisation = _personalisationOptions.first;
-    _updateControllersForSelection(_selectedPersonalisation);
+    _selectedPersonalisation =
+        ValueNotifier<String?>(_personalisationOptions.first);
+    _updateControllersForSelection(_selectedPersonalisation.value);
   }
 
   @override
@@ -94,6 +95,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
     for (var c in _lineControllers) {
       c.dispose();
     }
+    _selectedPersonalisation.dispose();
     _quantity.dispose();
     super.dispose();
   }
@@ -150,7 +152,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
         final title = _extractTitle(data);
         final price = _parsePrice(data['price']);
         // compute extra charge based on selected personalisation:
-        final sel = (_selectedPersonalisation ?? '').toLowerCase();
+        final sel = (_selectedPersonalisation.value ?? '').toLowerCase();
         int linesCount = 0;
         if (sel.startsWith('one'))
           linesCount = 1;
@@ -234,41 +236,51 @@ class _PersonilationPageState extends State<PersonilationPage> {
                                     fontSize: 16, fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 8),
-                              DropdownButton<String>(
-                                value: _selectedPersonalisation,
-                                isExpanded: true,
-                                items: _personalisationOptions
-                                    .map((opt) => DropdownMenuItem(
-                                          value: opt,
-                                          child: Text(opt),
-                                        ))
-                                    .toList(),
-                                onChanged: (v) {
-                                  setState(() {
-                                    _selectedPersonalisation = v;
-                                    _updateControllersForSelection(v);
-                                  });
-                                },
-                              ),
-
-                              const SizedBox(height: 12),
-                              // dynamic text boxes based on selection
-                              Column(
-                                children: List.generate(
-                                  _lineControllers.length,
-                                  (i) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: TextField(
-                                      controller: _lineControllers[i],
-                                      decoration: InputDecoration(
-                                        labelText: _lineControllers.length > 1
-                                            ? 'Line ${i + 1}'
-                                            : 'Text',
-                                        border: OutlineInputBorder(),
+                              ValueListenableBuilder<String?>(
+                                valueListenable: _selectedPersonalisation,
+                                builder: (context, selectedValue, child) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      DropdownButton<String>(
+                                        value: selectedValue,
+                                        isExpanded: true,
+                                        items: _personalisationOptions
+                                            .map((opt) => DropdownMenuItem(
+                                                  value: opt,
+                                                  child: Text(opt),
+                                                ))
+                                            .toList(),
+                                        onChanged: (v) {
+                                          _selectedPersonalisation.value = v;
+                                          _updateControllersForSelection(v);
+                                        },
                                       ),
-                                    ),
-                                  ),
-                                ),
+                                      const SizedBox(height: 12),
+                                      // dynamic text boxes based on selection
+                                      Column(
+                                        children: List.generate(
+                                          _lineControllers.length,
+                                          (i) => Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 8),
+                                            child: TextField(
+                                              controller: _lineControllers[i],
+                                              decoration: InputDecoration(
+                                                labelText:
+                                                    _lineControllers.length > 1
+                                                        ? 'Line ${i + 1}'
+                                                        : 'Text',
+                                                border: OutlineInputBorder(),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
 
                               const SizedBox(height: 16),
@@ -336,7 +348,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
                             .where((t) => t.isNotEmpty)
                             .toList();
                         final details = [
-                          _selectedPersonalisation ?? '',
+                          _selectedPersonalisation.value ?? '',
                           if (lines.isNotEmpty) 'Text: ${lines.join(" • ")}'
                         ].where((s) => s.isNotEmpty).join(' — ');
 
