@@ -285,40 +285,105 @@ class _AppHeaderState extends State<AppHeader> {
                           _icon(Icons.menu, onTap: () {
                             showModalBottomSheet(
                               context: context,
-                              builder: (_) {
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ListTile(
-                                        leading: const Icon(Icons.home),
-                                        title: const Text('Home'),
-                                        onTap: () => context.go('/')),
-                                    ListTile(
+                              isScrollControlled: true,
+                              builder: (sheetContext) {
+                                return SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ListTile(
+                                          leading: const Icon(Icons.home),
+                                          title: const Text('Home'),
+                                          onTap: () {
+                                            Navigator.pop(sheetContext);
+                                            context.go('/');
+                                          }),
+                                      ExpansionTile(
                                         leading: const Icon(Icons.shop),
                                         title: const Text('Shop'),
-                                        onTap: () =>
-                                            context.go('/collections')),
-                                    ListTile(
+                                        children: [
+                                          ListTile(
+                                            title:
+                                                const Text('Essential Range'),
+                                            onTap: () {
+                                              Navigator.pop(sheetContext);
+                                              context.go(
+                                                  '/collections/essential-range');
+                                            },
+                                          ),
+                                          ListTile(
+                                            title:
+                                                const Text('Signature Range'),
+                                            onTap: () {
+                                              Navigator.pop(sheetContext);
+                                              context.go(
+                                                  '/collections/signature-range');
+                                            },
+                                          ),
+                                          ListTile(
+                                            title: const Text('Graduation'),
+                                            onTap: () {
+                                              Navigator.pop(sheetContext);
+                                              context.go(
+                                                  '/collections/graduation');
+                                            },
+                                          ),
+                                          ListTile(
+                                            title:
+                                                const Text('Autumn Favourites'),
+                                            onTap: () {
+                                              Navigator.pop(sheetContext);
+                                              context.go(
+                                                  '/collections/autumn-favourites');
+                                            },
+                                          ),
+                                          ListTile(
+                                            title: const Text('Sale'),
+                                            onTap: () {
+                                              Navigator.pop(sheetContext);
+                                              context.go('/collections/sale');
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      ExpansionTile(
                                         leading: const Icon(Icons.print),
-                                        title:
-                                            const Text('Print Shack - About'),
-                                        onTap: () =>
-                                            context.go('/print_shack_about')),
-                                    ListTile(
-                                        leading: const Icon(Icons.person),
-                                        title: const Text(
-                                            'Print Shack - Personalisation'),
-                                        onTap: () =>
-                                            context.go('/personalisation')),
-                                    ListTile(
-                                        leading: const Icon(Icons.local_offer),
-                                        title: const Text('SALE!'),
-                                        onTap: () => context.go('/sale')),
-                                    ListTile(
-                                        leading: const Icon(Icons.info),
-                                        title: const Text('About'),
-                                        onTap: () => context.go('/about')),
-                                  ],
+                                        title: const Text('The Print Shack'),
+                                        children: [
+                                          ListTile(
+                                            title: const Text('About'),
+                                            onTap: () {
+                                              Navigator.pop(sheetContext);
+                                              context.go('/print_shack_about');
+                                            },
+                                          ),
+                                          ListTile(
+                                            title:
+                                                const Text('Personalisation'),
+                                            onTap: () {
+                                              Navigator.pop(sheetContext);
+                                              context.go('/personalisation');
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      ListTile(
+                                          leading:
+                                              const Icon(Icons.local_offer),
+                                          title: const Text('SALE!'),
+                                          onTap: () {
+                                            Navigator.pop(sheetContext);
+                                            context.go('/collections/sale');
+                                          }),
+                                      ListTile(
+                                          leading: const Icon(Icons.info),
+                                          title: const Text('About'),
+                                          onTap: () {
+                                            Navigator.pop(sheetContext);
+                                            context.go('/about');
+                                          }),
+                                    ],
+                                  ),
                                 );
                               },
                             );
