@@ -6,20 +6,22 @@ import 'package:union_shop/services/order_service.dart';
 
 class CartScreen extends StatefulWidget {
   final CartModel cart;
+  final OrderService? orderService;
 
-  const CartScreen({super.key, required this.cart});
+  const CartScreen({super.key, required this.cart, this.orderService});
 
   @override
   State<CartScreen> createState() => _CartScreenState();
 }
 
 class _CartScreenState extends State<CartScreen> {
-  final OrderService _orderService = OrderService();
+  late final OrderService _orderService;
   bool _isProcessingCheckout = false;
 
   @override
   void initState() {
     super.initState();
+    _orderService = widget.orderService ?? OrderService();
     widget.cart.addListener(_onCartChanged);
   }
 
