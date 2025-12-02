@@ -5,8 +5,15 @@ import 'package:go_router/go_router.dart';
 
 class SearchPage extends StatefulWidget {
   final String? initialQuery;
+  final FirebaseFirestore? firestore;
+  final Future<QuerySnapshot<Map<String, dynamic>>> Function()? fetchProducts;
 
-  const SearchPage({super.key, this.initialQuery});
+  const SearchPage({
+    super.key,
+    this.initialQuery,
+    this.firestore,
+    this.fetchProducts,
+  });
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -47,8 +54,11 @@ class _SearchPageState extends State<SearchPage> {
     });
 
     try {
-      final snapshot =
-          await FirebaseFirestore.instance.collection('products').get();
+      final snapshot = widget.fetchProducts != null
+          ? await widget.fetchProducts!()
+          : await (widget.firestore ?? FirebaseFirestore.instance)
+              .collection('products')
+              .get();
 
       final results = <Map<String, dynamic>>[];
 
