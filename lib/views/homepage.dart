@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:union_shop/layout.dart';
 import 'package:union_shop/app_styles.dart';
 import 'package:union_shop/images_layout.dart';
@@ -118,8 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onHeroButtonPressed(int index) {
     if (index == 0) {
-      // e.g. scroll to products / shop later
-      placeholderCallbackForButtons();
+      // Navigate to Essential Range collection
+      context.go('/collections/essential-range');
     } else if (index == 1) {
       // e.g. scroll to "Add a Personal Touch" later
       placeholderCallbackForButtons();
