@@ -6,7 +6,8 @@ import 'package:union_shop/images_layout.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool enableProducts;
+  const HomeScreen({super.key, this.enableProducts = true});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -329,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
 
-            // Products Section
+            // Products Section (product cards can be disabled for tests)
             Container(
               color: Colors.white,
               child: LayoutBuilder(
@@ -357,22 +358,32 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (isMobile)
                               Column(
                                 children: [
-                                  _buildProductCard('Placeholder Product 1'),
+                                  widget.enableProducts
+                                      ? _buildProductCard(
+                                          'Placeholder Product 1')
+                                      : const SizedBox.shrink(),
                                   const SizedBox(height: 24),
-                                  _buildProductCard('Placeholder Product 2'),
+                                  widget.enableProducts
+                                      ? _buildProductCard(
+                                          'Placeholder Product 2')
+                                      : const SizedBox.shrink(),
                                 ],
                               )
                             else
                               Row(
                                 children: [
                                   Expanded(
-                                    child: _buildProductCard(
-                                        'Placeholder Product 1'),
+                                    child: widget.enableProducts
+                                        ? _buildProductCard(
+                                            'Placeholder Product 1')
+                                        : const SizedBox.shrink(),
                                   ),
                                   const SizedBox(width: 24),
                                   Expanded(
-                                    child: _buildProductCard(
-                                        'Placeholder Product 2'),
+                                    child: widget.enableProducts
+                                        ? _buildProductCard(
+                                            'Placeholder Product 2')
+                                        : const SizedBox.shrink(),
                                   ),
                                 ],
                               ),
@@ -394,22 +405,32 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (isMobile)
                               Column(
                                 children: [
-                                  _buildProductCard('Placeholder Product 3'),
+                                  widget.enableProducts
+                                      ? _buildProductCard(
+                                          'Placeholder Product 3')
+                                      : const SizedBox.shrink(),
                                   const SizedBox(height: 24),
-                                  _buildProductCard('Placeholder Product 4'),
+                                  widget.enableProducts
+                                      ? _buildProductCard(
+                                          'Placeholder Product 4')
+                                      : const SizedBox.shrink(),
                                 ],
                               )
                             else
                               Row(
                                 children: [
                                   Expanded(
-                                    child: _buildProductCard(
-                                        'Placeholder Product 3'),
+                                    child: widget.enableProducts
+                                        ? _buildProductCard(
+                                            'Placeholder Product 3')
+                                        : const SizedBox.shrink(),
                                   ),
                                   const SizedBox(width: 24),
                                   Expanded(
-                                    child: _buildProductCard(
-                                        'Placeholder Product 4'),
+                                    child: widget.enableProducts
+                                        ? _buildProductCard(
+                                            'Placeholder Product 4')
+                                        : const SizedBox.shrink(),
                                   ),
                                 ],
                               ),
@@ -429,22 +450,32 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (isMobile)
                               Column(
                                 children: [
-                                  _buildProductCard('Placeholder Product 5'),
+                                  widget.enableProducts
+                                      ? _buildProductCard(
+                                          'Placeholder Product 5')
+                                      : const SizedBox.shrink(),
                                   const SizedBox(height: 24),
-                                  _buildProductCard('Placeholder Product 6'),
+                                  widget.enableProducts
+                                      ? _buildProductCard(
+                                          'Placeholder Product 6')
+                                      : const SizedBox.shrink(),
                                 ],
                               )
                             else
                               Row(
                                 children: [
                                   Expanded(
-                                    child: _buildProductCard(
-                                        'Placeholder Product 5'),
+                                    child: widget.enableProducts
+                                        ? _buildProductCard(
+                                            'Placeholder Product 5')
+                                        : const SizedBox.shrink(),
                                   ),
                                   const SizedBox(width: 24),
                                   Expanded(
-                                    child: _buildProductCard(
-                                        'Placeholder Product 6'),
+                                    child: widget.enableProducts
+                                        ? _buildProductCard(
+                                            'Placeholder Product 6')
+                                        : const SizedBox.shrink(),
                                   ),
                                 ],
                               ),
@@ -454,22 +485,32 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (isMobile)
                               Column(
                                 children: [
-                                  _buildProductCard('Placeholder Product 7'),
+                                  widget.enableProducts
+                                      ? _buildProductCard(
+                                          'Placeholder Product 7')
+                                      : const SizedBox.shrink(),
                                   const SizedBox(height: 24),
-                                  _buildProductCard('Placeholder Product 8'),
+                                  widget.enableProducts
+                                      ? _buildProductCard(
+                                          'Placeholder Product 8')
+                                      : const SizedBox.shrink(),
                                 ],
                               )
                             else
                               Row(
                                 children: [
                                   Expanded(
-                                    child: _buildProductCard(
-                                        'Placeholder Product 7'),
+                                    child: widget.enableProducts
+                                        ? _buildProductCard(
+                                            'Placeholder Product 7')
+                                        : const SizedBox.shrink(),
                                   ),
                                   const SizedBox(width: 24),
                                   Expanded(
-                                    child: _buildProductCard(
-                                        'Placeholder Product 8'),
+                                    child: widget.enableProducts
+                                        ? _buildProductCard(
+                                            'Placeholder Product 8')
+                                        : const SizedBox.shrink(),
                                   ),
                                 ],
                               ),

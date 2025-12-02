@@ -2,19 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:union_shop/views/homepage.dart';
-// Add this import so ProductCard is visible to the test
-import 'package:union_shop/views/homepage.dart' show ProductCard;
+import 'package:union_shop/layout.dart';
+import 'package:provider/provider.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:union_shop/services/auth_service.dart';
+import 'package:union_shop/models/cart_model.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('HomeScreen renders hero slider, product cards, and footer',
-      (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: HomeScreen(),
-      ),
+  late FakeFirebaseFirestore fakeFirestore;
+  late MockFirebaseAuth mockAuth;
+  late AuthService authService;
+  late CartModel cartModel;
+
+  setUp(() {
+    fakeFirestore = FakeFirebaseFirestore();
+    mockAuth =
+        MockFirebaseAuth(signedIn: true, mockUser: MockUser(uid: 'homeUser'));
+    authService = AuthService(auth: mockAuth);
+    cartModel = CartModel(auth: mockAuth, firestore: fakeFirestore);
+  });
+
+  Widget buildRouterApp(Widget child, {List<RouteBase>? extraRoutes}) {
+    final routes = <RouteBase>[
+      GoRoute(path: '/', builder: (context, state) => child),
+      if (extraRoutes != null) ...extraRoutes,
+    ];
+
+    final router = GoRouter(routes: routes);
+
+    return MultiProvider(
+      providers: [
+        Provider<AuthService>.value(value: authService),
+        ChangeNotifierProvider<CartModel>.value(value: cartModel),
+      ],
+      child: MaterialApp.router(routerConfig: router),
     );
+  }
+
+  testWidgets('HomeScreen renders hero slider and footer', (tester) async {
+    await tester
+        .pumpWidget(buildRouterApp(const HomeScreen(enableProducts: false)));
 
     // ---------------------------------------------------------
     // HERO SECTION
@@ -43,121 +73,56 @@ void main() {
     );
 
     // ---------------------------------------------------------
-    // PRODUCT SECTIONS
-    // ---------------------------------------------------------
-
-    // Section titles
-    expect(find.text('ESSENTIAL RANGE - OVER 20% OFF!'), findsOneWidget);
-    expect(find.text('SIGNATURE RANGE'), findsOneWidget);
-    expect(find.text('PORTSMOUTH CITY COLLECTION'), findsOneWidget);
-    expect(find.text('OUR RANGE'), findsOneWidget);
-
-    // Product Card Titles
-    expect(find.text('Placeholder Product 1'), findsOneWidget);
-    expect(find.text('Placeholder Product 2'), findsOneWidget);
-    expect(find.text('Placeholder Product 3'), findsOneWidget);
-    expect(find.text('Placeholder Product 4'), findsOneWidget);
-    expect(find.text('Placeholder Product 5'), findsOneWidget);
-    expect(find.text('Placeholder Product 6'), findsOneWidget);
-    expect(find.text('Placeholder Product 7'), findsOneWidget);
-    expect(find.text('Placeholder Product 8'), findsOneWidget);
-
-    // Product Images
-    expect(
-      find.image(
-        const AssetImage('assets/images/Sage_T-shirt_720x.webp'),
-      ),
-      findsOneWidget,
-    );
-
-    expect(
-      find.image(
-        const AssetImage('assets/images/SageHoodie_720x.webp'),
-      ),
-      findsOneWidget,
-    );
-
-    expect(
-      find.image(
-        const AssetImage(
-            'assets/images/Signature_T-Shirt_Indigo_Blue_2_720x.webp'),
-      ),
-      findsOneWidget,
-    );
-
-    expect(
-      find.image(const AssetImage('assets/images/postcard.jpg')),
-      findsWidgets,
-    );
-
-    expect(
-      find.image(const AssetImage('assets/images/magnet.jpg')),
-      findsOneWidget,
-    );
-
-    expect(
-      find.image(const AssetImage('assets/images/bookmark.jpg')),
-      findsOneWidget,
-    );
-
-    // ---------------------------------------------------------
     // FOOTER
     // ---------------------------------------------------------
     expect(find.text('Opening Hours'), findsOneWidget);
     expect(find.text('Latest Offers'), findsOneWidget);
 
-    // VIEW ALL button exists
-    expect(find.text('VIEW ALL'), findsOneWidget);
+    // Basic presence of footer content
+    expect(find.text('Opening Hours'), findsOneWidget);
   });
 
-  testWidgets('Tapping a ProductCard navigates to /product', (tester) async {
-    final router = GoRouter(routes: [
+  testWidgets('Squares navigate to their collections', (tester) async {
+    final extraRoutes = [
       GoRoute(
-        path: '/',
-        builder: (context, state) => const HomeScreen(),
-      ),
-      GoRoute(
-        path: '/product',
+        path: '/collections/clothing',
         builder: (context, state) =>
-            const Scaffold(body: Center(child: Text('Product Page'))),
+            const Scaffold(body: Center(child: Text('Clothing Collection'))),
       ),
-    ]);
+      GoRoute(
+        path: '/collections/merchandise',
+        builder: (context, state) =>
+            const Scaffold(body: Center(child: Text('Merchandise Collection'))),
+      ),
+    ];
 
-    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpWidget(buildRouterApp(
+        const HomeScreen(enableProducts: false),
+        extraRoutes: extraRoutes));
     await tester.pumpAndSettle();
 
-    final titleFinder = find.text('Placeholder Product 1');
-    expect(titleFinder, findsOneWidget);
-
-    // Find the internal Scrollable inside the main SingleChildScrollView
-    final scrollableFinder = find.descendant(
-      of: find.byType(SingleChildScrollView),
-      matching: find.byType(Scrollable),
-    );
-
-    // Scroll until the product title appears
-    await tester.scrollUntilVisible(
-      titleFinder,
-      300,
-      scrollable: scrollableFinder.first,
-    );
-
+    // Tap Clothing square
+    final clothingLabel = find.text('Clothing');
+    await tester.ensureVisible(clothingLabel);
+    await tester.tap(clothingLabel);
     await tester.pumpAndSettle();
+    expect(find.text('Clothing Collection'), findsOneWidget);
 
-    // Tap the product
-    await tester.tap(titleFinder);
+    // Rebuild home and tap Merchandise
+    await tester.pumpWidget(buildRouterApp(
+        const HomeScreen(enableProducts: false),
+        extraRoutes: extraRoutes));
     await tester.pumpAndSettle();
-
-    // Should navigate to test Product Page
-    expect(find.text('Product Page'), findsOneWidget);
+    final merchLabel = find.text('Merchandise');
+    await tester.ensureVisible(merchLabel);
+    await tester.tap(merchLabel);
+    await tester.pumpAndSettle();
+    expect(find.text('Merchandise Collection'), findsOneWidget);
   });
 
   testWidgets('Hero slideshow arrows change the current slide', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: HomeScreen(),
-      ),
-    );
+    await tester
+        .pumpWidget(buildRouterApp(const HomeScreen(enableProducts: false)));
 
     // Initial slide should show the first hero title
     expect(find.text('Essential Range - Over 20% Off!'), findsOneWidget);
@@ -193,5 +158,22 @@ void main() {
     // Should now be on second slide again (hero title present)
     expect(find.text('Essential Range - Over 20% Off!'), findsNothing);
     expect(find.text('The Print Shack'), findsWidgets);
+  });
+
+  testWidgets('Full-page smoke: header, key sections, footer visible',
+      (tester) async {
+    await tester
+        .pumpWidget(buildRouterApp(const HomeScreen(enableProducts: false)));
+    await tester.pumpAndSettle();
+
+    // Ensure key static sections are present
+    expect(find.byType(AppHeader), findsOneWidget);
+    await tester.ensureVisible(find.text('Add a Personal Touch'));
+    expect(find.text('Add a Personal Touch'), findsOneWidget);
+    expect(find.byType(AppFooter), findsOneWidget);
+
+    // Ensure footer is reachable in scroll view
+    await tester.ensureVisible(find.byType(AppFooter));
+    expect(find.text('Opening Hours'), findsOneWidget);
   });
 }

@@ -3,6 +3,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:network_image_mock/network_image_mock.dart';
 import 'package:union_shop/models/cart_model.dart';
 import 'package:union_shop/services/auth_service.dart';
 import 'package:union_shop/views/product_page.dart';
@@ -67,14 +68,15 @@ void main() {
     });
 
     testWidgets('displays product image with network URL', (tester) async {
-      await tester.pumpWidget(createTestWidget(
-        imageUrl: 'https://example.com/image.jpg',
-      ));
-      await tester.pumpAndSettle();
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(createTestWidget(
+          imageUrl: 'https://example.com/image.jpg',
+        ));
+        await tester.pump();
 
-      // Network images will fail in tests but widget should still render
-      final imageFinder = find.byKey(const Key('product_image'));
-      expect(imageFinder, findsOneWidget);
+        final imageFinder = find.byKey(const Key('product_image'));
+        expect(imageFinder, findsOneWidget);
+      });
     });
 
     testWidgets('quantity starts at 1', (tester) async {
