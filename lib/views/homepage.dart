@@ -516,29 +516,44 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             SizedBox(height: isMobile ? 24 : 48),
 
-                            // 4 square images, centered and same total width
-                            const Wrap(
+                            // 4 square images, each linking to collections
+                            Wrap(
                               alignment: WrapAlignment.center,
                               spacing: 24,
                               runSpacing: 24,
                               children: [
-                                SquareImage(
-                                  imagePath:
-                                      'assets/images/PurpleHoodieFinal_540x.webp',
-                                  label: 'Clothing',
+                                GestureDetector(
+                                  onTap: () =>
+                                      context.go('/collections/clothing'),
+                                  child: const SquareImage(
+                                    imagePath:
+                                        'assets/images/PurpleHoodieFinal_540x.webp',
+                                    label: 'Clothing',
+                                  ),
                                 ),
-                                SquareImage(
-                                  imagePath: 'assets/images/card_holder.jpg',
-                                  label: 'Merchandise',
+                                GestureDetector(
+                                  onTap: () =>
+                                      context.go('/collections/merchandise'),
+                                  child: const SquareImage(
+                                    imagePath: 'assets/images/card_holder.jpg',
+                                    label: 'Merchandise',
+                                  ),
                                 ),
-                                SquareImage(
-                                  imagePath: 'assets/images/grey_hoodie.webp',
-                                  label: 'Graduation',
+                                GestureDetector(
+                                  onTap: () =>
+                                      context.go('/collections/graduation'),
+                                  child: const SquareImage(
+                                    imagePath: 'assets/images/grey_hoodie.webp',
+                                    label: 'Graduation',
+                                  ),
                                 ),
-                                SquareImage(
-                                  imagePath:
-                                      'assets/images/purple_notepad.webp',
-                                  label: 'SALE',
+                                GestureDetector(
+                                  onTap: () => context.go('/collections/sale'),
+                                  child: const SquareImage(
+                                    imagePath:
+                                        'assets/images/purple_notepad.webp',
+                                    label: 'SALE',
+                                  ),
                                 ),
                               ],
                             ),
