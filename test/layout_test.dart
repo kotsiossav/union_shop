@@ -113,4 +113,30 @@ void main() {
     // Reset to default size
     await tester.binding.setSurfaceSize(null);
   });
+
+  // AppHeader tests - testing widget structure without Firebase
+  group('AppHeader', () {
+    test('AppHeader is a StatefulWidget', () {
+      const header = AppHeader();
+      expect(header, isA<StatefulWidget>());
+    });
+
+    test('AppHeader can be instantiated without errors', () {
+      const header = AppHeader();
+      expect(header, isNotNull);
+      expect(header.key, isNull);
+    });
+
+    test('AppHeader with key can be instantiated', () {
+      const header = AppHeader(key: Key('test-header'));
+      expect(header, isNotNull);
+      expect(header.key, isA<Key>());
+      expect(header.key.toString(), contains('test-header'));
+    });
+
+    test('AppHeader widget type is correct', () {
+      const header = AppHeader();
+      expect(header.runtimeType.toString(), 'AppHeader');
+    });
+  });
 }
