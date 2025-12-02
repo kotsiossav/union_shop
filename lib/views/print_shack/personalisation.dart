@@ -23,6 +23,9 @@ class _PersonilationPageState extends State<PersonilationPage> {
   // controllers for the dynamic text boxes
   final List<TextEditingController> _lineControllers = [];
 
+  // quantity selector
+  int _quantity = 1;
+
   // keep controllers count in sync with selection
   void _updateControllersForSelection(String? selection) {
     int count = 1;
@@ -266,6 +269,44 @@ class _PersonilationPageState extends State<PersonilationPage> {
                                   ),
                                 ),
                               ),
+
+                              const SizedBox(height: 16),
+                              // quantity selector
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Quantity:',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  IconButton(
+                                    onPressed: _quantity > 1
+                                        ? () => setState(() => _quantity--)
+                                        : null,
+                                    icon: const Icon(Icons.remove),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      '$_quantity',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: _quantity < 99
+                                        ? () => setState(() => _quantity++)
+                                        : null,
+                                    icon: const Icon(Icons.add),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
@@ -275,8 +316,6 @@ class _PersonilationPageState extends State<PersonilationPage> {
                 ),
 
                 const SizedBox(height: 24),
-
-                
 
                 // Add to cart button
                 Center(
@@ -296,14 +335,16 @@ class _PersonilationPageState extends State<PersonilationPage> {
                         final titleLabel =
                             title.isNotEmpty ? title : 'Personalisation';
                         final priceLabel = _formatPrice(totalPrice);
+                        final quantityText =
+                            _quantity > 1 ? ' (×$_quantity)' : '';
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                                'Added "$titleLabel"${details.isNotEmpty ? " ($details)" : ""} — $priceLabel to cart'),
+                                'Added "$titleLabel"${details.isNotEmpty ? " ($details)" : ""}$quantityText — $priceLabel to cart'),
                           ),
                         );
-                        // TODO: hook into real cart state / backend/add quantity field
+                        // TODO: hook into real cart state / backend
                       },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(vertical: 12.0),
