@@ -3,7 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/order_model.dart' as order_model;
 import '../models/cart_model.dart';
 
-class OrderService {
+abstract class OrderServiceBase {
+  Future<String?> createOrderFromCart(CartModel cart);
+  Future<List<order_model.Order>> getUserOrders();
+  Stream<List<order_model.Order>> getUserOrdersStream();
+}
+
+class OrderService implements OrderServiceBase {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
 
@@ -14,6 +20,7 @@ class OrderService {
         _auth = auth ?? FirebaseAuth.instance;
 
   // Create order from cart
+  @override
   Future<String?> createOrderFromCart(CartModel cart) async {
     final user = _auth.currentUser;
     if (user == null) {
@@ -62,6 +69,7 @@ class OrderService {
   }
 
   // Get user's order history
+  @override
   Future<List<order_model.Order>> getUserOrders() async {
     final user = _auth.currentUser;
     if (user == null) {
@@ -85,6 +93,7 @@ class OrderService {
   }
 
   // Get orders stream for real-time updates
+  @override
   Stream<List<order_model.Order>> getUserOrdersStream() {
     final user = _auth.currentUser;
     if (user == null) {

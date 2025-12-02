@@ -4,19 +4,22 @@ import '../models/order_model.dart' as order_model;
 import '../services/order_service.dart';
 
 class OrderHistoryPage extends StatefulWidget {
-  const OrderHistoryPage({super.key});
+  final OrderServiceBase? orderService;
+
+  const OrderHistoryPage({super.key, this.orderService});
 
   @override
   State<OrderHistoryPage> createState() => _OrderHistoryPageState();
 }
 
 class _OrderHistoryPageState extends State<OrderHistoryPage> {
-  final OrderService _orderService = OrderService();
+  late final OrderServiceBase _orderService;
   late Future<List<order_model.Order>> _ordersFuture;
 
   @override
   void initState() {
     super.initState();
+    _orderService = widget.orderService ?? OrderService();
     _ordersFuture = _orderService.getUserOrders();
   }
 
