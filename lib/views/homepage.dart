@@ -498,7 +498,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   const SizedBox(height: 24),
                                   ElevatedButton(
-                                    onPressed: placeholderCallbackForButtons,
+                                    onPressed: () =>
+                                        context.go('/personalisation'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF4d2963),
                                       foregroundColor: Colors.white,
@@ -511,7 +512,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                     child: const Text(
-                                      'Click here to add text',
+                                      'Click here to add text!',
                                       style: TextStyle(
                                         letterSpacing: 1,
                                         fontSize: 14,

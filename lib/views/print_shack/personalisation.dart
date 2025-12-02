@@ -83,6 +83,109 @@ class _PersonilationPageState extends State<PersonilationPage> {
 
   String _formatPrice(double p) => '£${p.toStringAsFixed(2)}';
 
+  Widget _buildProductDetails(String title, double totalPrice, bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title.isNotEmpty ? title : 'Personalisation',
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          _formatPrice(totalPrice),
+          style: const TextStyle(fontSize: 18, color: Colors.black87),
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          'Choose personalisation option',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        ValueListenableBuilder<String?>(
+          valueListenable: _selectedPersonalisation,
+          builder: (context, selectedValue, child) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButton<String>(
+                  value: selectedValue,
+                  isExpanded: true,
+                  items: _personalisationOptions
+                      .map((opt) => DropdownMenuItem(
+                            value: opt,
+                            child: Text(opt),
+                          ))
+                      .toList(),
+                  onChanged: (v) {
+                    _selectedPersonalisation.value = v;
+                    _updateControllersForSelection(v);
+                  },
+                ),
+                const SizedBox(height: 12),
+                // dynamic text boxes based on selection
+                Column(
+                  children: List.generate(
+                    _lineControllers.length,
+                    (i) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: TextField(
+                        controller: _lineControllers[i],
+                        decoration: InputDecoration(
+                          labelText: _lineControllers.length > 1
+                              ? 'Line ${i + 1}'
+                              : 'Text',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+        // quantity selector (isolated rebuild)
+        ValueListenableBuilder<int>(
+          valueListenable: _quantity,
+          builder: (context, quantity, child) {
+            return Row(
+              mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
+              children: [
+                const Text(
+                  'Quantity:',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(width: 16),
+                IconButton(
+                  onPressed: quantity > 1 ? () => _quantity.value-- : null,
+                  icon: const Icon(Icons.remove),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    '$quantity',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
+                IconButton(
+                  onPressed: quantity < 99 ? () => _quantity.value++ : null,
+                  icon: const Icon(Icons.add),
+                ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -155,9 +258,9 @@ class _PersonilationPageState extends State<PersonilationPage> {
         // compute extra charge based on selected personalisation:
         final sel = (_selectedPersonalisation.value ?? '').toLowerCase();
         int linesCount = 0;
-        if (sel.startsWith('one'))
+        if (sel.startsWith('one')) {
           linesCount = 1;
-        else if (sel.startsWith('two'))
+        } else if (sel.startsWith('two'))
           linesCount = 2;
         else if (sel.startsWith('three'))
           linesCount = 3;
@@ -169,9 +272,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
         final double totalPrice = price + extra;
         final bool isNetwork = imageUrl.startsWith('http');
 
-        // Single scroll view for the whole page (no nested scrollables).
-        // Product header (image/title/price) will be part of the same scroll,
-        // avoiding nested scrolling behaviour.
+        // Responsive layout: use LayoutBuilder to adapt to screen size
         return Scaffold(
           appBar: AppBar(title: const Text('Print Shack — Personalisation')),
           body: SingleChildScrollView(
@@ -181,159 +282,91 @@ class _PersonilationPageState extends State<PersonilationPage> {
               children: [
                 const AppHeader(),
 
-                // product preview card: image left, title on right, price below title
-                Card(
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 260,
-                          height: 260,
-                          child: isNetwork
-                              ? Image.network(
-                                  imageUrl,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (ctx, err, st) => const Center(
-                                      child: Icon(Icons.image,
-                                          size: 56, color: Colors.grey)),
-                                )
-                              : Image.asset(
-                                  imageUrl.isEmpty
-                                      ? 'assets/images/personalisation_placeholder.png'
-                                      : imageUrl,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (ctx, err, st) => const Center(
-                                      child: Icon(Icons.image,
-                                          size: 56, color: Colors.grey)),
-                                ),
-                        ),
-                        const SizedBox(width: 20),
+                // product preview card: responsive layout
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isMobile = constraints.maxWidth < 600;
 
-                        // limit details column width so it doesn't take the whole row
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 360),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title.isNotEmpty ? title : 'Personalisation',
-                                style: const TextStyle(
-                                    fontSize: 22, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                // show base + extra dynamically
-                                _formatPrice(totalPrice),
-                                style: const TextStyle(
-                                    fontSize: 18, color: Colors.black87),
-                              ),
-                              const SizedBox(height: 12),
-                              const Text(
-                                'Choose personalisation option',
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 8),
-                              ValueListenableBuilder<String?>(
-                                valueListenable: _selectedPersonalisation,
-                                builder: (context, selectedValue, child) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      DropdownButton<String>(
-                                        value: selectedValue,
-                                        isExpanded: true,
-                                        items: _personalisationOptions
-                                            .map((opt) => DropdownMenuItem(
-                                                  value: opt,
-                                                  child: Text(opt),
-                                                ))
-                                            .toList(),
-                                        onChanged: (v) {
-                                          _selectedPersonalisation.value = v;
-                                          _updateControllersForSelection(v);
-                                        },
-                                      ),
-                                      const SizedBox(height: 12),
-                                      // dynamic text boxes based on selection
-                                      Column(
-                                        children: List.generate(
-                                          _lineControllers.length,
-                                          (i) => Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 8),
-                                            child: TextField(
-                                              controller: _lineControllers[i],
-                                              decoration: InputDecoration(
-                                                labelText:
-                                                    _lineControllers.length > 1
-                                                        ? 'Line ${i + 1}'
-                                                        : 'Text',
-                                                border: OutlineInputBorder(),
-                                              ),
+                    return Card(
+                      elevation: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: isMobile
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Image on top for mobile
+                                  Center(
+                                    child: SizedBox(
+                                      width: double.infinity,
+                                      height: 260,
+                                      child: isNetwork
+                                          ? Image.network(
+                                              imageUrl,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (ctx, err, st) =>
+                                                  const Center(
+                                                      child: Icon(Icons.image,
+                                                          size: 56,
+                                                          color: Colors.grey)),
+                                            )
+                                          : Image.asset(
+                                              imageUrl.isEmpty
+                                                  ? 'assets/images/personalisation_placeholder.png'
+                                                  : imageUrl,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (ctx, err, st) =>
+                                                  const Center(
+                                                      child: Icon(Icons.image,
+                                                          size: 56,
+                                                          color: Colors.grey)),
                                             ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildProductDetails(
+                                      title, totalPrice, isMobile),
+                                ],
+                              )
+                            : Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Image on left for desktop
+                                  SizedBox(
+                                    width: 260,
+                                    height: 260,
+                                    child: isNetwork
+                                        ? Image.network(
+                                            imageUrl,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (ctx, err, st) =>
+                                                const Center(
+                                                    child: Icon(Icons.image,
+                                                        size: 56,
+                                                        color: Colors.grey)),
+                                          )
+                                        : Image.asset(
+                                            imageUrl.isEmpty
+                                                ? 'assets/images/personalisation_placeholder.png'
+                                                : imageUrl,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (ctx, err, st) =>
+                                                const Center(
+                                                    child: Icon(Icons.image,
+                                                        size: 56,
+                                                        color: Colors.grey)),
                                           ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: _buildProductDetails(
+                                        title, totalPrice, isMobile),
+                                  ),
+                                ],
                               ),
-
-                              const SizedBox(height: 16),
-                              // quantity selector (isolated rebuild)
-                              ValueListenableBuilder<int>(
-                                valueListenable: _quantity,
-                                builder: (context, quantity, child) {
-                                  return Row(
-                                    children: [
-                                      const Text(
-                                        'Quantity:',
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      IconButton(
-                                        onPressed: quantity > 1
-                                            ? () => _quantity.value--
-                                            : null,
-                                        icon: const Icon(Icons.remove),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 16, vertical: 8),
-                                        decoration: BoxDecoration(
-                                          border:
-                                              Border.all(color: Colors.grey),
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                        ),
-                                        child: Text(
-                                          '$quantity',
-                                          style: const TextStyle(fontSize: 16),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        onPressed: quantity < 99
-                                            ? () => _quantity.value++
-                                            : null,
-                                        icon: const Icon(Icons.add),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 24),
