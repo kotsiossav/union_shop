@@ -3,7 +3,9 @@ import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
 
 class SignInPage extends StatefulWidget {
-  const SignInPage({super.key});
+  final AuthService? authService;
+  
+  const SignInPage({super.key, this.authService});
 
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -12,9 +14,15 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final AuthService _authService = AuthService();
+  late final AuthService _authService;
   bool _isLoading = false;
   bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _authService = widget.authService ?? AuthService();
+  }
 
   @override
   void dispose() {
@@ -177,8 +185,9 @@ class _SignInPageState extends State<SignInPage> {
                   const SizedBox(height: 16),
 
                   // Register link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       const Text('Don\'t have an account? '),
                       TextButton(
