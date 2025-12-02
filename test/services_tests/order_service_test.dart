@@ -37,8 +37,10 @@ void main() {
 
       test('should throw exception when user is not signed in', () async {
         final unauthAuth = MockFirebaseAuth(signedIn: false);
-        final unauthService = OrderService(firestore: mockFirestore, auth: unauthAuth);
-        final unauthCart = CartModel(auth: unauthAuth, firestore: mockFirestore);
+        final unauthService =
+            OrderService(firestore: mockFirestore, auth: unauthAuth);
+        final unauthCart =
+            CartModel(auth: unauthAuth, firestore: mockFirestore);
 
         unauthCart.addProduct(
           title: 'Product',
@@ -153,16 +155,17 @@ void main() {
     group('Get User Orders', () {
       test('should return empty list when user is not signed in', () async {
         final unauthAuth = MockFirebaseAuth(signedIn: false);
-        final unauthService = OrderService(firestore: mockFirestore, auth: unauthAuth);
-        
+        final unauthService =
+            OrderService(firestore: mockFirestore, auth: unauthAuth);
+
         final orders = await unauthService.getUserOrders();
-        
+
         expect(orders, isEmpty);
       });
 
       test('should return empty list when user has no orders', () async {
         final orders = await orderService.getUserOrders();
-        
+
         expect(orders, isEmpty);
       });
 
@@ -185,7 +188,7 @@ void main() {
         await orderService.createOrderFromCart(cart);
 
         final orders = await orderService.getUserOrders();
-        
+
         expect(orders.length, 2);
       });
 
@@ -201,7 +204,7 @@ void main() {
         await orderService.createOrderFromCart(cart);
 
         final orders = await orderService.getUserOrders();
-        
+
         expect(orders[0].items[0].title, 'Second');
         expect(orders[1].items[0].title, 'First');
       });
@@ -230,11 +233,12 @@ void main() {
     group('Get User Orders Stream', () {
       test('should return empty stream when user is not signed in', () async {
         final unauthAuth = MockFirebaseAuth(signedIn: false);
-        final unauthService = OrderService(firestore: mockFirestore, auth: unauthAuth);
-        
+        final unauthService =
+            OrderService(firestore: mockFirestore, auth: unauthAuth);
+
         final stream = unauthService.getUserOrdersStream();
         final orders = await stream.first;
-        
+
         expect(orders, isEmpty);
       });
 
