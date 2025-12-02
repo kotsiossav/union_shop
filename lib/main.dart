@@ -7,7 +7,7 @@ import 'package:union_shop/views/print_shack/print-shack_about.dart';
 import 'package:union_shop/views/print_shack/personalisation.dart';
 import 'package:union_shop/views/collections_page.dart';
 import 'package:union_shop/views/collection_page.dart';
-import 'package:union_shop/views/sign_in.dart';
+import 'package:union_shop/views/sign_in_page.dart';
 import 'package:union_shop/views/register_page.dart';
 import 'package:union_shop/views/cart_screen.dart';
 import 'package:union_shop/views/search_page.dart';
