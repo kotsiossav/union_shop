@@ -23,8 +23,8 @@ class _PersonilationPageState extends State<PersonilationPage> {
   // controllers for the dynamic text boxes
   final List<TextEditingController> _lineControllers = [];
 
-  // quantity selector
-  int _quantity = 1;
+  // quantity selector (using ValueNotifier to avoid full page rebuild)
+  final ValueNotifier<int> _quantity = ValueNotifier<int>(1);
 
   // keep controllers count in sync with selection
   void _updateControllersForSelection(String? selection) {
@@ -91,9 +91,10 @@ class _PersonilationPageState extends State<PersonilationPage> {
 
   @override
   void dispose() {
-    for (final c in _lineControllers) {
+    for (var c in _lineControllers) {
       c.dispose();
     }
+    _quantity.dispose();
     super.dispose();
   }
 
@@ -271,41 +272,48 @@ class _PersonilationPageState extends State<PersonilationPage> {
                               ),
 
                               const SizedBox(height: 16),
-                              // quantity selector
-                              Row(
-                                children: [
-                                  const Text(
-                                    'Quantity:',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  IconButton(
-                                    onPressed: _quantity > 1
-                                        ? () => setState(() => _quantity--)
-                                        : null,
-                                    icon: const Icon(Icons.remove),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      '$_quantity',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    onPressed: _quantity < 99
-                                        ? () => setState(() => _quantity++)
-                                        : null,
-                                    icon: const Icon(Icons.add),
-                                  ),
-                                ],
+                              // quantity selector (isolated rebuild)
+                              ValueListenableBuilder<int>(
+                                valueListenable: _quantity,
+                                builder: (context, quantity, child) {
+                                  return Row(
+                                    children: [
+                                      const Text(
+                                        'Quantity:',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      IconButton(
+                                        onPressed: quantity > 1
+                                            ? () => _quantity.value--
+                                            : null,
+                                        icon: const Icon(Icons.remove),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: Colors.grey),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          '$quantity',
+                                          style: const TextStyle(fontSize: 16),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: quantity < 99
+                                            ? () => _quantity.value++
+                                            : null,
+                                        icon: const Icon(Icons.add),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -336,7 +344,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
                             title.isNotEmpty ? title : 'Personalisation';
                         final priceLabel = _formatPrice(totalPrice);
                         final quantityText =
-                            _quantity > 1 ? ' (×$_quantity)' : '';
+                            _quantity.value > 1 ? ' (×${_quantity.value})' : '';
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
