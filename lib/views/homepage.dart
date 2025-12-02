@@ -167,156 +167,166 @@ class _HomeScreenState extends State<HomeScreen> {
             const AppHeader(),
 
             // Hero Section - slideshow
-            SizedBox(
-              height: 400,
-              width: double.infinity,
-              child: Stack(
-                children: [
-                  PageView.builder(
-                    controller: _heroController,
-                    itemCount: _slides.length,
-                    onPageChanged: (idx) {
-                      setState(() => _currentHeroPage = idx);
-                    },
-                    itemBuilder: (context, index) {
-                      final slide = _slides[index];
-                      return Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          // background image
-                          Image.asset(
-                            slide.imagePath,
-                            fit: BoxFit.cover,
-                          ),
-                          // dark overlay
-                          Container(
-                            color: Colors.black.withOpacity(0.7),
-                          ),
-                          // content
-                          Center(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 24),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    slide.title,
-                                    style: const TextStyle(
-                                      fontSize: 48,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      height: 1.2,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    slide.subtitle,
-                                    style: const TextStyle(
-                                      fontSize: 30,
-                                      color: Colors.white,
-                                      height: 1.5,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 32),
-                                  ElevatedButton(
-                                    onPressed: () =>
-                                        _onHeroButtonPressed(index),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF4d2963),
-                                      foregroundColor: Colors.white,
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.zero,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      slide.buttonText.toUpperCase(),
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        letterSpacing: 1,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isMobile = constraints.maxWidth < 600;
+
+                return SizedBox(
+                  height: isMobile ? 300 : 400,
+                  width: double.infinity,
+                  child: Stack(
+                    children: [
+                      PageView.builder(
+                        controller: _heroController,
+                        itemCount: _slides.length,
+                        onPageChanged: (idx) {
+                          setState(() => _currentHeroPage = idx);
+                        },
+                        itemBuilder: (context, index) {
+                          final slide = _slides[index];
+                          return Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              // background image
+                              Image.asset(
+                                slide.imagePath,
+                                fit: BoxFit.cover,
                               ),
+                              // dark overlay
+                              Container(
+                                color: Colors.black.withOpacity(0.7),
+                              ),
+                              // content
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 24),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        slide.title,
+                                        style: TextStyle(
+                                          fontSize: isMobile ? 24 : 48,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          height: 1.2,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        slide.subtitle,
+                                        style: TextStyle(
+                                          fontSize: isMobile ? 16 : 30,
+                                          color: Colors.white,
+                                          height: 1.5,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 32),
+                                      ElevatedButton(
+                                        onPressed: () =>
+                                            _onHeroButtonPressed(index),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              const Color(0xFF4d2963),
+                                          foregroundColor: Colors.white,
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.zero,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          slide.buttonText.toUpperCase(),
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            letterSpacing: 1,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+
+                      // arrows + dots in one translucent black box
+                      Positioned(
+                        bottom: 12,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.5),
+                              borderRadius: BorderRadius.zero, // squared box
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // LEFT arrow
+                                IconButton(
+                                  iconSize: 18, // smaller
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  color: Colors.white70,
+                                  onPressed: _goToPreviousSlide,
+                                  icon: const Icon(Icons.arrow_back_ios),
+                                ),
+
+                                const SizedBox(width: 6),
+
+                                // dots
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children:
+                                      List.generate(_slides.length, (index) {
+                                    final bool isActive =
+                                        index == _currentHeroPage;
+                                    return AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 3),
+                                      width: 8,
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: isActive
+                                            ? Colors.white
+                                            : Colors.white54,
+                                      ),
+                                    );
+                                  }),
+                                ),
+
+                                const SizedBox(width: 6),
+
+                                // RIGHT arrow
+                                IconButton(
+                                  iconSize: 18,
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  color: Colors.white70,
+                                  onPressed: _goToNextSlide,
+                                  icon: const Icon(Icons.arrow_forward_ios),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      );
-                    },
-                  ),
-
-                  // arrows + dots in one translucent black box
-                  Positioned(
-                    bottom: 12,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          borderRadius: BorderRadius.zero, // squared box
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // LEFT arrow
-                            IconButton(
-                              iconSize: 18, // smaller
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              color: Colors.white70,
-                              onPressed: _goToPreviousSlide,
-                              icon: const Icon(Icons.arrow_back_ios),
-                            ),
-
-                            const SizedBox(width: 6),
-
-                            // dots
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: List.generate(_slides.length, (index) {
-                                final bool isActive = index == _currentHeroPage;
-                                return AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  margin:
-                                      const EdgeInsets.symmetric(horizontal: 3),
-                                  width: 8,
-                                  height: 8,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: isActive
-                                        ? Colors.white
-                                        : Colors.white54,
-                                  ),
-                                );
-                              }),
-                            ),
-
-                            const SizedBox(width: 6),
-
-                            // RIGHT arrow
-                            IconButton(
-                              iconSize: 18,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              color: Colors.white70,
-                              onPressed: _goToNextSlide,
-                              icon: const Icon(Icons.arrow_forward_ios),
-                            ),
-                          ],
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
 
             // Products Section
