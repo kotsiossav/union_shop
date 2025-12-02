@@ -12,7 +12,8 @@ class FakeAuthService implements AuthServiceBase {
   String errorMessage = 'An error occurred. Please try again.';
 
   @override
-  Future<UserCredential?> registerWithEmail(String email, String password) async {
+  Future<UserCredential?> registerWithEmail(
+      String email, String password) async {
     if (shouldThrow) {
       throw errorMessage;
     }
@@ -26,7 +27,9 @@ class FakeAuthService implements AuthServiceBase {
   Stream<User?> get authStateChanges => const Stream.empty();
 
   @override
-  Future<UserCredential?> signInWithEmail(String email, String password) async => null;
+  Future<UserCredential?> signInWithEmail(
+          String email, String password) async =>
+      null;
 
   @override
   Future<void> signOut() async {}
@@ -36,7 +39,9 @@ Widget buildRouterApp(Widget child) {
   final router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (context, state) => const Placeholder()),
-      GoRoute(path: '/login_page', builder: (context, state) => const Placeholder()),
+      GoRoute(
+          path: '/login_page',
+          builder: (context, state) => const Placeholder()),
       GoRoute(path: '/register', builder: (context, state) => child),
     ],
     initialLocation: '/register',
@@ -67,7 +72,8 @@ void main() {
     testWidgets('shows validation errors for empty fields', (tester) async {
       final fakeAuth = FakeAuthService();
       await tester.binding.setSurfaceSize(const Size(800, 1200));
-      await tester.pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
+      await tester
+          .pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
       await tester.pumpAndSettle();
 
       await tester.tap(find.widgetWithText(ElevatedButton, 'Create Account'));
@@ -81,12 +87,17 @@ void main() {
     testWidgets('shows error when passwords do not match', (tester) async {
       final fakeAuth = FakeAuthService();
       await tester.binding.setSurfaceSize(const Size(800, 1200));
-      await tester.pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
+      await tester
+          .pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.widgetWithText(TextFormField, 'Email address'), 'user@example.com');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Password'), 'secret123');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Confirm Password'), 'notmatch');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Email address'),
+          'user@example.com');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Password'), 'secret123');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Confirm Password'), 'notmatch');
 
       await tester.tap(find.widgetWithText(ElevatedButton, 'Create Account'));
       await tester.pump();
@@ -99,30 +110,42 @@ void main() {
     testWidgets('shows error when password too short', (tester) async {
       final fakeAuth = FakeAuthService();
       await tester.binding.setSurfaceSize(const Size(800, 1200));
-      await tester.pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
+      await tester
+          .pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.widgetWithText(TextFormField, 'Email address'), 'user@example.com');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Password'), '123');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Confirm Password'), '123');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Email address'),
+          'user@example.com');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Password'), '123');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Confirm Password'), '123');
 
       await tester.tap(find.widgetWithText(ElevatedButton, 'Create Account'));
       await tester.pump();
 
       expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text('Password must be at least 6 characters'), findsOneWidget);
+      expect(
+          find.text('Password must be at least 6 characters'), findsOneWidget);
       addTearDown(() => tester.binding.setSurfaceSize(null));
     });
 
-    testWidgets('successful registration shows snackbar and navigates home', (tester) async {
+    testWidgets('successful registration shows snackbar and navigates home',
+        (tester) async {
       final fakeAuth = FakeAuthService();
       await tester.binding.setSurfaceSize(const Size(800, 1200));
-      await tester.pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
+      await tester
+          .pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.widgetWithText(TextFormField, 'Email address'), 'user@example.com');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Password'), 'secret123');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Confirm Password'), 'secret123');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Email address'),
+          'user@example.com');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Password'), 'secret123');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Confirm Password'), 'secret123');
 
       await tester.tap(find.widgetWithText(ElevatedButton, 'Create Account'));
       await tester.pump();
@@ -137,14 +160,21 @@ void main() {
     });
 
     testWidgets('register error surfaces in snackbar', (tester) async {
-      final fakeAuth = FakeAuthService()..shouldThrow = true..errorMessage = 'Email already in use';
+      final fakeAuth = FakeAuthService()
+        ..shouldThrow = true
+        ..errorMessage = 'Email already in use';
       await tester.binding.setSurfaceSize(const Size(800, 1200));
-      await tester.pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
+      await tester
+          .pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.widgetWithText(TextFormField, 'Email address'), 'user@example.com');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Password'), 'secret123');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Confirm Password'), 'secret123');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Email address'),
+          'user@example.com');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Password'), 'secret123');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Confirm Password'), 'secret123');
 
       await tester.tap(find.widgetWithText(ElevatedButton, 'Create Account'));
       await tester.pump();
@@ -157,7 +187,8 @@ void main() {
     testWidgets('toggle password visibility', (tester) async {
       final fakeAuth = FakeAuthService();
       await tester.binding.setSurfaceSize(const Size(800, 1200));
-      await tester.pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
+      await tester
+          .pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
       await tester.pumpAndSettle();
 
       final toggle1 = find.byIcon(Icons.visibility_off).first;
@@ -176,7 +207,8 @@ void main() {
     testWidgets('login link navigates to login page', (tester) async {
       final fakeAuth = FakeAuthService();
       await tester.binding.setSurfaceSize(const Size(800, 1200));
-      await tester.pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
+      await tester
+          .pumpWidget(buildRouterApp(RegisterPage(authService: fakeAuth)));
       await tester.pumpAndSettle();
       // Ensure the link is visible before tapping
       final signInFinder = find.text('Sign In');
