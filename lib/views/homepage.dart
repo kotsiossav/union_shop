@@ -332,226 +332,288 @@ class _HomeScreenState extends State<HomeScreen> {
             // Products Section
             Container(
               color: Colors.white,
-              child: Padding(
-                padding: EdgeInsets.all(40.0),
-                child: Center(
-                  // <--- center the inner content
-                  child: SizedBox(
-                    width: 1100, // <--- same width for cards + squares
-                    child: Column(
-                      children: [
-                        const Text(
-                          'ESSENTIAL RANGE - OVER 20% OFF!',
-                          style: AppStyles.title,
-                        ),
-                        SizedBox(height: 48),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 600;
+                  final containerWidth =
+                      isMobile ? constraints.maxWidth : 1100.0;
+                  final padding = isMobile ? 16.0 : 40.0;
 
-                        // First 2 products in a row
-                        Row(
+                  return Padding(
+                    padding: EdgeInsets.all(padding),
+                    child: Center(
+                      child: SizedBox(
+                        width: containerWidth,
+                        child: Column(
                           children: [
-                            Expanded(
-                              child: _buildProductCard('Placeholder Product 1'),
+                            const Text(
+                              'ESSENTIAL RANGE - OVER 20% OFF!',
+                              style: AppStyles.title,
+                              textAlign: TextAlign.center,
                             ),
-                            const SizedBox(width: 24),
-                            Expanded(
-                              child: _buildProductCard('Placeholder Product 2'),
-                            ),
-                          ],
-                        ),
+                            SizedBox(height: isMobile ? 24 : 48),
 
-                        const SizedBox(height: 48),
-
-                        // Text between first 2 and last 2 product cards
-                        const Center(
-                          child: Text(
-                            'SIGNATURE RANGE',
-                            style: AppStyles.title,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-
-                        SizedBox(height: 48),
-
-                        // Last 2 products in a row
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildProductCard('Placeholder Product 3'),
-                            ),
-                            const SizedBox(width: 24),
-                            Expanded(
-                              child: _buildProductCard('Placeholder Product 4'),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 48),
-                        const Center(
-                          child: Text(
-                            'PORTSMOUTH CITY COLLECTION',
-                            style: AppStyles.title,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-
-                        const SizedBox(height: 48),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildProductCard('Placeholder Product 5'),
-                            ),
-                            const SizedBox(width: 24),
-                            Expanded(
-                              child: _buildProductCard('Placeholder Product 6'),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 48),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildProductCard('Placeholder Product 7'),
-                            ),
-                            const SizedBox(width: 24),
-                            Expanded(
-                              child: _buildProductCard('Placeholder Product 8'),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 48),
-
-                        // VIEW ALL button
-                        Center(
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF4d2963),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 32,
-                                vertical: 12,
-                              ),
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.zero,
-                              ),
-                            ),
-                            child: const Text(
-                              'VIEW ALL',
-                              style: TextStyle(
-                                letterSpacing: 1,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 48),
-
-                        // OUR RANGE title
-                        const Center(
-                          child: Text(
-                            'OUR RANGE',
-                            style: AppStyles.title,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-
-                        const SizedBox(height: 48),
-
-                        // 4 square images, centered and same total width
-                        const Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 24,
-                          runSpacing: 24,
-                          children: [
-                            SquareImage(
-                              imagePath:
-                                  'assets/images/PurpleHoodieFinal_540x.webp',
-                              label: 'Clothing',
-                            ),
-                            SquareImage(
-                              imagePath: 'assets/images/card_holder.jpg',
-                              label: 'Merchandise',
-                            ),
-                            SquareImage(
-                              imagePath: 'assets/images/grey_hoodie.webp',
-                              label: 'Graduation',
-                            ),
-                            SquareImage(
-                              imagePath: 'assets/images/purple_notepad.webp',
-                              label: 'SALE',
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 48),
-
-                        // Add a Personal Touch section
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // Left side: text + button
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            // First 2 products in a row (or column on mobile)
+                            if (isMobile)
+                              Column(
                                 children: [
-                                  const Text(
-                                    'Add a Personal Touch',
-                                    style: AppStyles.title,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    'First add your item of clothing to your cart then click below to add your text! '
-                                    'One line of text contains 10 characters!',
-                                    style: AppStyles.subtitle,
-                                  ),
+                                  _buildProductCard('Placeholder Product 1'),
                                   const SizedBox(height: 24),
-                                  ElevatedButton(
-                                    onPressed: () =>
-                                        context.go('/personalisation'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF4d2963),
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 32,
-                                        vertical: 12,
-                                      ),
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.zero,
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Click here to add text!',
-                                      style: TextStyle(
-                                        letterSpacing: 1,
-                                        fontSize: 14,
-                                      ),
-                                    ),
+                                  _buildProductCard('Placeholder Product 2'),
+                                ],
+                              )
+                            else
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildProductCard(
+                                        'Placeholder Product 1'),
+                                  ),
+                                  const SizedBox(width: 24),
+                                  Expanded(
+                                    child: _buildProductCard(
+                                        'Placeholder Product 2'),
                                   ),
                                 ],
                               ),
-                            ),
 
-                            const SizedBox(height: 148),
+                            SizedBox(height: isMobile ? 24 : 48),
 
-                            // Right side: smaller image
-                            SizedBox(
-                              width: 450, // adjust as you like
-                              height: 300, // adjust as you like
-                              child: Image.asset(
-                                'assets/images/The_Union_Print_Shack_Logo.webp',
-                                fit: BoxFit.contain, // was BoxFit.cover
+                            // Text between first 2 and last 2 product cards
+                            const Center(
+                              child: Text(
+                                'SIGNATURE RANGE',
+                                style: AppStyles.title,
+                                textAlign: TextAlign.center,
                               ),
                             ),
+
+                            SizedBox(height: isMobile ? 24 : 48),
+
+                            // Last 2 products in a row (or column on mobile)
+                            if (isMobile)
+                              Column(
+                                children: [
+                                  _buildProductCard('Placeholder Product 3'),
+                                  const SizedBox(height: 24),
+                                  _buildProductCard('Placeholder Product 4'),
+                                ],
+                              )
+                            else
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildProductCard(
+                                        'Placeholder Product 3'),
+                                  ),
+                                  const SizedBox(width: 24),
+                                  Expanded(
+                                    child: _buildProductCard(
+                                        'Placeholder Product 4'),
+                                  ),
+                                ],
+                              ),
+
+                            SizedBox(height: isMobile ? 24 : 48),
+
+                            const Center(
+                              child: Text(
+                                'PORTSMOUTH CITY COLLECTION',
+                                style: AppStyles.title,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+
+                            SizedBox(height: isMobile ? 24 : 48),
+
+                            if (isMobile)
+                              Column(
+                                children: [
+                                  _buildProductCard('Placeholder Product 5'),
+                                  const SizedBox(height: 24),
+                                  _buildProductCard('Placeholder Product 6'),
+                                ],
+                              )
+                            else
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildProductCard(
+                                        'Placeholder Product 5'),
+                                  ),
+                                  const SizedBox(width: 24),
+                                  Expanded(
+                                    child: _buildProductCard(
+                                        'Placeholder Product 6'),
+                                  ),
+                                ],
+                              ),
+
+                            SizedBox(height: isMobile ? 24 : 48),
+
+                            if (isMobile)
+                              Column(
+                                children: [
+                                  _buildProductCard('Placeholder Product 7'),
+                                  const SizedBox(height: 24),
+                                  _buildProductCard('Placeholder Product 8'),
+                                ],
+                              )
+                            else
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildProductCard(
+                                        'Placeholder Product 7'),
+                                  ),
+                                  const SizedBox(width: 24),
+                                  Expanded(
+                                    child: _buildProductCard(
+                                        'Placeholder Product 8'),
+                                  ),
+                                ],
+                              ),
+
+                            SizedBox(height: isMobile ? 24 : 48),
+
+                            // VIEW ALL button
+                            Center(
+                              child: ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF4d2963),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 32,
+                                    vertical: 12,
+                                  ),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.zero,
+                                  ),
+                                ),
+                                child: const Text(
+                                  'VIEW ALL',
+                                  style: TextStyle(
+                                    letterSpacing: 1,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: isMobile ? 24 : 48),
+
+                            SizedBox(height: isMobile ? 24 : 48),
+
+                            // OUR RANGE title
+                            const Center(
+                              child: Text(
+                                'OUR RANGE',
+                                style: AppStyles.title,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+
+                            SizedBox(height: isMobile ? 24 : 48),
+
+                            // 4 square images, centered and same total width
+                            const Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 24,
+                              runSpacing: 24,
+                              children: [
+                                SquareImage(
+                                  imagePath:
+                                      'assets/images/PurpleHoodieFinal_540x.webp',
+                                  label: 'Clothing',
+                                ),
+                                SquareImage(
+                                  imagePath: 'assets/images/card_holder.jpg',
+                                  label: 'Merchandise',
+                                ),
+                                SquareImage(
+                                  imagePath: 'assets/images/grey_hoodie.webp',
+                                  label: 'Graduation',
+                                ),
+                                SquareImage(
+                                  imagePath:
+                                      'assets/images/purple_notepad.webp',
+                                  label: 'SALE',
+                                ),
+                              ],
+                            ),
+
+                            SizedBox(height: isMobile ? 24 : 48),
+
+                            // Add a Personal Touch section
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Left side: text + button
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Add a Personal Touch',
+                                        style: AppStyles.title,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text(
+                                        'First add your item of clothing to your cart then click below to add your text! '
+                                        'One line of text contains 10 characters!',
+                                        style: AppStyles.subtitle,
+                                      ),
+                                      const SizedBox(height: 24),
+                                      ElevatedButton(
+                                        onPressed: () =>
+                                            context.go('/personalisation'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              const Color(0xFF4d2963),
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 32,
+                                            vertical: 12,
+                                          ),
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.zero,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'Click here to add text!',
+                                          style: TextStyle(
+                                            letterSpacing: 1,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(height: 148),
+
+                                // Right side: smaller image
+                                SizedBox(
+                                  width: 450, // adjust as you like
+                                  height: 300, // adjust as you like
+                                  child: Image.asset(
+                                    'assets/images/The_Union_Print_Shack_Logo.webp',
+                                    fit: BoxFit.contain, // was BoxFit.cover
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            SizedBox(height: isMobile ? 24 : 48),
                           ],
                         ),
-
-                        const SizedBox(height: 48),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
 
