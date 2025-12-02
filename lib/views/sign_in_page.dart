@@ -4,7 +4,7 @@ import '../services/auth_service.dart';
 
 class SignInPage extends StatefulWidget {
   final AuthService? authService;
-  
+
   const SignInPage({super.key, this.authService});
 
   @override

@@ -28,7 +28,8 @@ void main() {
       final images = tester.widgetList<Image>(find.byType(Image));
       final hasLogoAsset = images.any((img) {
         final provider = img.image;
-        return provider is AssetImage && provider.assetName.contains('logo2.png');
+        return provider is AssetImage &&
+            provider.assetName.contains('logo2.png');
       });
       expect(hasLogoAsset, isTrue);
     });
@@ -52,7 +53,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.widgetWithText(TextFormField, 'Email address'), findsOneWidget);
+      expect(
+          find.widgetWithText(TextFormField, 'Email address'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Password'), findsOneWidget);
     });
 
@@ -155,4 +157,3 @@ void main() {
     });
   });
 }
-
