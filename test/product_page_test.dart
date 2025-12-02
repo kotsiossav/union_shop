@@ -401,7 +401,7 @@ void main() {
       );
 
       final incrementButton = find.byIcon(Icons.add_circle_outline);
-      
+
       // Increment 5 times
       for (int i = 0; i < 5; i++) {
         await tester.tap(incrementButton.first);
@@ -423,7 +423,7 @@ void main() {
       );
 
       final textField = find.byType(TextField).first;
-      
+
       // Try to enter letters (should be filtered by digitsOnly formatter)
       await tester.enterText(textField, 'abc');
       await tester.pump();
@@ -468,7 +468,8 @@ void main() {
       expect(find.text('S'), findsWidgets);
     });
 
-    testWidgets('displays correct price format with dollar sign', (tester) async {
+    testWidgets('displays correct price format with dollar sign',
+        (tester) async {
       await tester.pumpWidget(createTestWidget(price: 99.99));
       await tester.pumpAndSettle();
 
