@@ -215,70 +215,163 @@ class _CollectionPageState extends State<CollectionPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // row: dropdowns on the left, item count on the right
-                        Row(
-                          children: [
-                            // left-aligned: Sort + Filter controls
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text('Sort by'),
-                                const SizedBox(width: 12),
-                                DropdownButton<String>(
-                                  value: _selectedSort,
-                                  items: const [
-                                    DropdownMenuItem(
-                                        value: 'Featured',
-                                        child: Text('Featured')),
-                                    DropdownMenuItem(
-                                        value: 'A-Z',
-                                        child: Text('Alphabetical A‑Z')),
-                                    DropdownMenuItem(
-                                        value: 'Z-A',
-                                        child: Text('Alphabetical Z‑A')),
-                                    DropdownMenuItem(
-                                        value: 'PriceLowHigh',
-                                        child: Text('Price: Low → High')),
-                                    DropdownMenuItem(
-                                        value: 'PriceHighLow',
-                                        child: Text('Price: High → Low')),
-                                  ],
-                                  onChanged: (v) {
-                                    if (v == null) return;
-                                    setState(() => _selectedSort = v);
-                                  },
-                                ),
-                                const SizedBox(width: 18),
-                                const Text('Filter by'),
-                                const SizedBox(width: 12),
-                                DropdownButton<String>(
-                                  value: _selectedFilter,
-                                  items: const [
-                                    DropdownMenuItem(
-                                        value: 'Display all',
-                                        child: Text('Display all')),
-                                    DropdownMenuItem(
-                                        value: 'Clothing',
-                                        child: Text('Clothing')),
-                                    DropdownMenuItem(
-                                        value: 'Merchandise',
-                                        child: Text('Merchandise')),
-                                  ],
-                                  onChanged: (v) {
-                                    if (v == null) return;
-                                    setState(() => _selectedFilter = v);
-                                  },
-                                ),
-                              ],
-                            ),
-                            const Spacer(), // push the count to the right
-                            // right-aligned: item count
-                            Text(
-                              '$itemCount item${itemCount == 1 ? '' : 's'}',
-                              style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w600),
-                            ),
-                          ],
+                        // Responsive controls layout
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final isMobile = constraints.maxWidth < 600;
+
+                            if (isMobile) {
+                              // Mobile: stack controls vertically
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  // Item count on top
+                                  Text(
+                                    '$itemCount item${itemCount == 1 ? '' : 's'}',
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  // Sort dropdown
+                                  Row(
+                                    children: [
+                                      const Text('Sort by'),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: DropdownButton<String>(
+                                          value: _selectedSort,
+                                          isExpanded: true,
+                                          items: const [
+                                            DropdownMenuItem(
+                                                value: 'Featured',
+                                                child: Text('Featured')),
+                                            DropdownMenuItem(
+                                                value: 'A-Z',
+                                                child:
+                                                    Text('Alphabetical A‑Z')),
+                                            DropdownMenuItem(
+                                                value: 'Z-A',
+                                                child:
+                                                    Text('Alphabetical Z‑A')),
+                                            DropdownMenuItem(
+                                                value: 'PriceLowHigh',
+                                                child:
+                                                    Text('Price: Low → High')),
+                                            DropdownMenuItem(
+                                                value: 'PriceHighLow',
+                                                child:
+                                                    Text('Price: High → Low')),
+                                          ],
+                                          onChanged: (v) {
+                                            if (v == null) return;
+                                            setState(() => _selectedSort = v);
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  // Filter dropdown
+                                  Row(
+                                    children: [
+                                      const Text('Filter by'),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: DropdownButton<String>(
+                                          value: _selectedFilter,
+                                          isExpanded: true,
+                                          items: const [
+                                            DropdownMenuItem(
+                                                value: 'Display all',
+                                                child: Text('Display all')),
+                                            DropdownMenuItem(
+                                                value: 'Clothing',
+                                                child: Text('Clothing')),
+                                            DropdownMenuItem(
+                                                value: 'Merchandise',
+                                                child: Text('Merchandise')),
+                                          ],
+                                          onChanged: (v) {
+                                            if (v == null) return;
+                                            setState(() => _selectedFilter = v);
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            } else {
+                              // Desktop: horizontal layout
+                              return Row(
+                                children: [
+                                  // left-aligned: Sort + Filter controls
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text('Sort by'),
+                                      const SizedBox(width: 12),
+                                      DropdownButton<String>(
+                                        value: _selectedSort,
+                                        items: const [
+                                          DropdownMenuItem(
+                                              value: 'Featured',
+                                              child: Text('Featured')),
+                                          DropdownMenuItem(
+                                              value: 'A-Z',
+                                              child: Text('Alphabetical A‑Z')),
+                                          DropdownMenuItem(
+                                              value: 'Z-A',
+                                              child: Text('Alphabetical Z‑A')),
+                                          DropdownMenuItem(
+                                              value: 'PriceLowHigh',
+                                              child: Text('Price: Low → High')),
+                                          DropdownMenuItem(
+                                              value: 'PriceHighLow',
+                                              child: Text('Price: High → Low')),
+                                        ],
+                                        onChanged: (v) {
+                                          if (v == null) return;
+                                          setState(() => _selectedSort = v);
+                                        },
+                                      ),
+                                      const SizedBox(width: 18),
+                                      const Text('Filter by'),
+                                      const SizedBox(width: 12),
+                                      DropdownButton<String>(
+                                        value: _selectedFilter,
+                                        items: const [
+                                          DropdownMenuItem(
+                                              value: 'Display all',
+                                              child: Text('Display all')),
+                                          DropdownMenuItem(
+                                              value: 'Clothing',
+                                              child: Text('Clothing')),
+                                          DropdownMenuItem(
+                                              value: 'Merchandise',
+                                              child: Text('Merchandise')),
+                                        ],
+                                        onChanged: (v) {
+                                          if (v == null) return;
+                                          setState(() => _selectedFilter = v);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const Spacer(), // push the count to the right
+                                  // right-aligned: item count
+                                  Text(
+                                    '$itemCount item${itemCount == 1 ? '' : 's'}',
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              );
+                            }
+                          },
                         ),
                         const SizedBox(height: 12),
                         LayoutBuilder(builder: (context, constraints) {
