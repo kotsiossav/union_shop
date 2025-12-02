@@ -4,7 +4,9 @@ import 'package:union_shop/layout.dart';
 import 'package:union_shop/main.dart';
 
 class PersonilationPage extends StatefulWidget {
-  const PersonilationPage({super.key});
+  final FirebaseFirestore? firestore;
+
+  const PersonilationPage({super.key, this.firestore});
 
   @override
   State<PersonilationPage> createState() => _PersonilationPageState();
@@ -52,7 +54,8 @@ class _PersonilationPageState extends State<PersonilationPage> {
   }
 
   Future<Map<String, dynamic>?> _fetchPersonalisationProduct() async {
-    final col = FirebaseFirestore.instance.collection('products');
+    final firestore = widget.firestore ?? FirebaseFirestore.instance;
+    final col = firestore.collection('products');
     var q = await col.where('cat', isEqualTo: 'personalisation').limit(1).get();
     if (q.docs.isEmpty) {
       q = await col.where('title', isEqualTo: 'Personalisation').limit(1).get();
@@ -275,155 +278,176 @@ class _PersonilationPageState extends State<PersonilationPage> {
         // Responsive layout: use LayoutBuilder to adapt to screen size
         return Scaffold(
           appBar: AppBar(title: const Text('Print Shack — Personalisation')),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const AppHeader(),
+          body: Column(
+            children: [
+              const AppHeader(),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // product preview card: responsive layout
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isMobile = constraints.maxWidth < 600;
 
-                // product preview card: responsive layout
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isMobile = constraints.maxWidth < 600;
-
-                    return Card(
-                      elevation: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: isMobile
-                            ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Image on top for mobile
-                                  Center(
-                                    child: SizedBox(
-                                      width: double.infinity,
-                                      height: 260,
-                                      child: isNetwork
-                                          ? Image.network(
-                                              imageUrl,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (ctx, err, st) =>
-                                                  const Center(
-                                                      child: Icon(Icons.image,
-                                                          size: 56,
-                                                          color: Colors.grey)),
-                                            )
-                                          : Image.asset(
-                                              imageUrl.isEmpty
-                                                  ? 'assets/images/personalisation_placeholder.png'
-                                                  : imageUrl,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (ctx, err, st) =>
-                                                  const Center(
-                                                      child: Icon(Icons.image,
-                                                          size: 56,
-                                                          color: Colors.grey)),
-                                            ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildProductDetails(
-                                      title, totalPrice, isMobile),
-                                ],
-                              )
-                            : Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Image on left for desktop
-                                  SizedBox(
-                                    width: 260,
-                                    height: 260,
-                                    child: isNetwork
-                                        ? Image.network(
-                                            imageUrl,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (ctx, err, st) =>
-                                                const Center(
-                                                    child: Icon(Icons.image,
-                                                        size: 56,
-                                                        color: Colors.grey)),
-                                          )
-                                        : Image.asset(
-                                            imageUrl.isEmpty
-                                                ? 'assets/images/personalisation_placeholder.png'
-                                                : imageUrl,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (ctx, err, st) =>
-                                                const Center(
-                                                    child: Icon(Icons.image,
-                                                        size: 56,
-                                                        color: Colors.grey)),
+                          return Card(
+                            elevation: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: isMobile
+                                  ? Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Image on top for mobile
+                                        Center(
+                                          child: SizedBox(
+                                            width: double.infinity,
+                                            height: 260,
+                                            child: isNetwork
+                                                ? Image.network(
+                                                    imageUrl,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (ctx, err,
+                                                            st) =>
+                                                        const Center(
+                                                            child: Icon(
+                                                                Icons.image,
+                                                                size: 56,
+                                                                color: Colors
+                                                                    .grey)),
+                                                  )
+                                                : Image.asset(
+                                                    imageUrl.isEmpty
+                                                        ? 'assets/images/personalisation_placeholder.png'
+                                                        : imageUrl,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (ctx, err,
+                                                            st) =>
+                                                        const Center(
+                                                            child: Icon(
+                                                                Icons.image,
+                                                                size: 56,
+                                                                color: Colors
+                                                                    .grey)),
+                                                  ),
                                           ),
-                                  ),
-                                  const SizedBox(width: 20),
-                                  Expanded(
-                                    child: _buildProductDetails(
-                                        title, totalPrice, isMobile),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 24),
-
-                // Add to cart button
-                Center(
-                  child: SizedBox(
-                    width: 280,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        final lines = _lineControllers
-                            .map((c) => c.text.trim())
-                            .where((t) => t.isNotEmpty)
-                            .toList();
-                        final details = [
-                          _selectedPersonalisation.value ?? '',
-                          if (lines.isNotEmpty) 'Text: ${lines.join(" • ")}'
-                        ].where((s) => s.isNotEmpty).join(' — ');
-
-                        final titleLabel =
-                            title.isNotEmpty ? title : 'Personalisation';
-                        final titleWithDetails = details.isNotEmpty
-                            ? '$titleLabel ($details)'
-                            : titleLabel;
-                        final priceLabel = _formatPrice(totalPrice);
-                        final quantityText =
-                            _quantity.value > 1 ? ' (×${_quantity.value})' : '';
-
-                        // Add to cart with the specified quantity
-                        for (int i = 0; i < _quantity.value; i++) {
-                          globalCart.addProduct(
-                            title: titleWithDetails,
-                            imageUrl: imageUrl,
-                            price: totalPrice,
-                            category: 'personalisation',
+                                        ),
+                                        const SizedBox(height: 16),
+                                        _buildProductDetails(
+                                            title, totalPrice, isMobile),
+                                      ],
+                                    )
+                                  : Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Image on left for desktop
+                                        SizedBox(
+                                          width: 260,
+                                          height: 260,
+                                          child: isNetwork
+                                              ? Image.network(
+                                                  imageUrl,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (ctx, err,
+                                                          st) =>
+                                                      const Center(
+                                                          child: Icon(
+                                                              Icons.image,
+                                                              size: 56,
+                                                              color:
+                                                                  Colors.grey)),
+                                                )
+                                              : Image.asset(
+                                                  imageUrl.isEmpty
+                                                      ? 'assets/images/personalisation_placeholder.png'
+                                                      : imageUrl,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (ctx, err,
+                                                          st) =>
+                                                      const Center(
+                                                          child: Icon(
+                                                              Icons.image,
+                                                              size: 56,
+                                                              color:
+                                                                  Colors.grey)),
+                                                ),
+                                        ),
+                                        const SizedBox(width: 20),
+                                        Expanded(
+                                          child: _buildProductDetails(
+                                              title, totalPrice, isMobile),
+                                        ),
+                                      ],
+                                    ),
+                            ),
                           );
-                        }
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                'Added "$titleLabel"${details.isNotEmpty ? " ($details)" : ""}$quantityText — $priceLabel to cart'),
-                          ),
-                        );
-                      },
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12.0),
-                        child:
-                            Text('Add to cart', style: TextStyle(fontSize: 16)),
+                        },
                       ),
-                    ),
+
+                      const SizedBox(height: 24),
+
+                      // Add to cart button
+                      Center(
+                        child: SizedBox(
+                          width: 280,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              final lines = _lineControllers
+                                  .map((c) => c.text.trim())
+                                  .where((t) => t.isNotEmpty)
+                                  .toList();
+                              final details = [
+                                _selectedPersonalisation.value ?? '',
+                                if (lines.isNotEmpty)
+                                  'Text: ${lines.join(" • ")}'
+                              ].where((s) => s.isNotEmpty).join(' — ');
+
+                              final titleLabel =
+                                  title.isNotEmpty ? title : 'Personalisation';
+                              final titleWithDetails = details.isNotEmpty
+                                  ? '$titleLabel ($details)'
+                                  : titleLabel;
+                              final priceLabel = _formatPrice(totalPrice);
+                              final quantityText = _quantity.value > 1
+                                  ? ' (×${_quantity.value})'
+                                  : '';
+
+                              // Add to cart with the specified quantity
+                              for (int i = 0; i < _quantity.value; i++) {
+                                globalCart.addProduct(
+                                  title: titleWithDetails,
+                                  imageUrl: imageUrl,
+                                  price: totalPrice,
+                                  category: 'personalisation',
+                                );
+                              }
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Added "$titleLabel"${details.isNotEmpty ? " ($details)" : ""}$quantityText — $priceLabel to cart'),
+                                ),
+                              );
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12.0),
+                              child: Text('Add to cart',
+                                  style: TextStyle(fontSize: 16)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 24),
-                const AppFooter(),
-              ],
-            ),
+              ),
+              const AppFooter(),
+            ],
           ),
         );
       },
