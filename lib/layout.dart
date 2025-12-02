@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'main.dart';
 import 'services/auth_service.dart';
+import 'models/cart_model.dart';
 
 /// Shared navigation bar used on all pages.
 class AppHeader extends StatefulWidget {
@@ -16,13 +18,16 @@ class _AppHeaderState extends State<AppHeader> {
   void _placeholderCallbackForButtons() {}
   bool _showSearchBar = false;
   final TextEditingController _searchController = TextEditingController();
-  final AuthService _authService = AuthService();
+  late final AuthService _authService;
+  late final CartModel _cart;
   User? _currentUser;
 
   @override
   void initState() {
     super.initState();
-    globalCart.addListener(_onCartChanged);
+    _authService = context.read<AuthService>();
+    _cart = context.read<CartModel>();
+    _cart.addListener(_onCartChanged);
     _currentUser = _authService.currentUser;
     _authService.authStateChanges.listen((user) {
       if (mounted) {
@@ -36,7 +41,7 @@ class _AppHeaderState extends State<AppHeader> {
   @override
   void dispose() {
     _searchController.dispose();
-    globalCart.removeListener(_onCartChanged);
+    _cart.removeListener(_onCartChanged);
     super.dispose();
   }
 
@@ -401,7 +406,7 @@ class _AppHeaderState extends State<AppHeader> {
   }
 
   Widget _cartIconWithBadge(BuildContext context) {
-    final itemCount = globalCart.itemCount;
+    final itemCount = _cart.itemCount;
 
     return Stack(
       clipBehavior: Clip.none,

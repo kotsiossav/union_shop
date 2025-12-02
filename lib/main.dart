@@ -13,12 +13,15 @@ import 'package:union_shop/views/cart_screen.dart';
 import 'package:union_shop/views/search_page.dart';
 import 'package:union_shop/views/order_history_page.dart';
 import 'package:union_shop/models/cart_model.dart';
+import 'package:union_shop/services/auth_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:url_strategy/url_strategy.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 // Global cart instance shared across the app
 final globalCart = CartModel();
+final authService = AuthService();
 
 Future<void> main() async {
   // remove the hash (#) from web URLs
@@ -168,13 +171,19 @@ class UnionShopApp extends StatelessWidget {
       ],
     );
 
-    return MaterialApp.router(
-      title: 'Union Shop',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4d2963)),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CartModel>.value(value: globalCart),
+        Provider<AuthService>.value(value: authService),
+      ],
+      child: MaterialApp.router(
+        title: 'Union Shop',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4d2963)),
+        ),
+        routerConfig: _router,
       ),
-      routerConfig: _router,
     );
   }
 }
