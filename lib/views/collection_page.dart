@@ -82,8 +82,7 @@ class _CollectionPageState extends State<CollectionPage> {
         ? 'Collection'
         : widget.slug.replaceAll('-', ' ').toUpperCase();
     final firestore = widget.firestore ?? FirebaseFirestore.instance;
-    final productsStream =
-        firestore.collection('products').snapshots();
+    final productsStream = firestore.collection('products').snapshots();
 
     return Scaffold(
       body: SingleChildScrollView(
