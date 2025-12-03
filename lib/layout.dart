@@ -6,7 +6,8 @@ import 'main.dart';
 import 'services/auth_service.dart';
 import 'models/cart_model.dart';
 
-/// Shared navigation bar used on all pages.
+// Shared navigation header displayed at the top of every page
+// Includes logo, search, navigation menu, user account, and shopping cart
 class AppHeader extends StatefulWidget {
   const AppHeader({super.key});
 
@@ -16,19 +17,28 @@ class AppHeader extends StatefulWidget {
 
 class _AppHeaderState extends State<AppHeader> {
   void _placeholderCallbackForButtons() {}
+  // Controls visibility of the search bar TextField
   bool _showSearchBar = false;
+  // Controller for the search input field
   final TextEditingController _searchController = TextEditingController();
+  // Authentication service instance from Provider
   late final AuthService _authService;
+  // Shopping cart instance from Provider
   late final CartModel _cart;
+  // Current authenticated user (null if not signed in)
   User? _currentUser;
 
   @override
   void initState() {
     super.initState();
+    // Get AuthService and CartModel from Provider context
     _authService = context.read<AuthService>();
     _cart = context.read<CartModel>();
+    // Listen to cart changes to update the badge count
     _cart.addListener(_onCartChanged);
+    // Get current user state
     _currentUser = _authService.currentUser;
+    // Listen for auth state changes (sign in/out) and update UI
     _authService.authStateChanges.listen((user) {
       if (mounted) {
         setState(() {
@@ -40,19 +50,26 @@ class _AppHeaderState extends State<AppHeader> {
 
   @override
   void dispose() {
+    // Clean up the text controller to prevent memory leaks
     _searchController.dispose();
+    // Remove cart listener when widget is disposed
     _cart.removeListener(_onCartChanged);
     super.dispose();
   }
 
+  // Callback triggered when cart state changes (items added/removed)
   void _onCartChanged() {
     setState(() {});
   }
 
+  // Handles search icon click behavior:
+  // First click: Show search bar
+  // Second click: Navigate to search page with query (or empty search)
   void _handleSearchIconPress(BuildContext context) {
     if (_showSearchBar) {
-      // Second press - perform search if there's text, otherwise navigate
+      // Search bar is already visible - execute search
       if (_searchController.text.trim().isNotEmpty) {
+        // Navigate to search page with query parameter
         context.go(
             '/search?q=${Uri.encodeComponent(_searchController.text.trim())}');
         setState(() {
@@ -60,13 +77,14 @@ class _AppHeaderState extends State<AppHeader> {
           _searchController.clear();
         });
       } else {
+        // Navigate to empty search page
         context.go('/search');
         setState(() {
           _showSearchBar = false;
         });
       }
     } else {
-      // First press - show search bar
+      // First click - show the search input field
       setState(() {
         _showSearchBar = true;
       });
@@ -77,7 +95,7 @@ class _AppHeaderState extends State<AppHeader> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Top banner
+        // Top promotional banner with sale announcement
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -89,6 +107,7 @@ class _AppHeaderState extends State<AppHeader> {
           ),
         ),
 
+        // Main navigation header container
         Container(
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -99,8 +118,10 @@ class _AppHeaderState extends State<AppHeader> {
               ),
             ),
           ),
+          // Use LayoutBuilder to detect screen width for responsive design
           child: LayoutBuilder(
             builder: (context, constraints) {
+              // Determine if screen is narrow (mobile) or wide (desktop)
               final bool isNarrow = constraints.maxWidth < 800;
 
               return Padding(
@@ -108,7 +129,7 @@ class _AppHeaderState extends State<AppHeader> {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 child: Row(
                   children: [
-                    // Logo (use local asset, smaller size)
+                    // Logo image - clicking navigates to homepage
                     GestureDetector(
                       onTap: () => context.go('/'),
                       child: Image.asset(
@@ -118,18 +139,22 @@ class _AppHeaderState extends State<AppHeader> {
                       ),
                     ),
 
-                    // Icons on the right (always shown)
+                    // Responsive search bar layout based on screen size
+                    // On mobile: search bar expands to fill available space
+                    // On desktop: search bar has fixed 200px width
                     if (_showSearchBar && isNarrow)
-                      // On narrow screens, search bar takes available space
+                      // Mobile search bar - uses Expanded to prevent overflow
                       Expanded(
                         child: Container(
                           margin: const EdgeInsets.only(right: 8, left: 8),
                           child: TextField(
                             controller: _searchController,
+                            // Auto-focus when search bar appears
                             autofocus: true,
                             style: const TextStyle(fontSize: 14),
                             decoration: InputDecoration(
                               hintText: 'Search...',
+                              // Compact spacing for mobile
                               isDense: true,
                               filled: true,
                               fillColor: Colors.white,
@@ -137,6 +162,7 @@ class _AppHeaderState extends State<AppHeader> {
                                 horizontal: 8,
                                 vertical: 8,
                               ),
+                              // Close button to hide search bar
                               suffixIcon: IconButton(
                                 icon: const Icon(Icons.close, size: 16),
                                 padding: const EdgeInsets.all(4),
@@ -151,17 +177,20 @@ class _AppHeaderState extends State<AppHeader> {
                                   });
                                 },
                               ),
+                              // Border styling for unfocused state
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(4),
                                 borderSide: const BorderSide(
                                     color: Colors.grey, width: 1),
                               ),
+                              // Border styling for focused state (purple accent)
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(4),
                                 borderSide: const BorderSide(
                                     color: Color(0xFF4d2963), width: 2),
                               ),
                             ),
+                            // Execute search when user presses Enter
                             onSubmitted: (value) {
                               if (value.trim().isNotEmpty) {
                                 context.go(
@@ -176,16 +205,19 @@ class _AppHeaderState extends State<AppHeader> {
                         ),
                       )
                     else if (!_showSearchBar || !isNarrow)
-                      // Desktop navigation - shown when not in narrow mode or search not active
+                      // Desktop navigation menu - only shown on wide screens
+                      // Hidden when search bar is active on mobile
                       if (!isNarrow)
                         Expanded(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              // Home navigation link
                               Flexible(
                                   child: _NavItem(
                                       label: "Home",
                                       onTap: () => context.go('/'))),
+                              // Shop dropdown menu with collection links
                               Flexible(
                                   child: PopupMenuButton<String>(
                                 onSelected: (value) {
