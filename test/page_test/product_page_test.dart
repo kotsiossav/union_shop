@@ -53,7 +53,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Test Product'), findsWidgets);
-      expect(find.text('\$29.99'), findsOneWidget);
+      expect(find.text('£29.99'), findsOneWidget);
       expect(find.text('Description'), findsOneWidget);
       expect(find.text('This is a placeholder description for the product.'),
           findsOneWidget);
@@ -373,7 +373,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Test Product'), findsWidgets);
-      expect(find.text('\$29.99'), findsOneWidget);
+      expect(find.text('£29.99'), findsOneWidget);
       expect(find.byType(ProductPage), findsOneWidget);
 
       addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -385,7 +385,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Test Product'), findsWidgets);
-      expect(find.text('\$29.99'), findsOneWidget);
+      expect(find.text('£29.99'), findsOneWidget);
       expect(find.byType(ProductPage), findsOneWidget);
 
       addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -475,7 +475,7 @@ void main() {
       await tester.pumpWidget(createTestWidget(price: 99.99));
       await tester.pumpAndSettle();
 
-      expect(find.text('\$99.99'), findsOneWidget);
+      expect(find.text('£99.99'), findsOneWidget);
     });
 
     testWidgets('all color options are available', (tester) async {
