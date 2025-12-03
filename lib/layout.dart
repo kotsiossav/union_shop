@@ -118,110 +118,168 @@ class _AppHeaderState extends State<AppHeader> {
                       ),
                     ),
 
-                    // Desktop navigation
-                    if (!isNarrow)
+                    // Icons on the right (always shown)
+                    if (_showSearchBar && isNarrow)
+                      // On narrow screens, search bar takes available space
                       Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Flexible(
-                                child: _NavItem(
-                                    label: "Home",
-                                    onTap: () => context.go('/'))),
-                            Flexible(
-                                child: PopupMenuButton<String>(
-                              onSelected: (value) {
-                                context.go('/collections/$value');
-                              },
-                              itemBuilder: (ctx) => const [
-                                PopupMenuItem(
-                                  value: 'essential-range',
-                                  child: Text('Essential Range'),
-                                ),
-                                PopupMenuItem(
-                                  value: 'signature-range',
-                                  child: Text('Signature Range'),
-                                ),
-                                PopupMenuItem(
-                                  value: 'graduation',
-                                  child: Text('Graduation'),
-                                ),
-                                PopupMenuItem(
-                                  value: 'autumn-favourites',
-                                  child: Text('Autumn Favourites'),
-                                ),
-                                PopupMenuItem(
-                                  value: 'sale',
-                                  child: Text('Sale'),
-                                ),
-                              ],
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: Text(
-                                    'Shop',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8, left: 8),
+                          child: TextField(
+                            controller: _searchController,
+                            autofocus: true,
+                            style: const TextStyle(fontSize: 14),
+                            decoration: InputDecoration(
+                              hintText: 'Search...',
+                              isDense: true,
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 8,
                               ),
-                            )),
-                            Flexible(
-                                child: PopupMenuButton<String>(
-                              onSelected: (value) {
-                                if (value == 'about') {
-                                  context.go('/print_shack_about');
-                                } else if (value == 'personalisation') {
-                                  context.go('/personalisation');
-                                }
-                              },
-                              itemBuilder: (ctx) => const [
-                                PopupMenuItem(
-                                  value: 'about',
-                                  child: Text('About'),
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.close, size: 16),
+                                padding: const EdgeInsets.all(4),
+                                constraints: const BoxConstraints(
+                                  minWidth: 24,
+                                  minHeight: 24,
                                 ),
-                                PopupMenuItem(
-                                  value: 'personalisation',
-                                  child: Text('Personalisation'),
-                                ),
-                              ],
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: Text(
-                                    'The Print Shack',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _showSearchBar = false;
+                                    _searchController.clear();
+                                  });
+                                },
                               ),
-                            )),
-                            Flexible(
-                                child: _NavItem(
-                                    label: "SALE!",
-                                    onTap: () =>
-                                        context.go('/collections/sale'))),
-                            Flexible(
-                                child: _NavItem(
-                                    label: "About",
-                                    onTap: () => context.go('/about'))),
-                          ],
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                borderSide: const BorderSide(
+                                    color: Colors.grey, width: 1),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFF4d2963), width: 2),
+                              ),
+                            ),
+                            onSubmitted: (value) {
+                              if (value.trim().isNotEmpty) {
+                                context.go(
+                                    '/search?q=${Uri.encodeComponent(value.trim())}');
+                                setState(() {
+                                  _showSearchBar = false;
+                                  _searchController.clear();
+                                });
+                              }
+                            },
+                          ),
                         ),
-                      ),
+                      )
+                    else if (!_showSearchBar || !isNarrow)
+                      // Desktop navigation - shown when not in narrow mode or search not active
+                      if (!isNarrow)
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                  child: _NavItem(
+                                      label: "Home",
+                                      onTap: () => context.go('/'))),
+                              Flexible(
+                                  child: PopupMenuButton<String>(
+                                onSelected: (value) {
+                                  context.go('/collections/$value');
+                                },
+                                itemBuilder: (ctx) => const [
+                                  PopupMenuItem(
+                                    value: 'essential-range',
+                                    child: Text('Essential Range'),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'signature-range',
+                                    child: Text('Signature Range'),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'graduation',
+                                    child: Text('Graduation'),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'autumn-favourites',
+                                    child: Text('Autumn Favourites'),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'sale',
+                                    child: Text('Sale'),
+                                  ),
+                                ],
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: Text(
+                                      'Shop',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )),
+                              Flexible(
+                                  child: PopupMenuButton<String>(
+                                onSelected: (value) {
+                                  if (value == 'about') {
+                                    context.go('/print_shack_about');
+                                  } else if (value == 'personalisation') {
+                                    context.go('/personalisation');
+                                  }
+                                },
+                                itemBuilder: (ctx) => const [
+                                  PopupMenuItem(
+                                    value: 'about',
+                                    child: Text('About'),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'personalisation',
+                                    child: Text('Personalisation'),
+                                  ),
+                                ],
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: Text(
+                                      'The Print Shack',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )),
+                              Flexible(
+                                  child: _NavItem(
+                                      label: "SALE!",
+                                      onTap: () =>
+                                          context.go('/collections/sale'))),
+                              Flexible(
+                                  child: _NavItem(
+                                      label: "About",
+                                      onTap: () => context.go('/about'))),
+                            ],
+                          ),
+                        ),
 
                     // Icons on the right (always shown)
                     Row(
                       children: [
-                        // Search bar (when shown) - compact next to search icon
-                        if (_showSearchBar)
+                        // Search bar (when shown) - compact next to search icon on desktop
+                        if (_showSearchBar && !isNarrow)
                           Container(
                             width: 200,
                             margin: const EdgeInsets.only(right: 8),
