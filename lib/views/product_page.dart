@@ -7,6 +7,7 @@ class ProductPage extends StatefulWidget {
   final String imageUrl; // asset or network
   final String title;
   final double price;
+  final double? discPrice; // optional discount price
   final String category;
   final CartModel cart;
 
@@ -15,6 +16,7 @@ class ProductPage extends StatefulWidget {
     required this.imageUrl,
     required this.title,
     required this.price,
+    this.discPrice,
     required this.category,
     required this.cart,
   });
@@ -70,11 +72,12 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   void _addToCart() {
+    final effectivePrice = widget.discPrice ?? widget.price;
     for (int i = 0; i < _quantity; i++) {
       widget.cart.addProduct(
         title: widget.title,
         imageUrl: widget.imageUrl,
-        price: widget.price,
+        price: effectivePrice,
         category: widget.category,
         color: _selectedColor,
         size: _selectedSize,
@@ -108,9 +111,12 @@ class _ProductPageState extends State<ProductPage> {
 
                 return Container(
                   color: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 32,
-                    horizontal: 16,
+                  padding: const EdgeInsets.only(
+                    top: 32,
+                    left: 16,
+                    right: 16,
+                    bottom:
+                        60, // Extra bottom padding to prevent footer overlap
                   ),
 
                   // ---------- NARROW LAYOUT (Column) ----------
@@ -149,15 +155,36 @@ class _ProductPageState extends State<ProductPage> {
                             const SizedBox(height: 8),
 
                             // Price
-                            Text(
-                              '\$${widget.price.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF4d2963),
+                            if (widget.discPrice != null) ...[
+                              Text(
+                                '£${widget.discPrice!.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
-                            ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '£${widget.price.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ] else
+                              Text(
+                                '£${widget.price.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF4d2963),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             const SizedBox(height: 24),
 
                             // Description
@@ -304,239 +331,258 @@ class _ProductPageState extends State<ProductPage> {
                                 child: const Text('Add to cart'),
                               ),
                             ),
+                            const SizedBox(
+                                height: 32), // Extra spacing before footer
                           ],
                         )
 
                       // ---------- WIDE SCREEN LAYOUT (Row) ----------
-                      : ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxHeight: 450, // Ensures scroll works properly
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // IMAGE
-                              if (widget.imageUrl.isNotEmpty)
-                                SizedBox(
-                                  width: 500,
-                                  height: 400,
-                                  child: isNetwork
-                                      ? Image.network(
-                                          widget.imageUrl,
-                                          fit: BoxFit.cover,
-                                          key: const Key('product_image'),
-                                        )
-                                      : Image.asset(
-                                          widget.imageUrl,
-                                          fit: BoxFit.cover,
-                                          key: const Key('product_image'),
-                                        ),
-                                ),
-                              const SizedBox(width: 16),
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // IMAGE
+                            if (widget.imageUrl.isNotEmpty)
+                              SizedBox(
+                                width: 500,
+                                height: 400,
+                                child: isNetwork
+                                    ? Image.network(
+                                        widget.imageUrl,
+                                        fit: BoxFit.cover,
+                                        key: const Key('product_image'),
+                                      )
+                                    : Image.asset(
+                                        widget.imageUrl,
+                                        fit: BoxFit.cover,
+                                        key: const Key('product_image'),
+                                      ),
+                              ),
+                            const SizedBox(width: 16),
 
-                              // TEXT CONTENT (scroll-disabled inner)
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
+                            // TEXT CONTENT (scroll-disabled inner)
+                            Expanded(
+                              child: SingleChildScrollView(
+                                physics: const NeverScrollableScrollPhysics(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.title,
+                                      style: const TextStyle(
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    if (widget.discPrice != null) ...[
                                       Text(
-                                        widget.title,
+                                        '£${widget.discPrice!.toStringAsFixed(2)}',
                                         style: const TextStyle(
-                                          fontSize: 32,
+                                          fontSize: 26,
                                           fontWeight: FontWeight.bold,
+                                          color: Colors.red,
                                         ),
                                       ),
-                                      const SizedBox(height: 16),
+                                      const SizedBox(height: 4),
                                       Text(
-                                        '\$${widget.price.toStringAsFixed(2)}',
+                                        '£${widget.price.toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          color: Colors.grey,
+                                          decoration:
+                                              TextDecoration.lineThrough,
+                                        ),
+                                      ),
+                                    ] else
+                                      Text(
+                                        '£${widget.price.toStringAsFixed(2)}',
                                         style: const TextStyle(
                                           fontSize: 26,
                                           fontWeight: FontWeight.bold,
                                           color: Color(0xFF4d2963),
                                         ),
                                       ),
-                                      const SizedBox(height: 24),
-                                      const Text(
-                                        'Description',
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                    const SizedBox(height: 24),
+                                    const Text(
+                                      'Description',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
                                       ),
-                                      const SizedBox(height: 8),
-                                      const Text(
-                                        'This is a placeholder description for the product.',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey,
-                                        ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'This is a placeholder description for the product.',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey,
                                       ),
+                                    ),
 
-                                      const SizedBox(height: 16),
-                                      // Quantity selector (wide)
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Text(
-                                            'Quantity',
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              IconButton(
-                                                onPressed: _decrement,
-                                                icon: const Icon(Icons
-                                                    .remove_circle_outline),
-                                              ),
-                                              // wider, editable field
-                                              SizedBox(
-                                                width: 100,
-                                                child: TextField(
-                                                  controller: _qtyController,
-                                                  textAlign: TextAlign.center,
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  inputFormatters: [
-                                                    FilteringTextInputFormatter
-                                                        .digitsOnly
-                                                  ],
-                                                  decoration: InputDecoration(
-                                                    contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                            vertical: 8),
-                                                    border: OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              6),
-                                                    ),
+                                    const SizedBox(height: 16),
+                                    // Quantity selector (wide)
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Quantity',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            IconButton(
+                                              onPressed: _decrement,
+                                              icon: const Icon(
+                                                  Icons.remove_circle_outline),
+                                            ),
+                                            // wider, editable field
+                                            SizedBox(
+                                              width: 100,
+                                              child: TextField(
+                                                controller: _qtyController,
+                                                textAlign: TextAlign.center,
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                inputFormatters: [
+                                                  FilteringTextInputFormatter
+                                                      .digitsOnly
+                                                ],
+                                                decoration: InputDecoration(
+                                                  contentPadding:
+                                                      const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 8),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            6),
                                                   ),
-                                                  onChanged: (value) {
-                                                    final v =
-                                                        int.tryParse(value);
-                                                    if (v == null || v < 1) {
-                                                      // don't update state for empty/invalid while typing
-                                                      return;
-                                                    }
-                                                    setState(
-                                                        () => _quantity = v);
-                                                  },
-                                                  onEditingComplete: () {
-                                                    var v = int.tryParse(
-                                                            _qtyController
-                                                                .text) ??
-                                                        1;
-                                                    if (v < 1) v = 1;
-                                                    setState(() {
-                                                      _quantity = v;
-                                                      _qtyController.text =
-                                                          '$_quantity';
-                                                    });
-                                                    FocusScope.of(context)
-                                                        .unfocus();
-                                                  },
                                                 ),
+                                                onChanged: (value) {
+                                                  final v = int.tryParse(value);
+                                                  if (v == null || v < 1) {
+                                                    // don't update state for empty/invalid while typing
+                                                    return;
+                                                  }
+                                                  setState(() => _quantity = v);
+                                                },
+                                                onEditingComplete: () {
+                                                  var v = int.tryParse(
+                                                          _qtyController
+                                                              .text) ??
+                                                      1;
+                                                  if (v < 1) v = 1;
+                                                  setState(() {
+                                                    _quantity = v;
+                                                    _qtyController.text =
+                                                        '$_quantity';
+                                                  });
+                                                  FocusScope.of(context)
+                                                      .unfocus();
+                                                },
                                               ),
-                                              IconButton(
-                                                onPressed: _increment,
-                                                icon: const Icon(
-                                                    Icons.add_circle_outline),
+                                            ),
+                                            IconButton(
+                                              onPressed: _increment,
+                                              icon: const Icon(
+                                                  Icons.add_circle_outline),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+
+                                    // color & size for clothing (wide) - only when appropriate
+                                    if (widget.category.toLowerCase() ==
+                                        'clothing') ...[
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        children: [
+                                          // Color
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Text(
+                                                'Color',
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              DropdownButton<String>(
+                                                value: _selectedColor,
+                                                items: _colors
+                                                    .map(
+                                                        (c) => DropdownMenuItem(
+                                                              value: c,
+                                                              child: Text(c),
+                                                            ))
+                                                    .toList(),
+                                                onChanged: (v) => setState(
+                                                    () => _selectedColor = v),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(width: 32),
+                                          // Size
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Text(
+                                                'Size',
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              DropdownButton<String>(
+                                                value: _selectedSize,
+                                                items: _sizes
+                                                    .map(
+                                                        (s) => DropdownMenuItem(
+                                                              value: s,
+                                                              child: Text(s),
+                                                            ))
+                                                    .toList(),
+                                                onChanged: (v) => setState(
+                                                    () => _selectedSize = v),
                                               ),
                                             ],
                                           ),
                                         ],
                                       ),
-
-                                      // color & size for clothing (wide) - only when appropriate
-                                      if (widget.category.toLowerCase() ==
-                                          'clothing') ...[
-                                        const SizedBox(height: 16),
-                                        Row(
-                                          children: [
-                                            // Color
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                const Text(
-                                                  'Color',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                DropdownButton<String>(
-                                                  value: _selectedColor,
-                                                  items: _colors
-                                                      .map((c) =>
-                                                          DropdownMenuItem(
-                                                            value: c,
-                                                            child: Text(c),
-                                                          ))
-                                                      .toList(),
-                                                  onChanged: (v) => setState(
-                                                      () => _selectedColor = v),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(width: 32),
-                                            // Size
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                const Text(
-                                                  'Size',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                DropdownButton<String>(
-                                                  value: _selectedSize,
-                                                  items: _sizes
-                                                      .map((s) =>
-                                                          DropdownMenuItem(
-                                                            value: s,
-                                                            child: Text(s),
-                                                          ))
-                                                      .toList(),
-                                                  onChanged: (v) => setState(
-                                                      () => _selectedSize = v),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-
-                                      const SizedBox(height: 16),
-                                      SizedBox(
-                                        width: 220,
-                                        child: ElevatedButton(
-                                          onPressed: _addToCart,
-                                          child: const Text('Add to cart'),
-                                        ),
-                                      ),
                                     ],
-                                  ),
+
+                                    const SizedBox(height: 16),
+                                    SizedBox(
+                                      width: 220,
+                                      child: ElevatedButton(
+                                        onPressed: _addToCart,
+                                        child: const Text('Add to cart'),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                        height:
+                                            32), // Extra spacing before footer
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                 );
               },
             ),
+
+            const SizedBox(height: 40), // Add space between content and footer
 
             // Footer
             const AppFooter(),

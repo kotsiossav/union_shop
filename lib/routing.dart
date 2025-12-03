@@ -73,6 +73,9 @@ GoRouter createRouter() {
                 imageUrl: args?['imageUrl'] ?? '',
                 title: title,
                 price: parsePrice(args?['price']),
+                discPrice: args?['discPrice'] != null
+                    ? parsePrice(args!['discPrice'])
+                    : null,
                 category: args?['category'] ?? 'unknown',
                 cart: globalCart,
               );
@@ -136,6 +139,9 @@ GoRouter createRouter() {
             imageUrl: args?['imageUrl'] ?? '',
             title: title,
             price: parsePrice(args?['price']),
+            discPrice: args?['discPrice'] != null
+                ? parsePrice(args!['discPrice'])
+                : null,
             category: args?['category'] ?? 'unknown',
             cart: globalCart,
           );

@@ -232,6 +232,7 @@ class _SearchPageState extends State<SearchPage> {
             extra: {
               'imageUrl': product['imageUrl'],
               'price': product['price'],
+              'discPrice': product['discPrice'],
               'category': product['category'],
             },
           );

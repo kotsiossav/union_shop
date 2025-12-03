@@ -30,6 +30,10 @@ class ProductCard extends StatelessWidget {
           // convert price string like "£10.00" -> 10.00 (numeric) before passing
           final numericPrice =
               double.tryParse(price.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
+          final numericDiscPrice = discountPrice != null
+              ? double.tryParse(
+                  discountPrice!.replaceAll(RegExp(r'[^0-9.]'), ''))
+              : null;
 
           // create URL-safe slugs from collection and product title
           final productSlug = Uri.encodeComponent(
@@ -39,11 +43,13 @@ class ProductCard extends StatelessWidget {
           final collectionSlug = collection ?? category ?? 'all';
 
           // navigate to /collections/:collectionSlug/products/:productSlug
-          context.push('/collections/$collectionSlug/products/$productSlug', extra: {
-            'imageUrl': imageUrl,
-            'price': numericPrice,
-            'category': category,
-          });
+          context.push('/collections/$collectionSlug/products/$productSlug',
+              extra: {
+                'imageUrl': imageUrl,
+                'price': numericPrice,
+                'discPrice': numericDiscPrice,
+                'category': category,
+              });
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
