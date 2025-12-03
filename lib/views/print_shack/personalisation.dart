@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:union_shop/layout.dart';
-import 'package:union_shop/main.dart';
+import 'package:union_shop/routing.dart';
 
 class PersonilationPage extends StatefulWidget {
   final FirebaseFirestore? firestore;
