@@ -2,8 +2,9 @@
 
 ## Core Application Files
 
-### `lib/main.dart`
+### `lib/main.dart` & `lib/routing.dart`
 - [x] Flutter app entry point with Firebase initialization
+- [x] Routing extracted to separate routing.dart file
 - [x] GoRouter configuration for all routes
 - [x] ChangeNotifierProvider for CartModel state management
 - [x] Routes configured:
@@ -28,6 +29,7 @@
   - [x] Search functionality navigates to `/search?q={query}`
   - [x] Desktop navigation menu (Home, Shop dropdown, Print Shack dropdown, Sale, About)
   - [x] Mobile hamburger menu icon
+  - [x] Mobile search bar overflow fix with Expanded widget
   - [x] Shop dropdown with collections (Essential Range, Signature Range, Portsmouth City)
   - [x] Print Shack dropdown (About, Personalisation)
   - [x] User account icon with dropdown (Sign In, Register, Order History)
@@ -169,18 +171,20 @@
 - [x] Accepts product details via query parameters
 - [x] Large product image display
 - [x] Product title, price, discount price
+- [x] Discount price displayed in red with strikethrough original
 - [x] Category and collection badges
 - [x] Size selector dropdown
 - [x] Color selector dropdown
 - [x] Quantity selector (- / + buttons)
 - [x] "Add to Cart" button
-- [x] Cart integration via Provider
+- [x] Cart integration via Provider with discount price support
 - [x] Product description section
 - [x] Care instructions section
 - [x] "You may also like" recommendations
 - [x] Related products from same collection
 - [x] Firebase query for related products
-- [x] Responsive layout
+- [x] Responsive layout (mobile/desktop)
+- [x] Footer overlap issue fixed
 - [x] AppHeader and AppFooter integration
 
 ### `lib/views/search_page.dart`
@@ -374,41 +378,64 @@
 - [ ] Test responsive behavior
 
 ### `test/layout_test.dart`
-- [ ] Test AppHeader widget
-- [ ] Test AppFooter widget
-- [ ] Test navigation elements
-- [ ] Test logo presence
-- [ ] Test footer links
+- [x] Test AppHeader widget
+- [x] Test AppFooter widget
+- [x] Test navigation elements
+- [x] Test logo presence
+- [x] Test footer links
 
-### `test/product_test.dart`
-- [ ] Test ProductPage widget
-- [ ] Test product details display
-- [ ] Test add to cart functionality
-- [ ] Test quantity selector
+### `test/page_test/product_page_test.dart`
+- [x] Test ProductPage widget (27 tests total)
+- [x] Test product details display
+- [x] Test add to cart functionality
+- [x] Test quantity selector
+- [x] Test price display (including discount prices)
+- [x] Test size and color dropdowns
+- [x] Test responsive layouts (mobile/desktop)
+- [x] Test related products section
 
-### `test/sign_in_test.dart`
-- [ ] Test SignInPage widget
-- [ ] Test form fields present
-- [ ] Test validation
-- [ ] Test submit button
+### `test/page_test/search_page_test.dart`
+- [x] Test SearchPage widget (6 tests total)
+- [x] Test search results display
+- [x] Test empty search state
+- [x] Test search navigation
+- [x] Test Firebase integration with mocking
+- [x] Test error handling
+- [x] Test product card rendering in search results
+
+### `test/services_tests/auth_service_test.dart`
+- [x] Test AuthService implementation
+- [x] Test sign-in functionality
+- [x] Test registration functionality
+- [x] Test sign-out functionality
+- [x] Test getCurrentUser method
+- [x] Test authStateChanges stream
+
+### `test/services_tests/order_service_test.dart`
+- [x] Test OrderService implementation
+- [x] Test createOrder method
+- [x] Test getUserOrders method
+- [x] Test Firestore integration with mocking
+- [x] Test order ID generation
+- [x] Test order data serialization
 
 ### `test/model_tests.dart/cart_model_test.dart`
-- [ ] **CartItem tests** (14 tests):
-  - [ ] Create with required fields
-  - [ ] Create with all fields
-  - [ ] Calculate totalPrice
-  - [ ] Update totalPrice when quantity changes
-  - [ ] Convert to Map
-  - [ ] Create from Map
-  - [ ] Handle missing optional fields
-  - [ ] Handle missing price as 0
-  - [ ] Convert integer price to double
+- [x] **CartItem tests** (14 tests):
+  - [x] Create with required fields
+  - [x] Create with all fields
+  - [x] Calculate totalPrice
+  - [x] Update totalPrice when quantity changes
+  - [x] Convert to Map
+  - [x] Create from Map
+  - [x] Handle missing optional fields
+  - [x] Handle missing price as 0
+  - [x] Convert integer price to double
 
-- [ ] **CartModel tests** (deferred):
-  - [ ] Requires Firebase mocking libraries
-  - [ ] Consider using fake_cloud_firestore
-  - [ ] Consider using firebase_auth_mocks
-  - [ ] Or implement dependency injection for testing
+- [x] **CartModel tests**:
+  - [x] Implemented with firebase_auth_mocks
+  - [x] Implemented with fake_cloud_firestore
+  - [x] Test cart item management
+  - [x] Test Firestore synchronization
 
 ---
 
@@ -567,11 +594,18 @@
 
 ## Documentation
 
-- [ ] README.md with project overview
+- [x] README.md with comprehensive project overview
+- [x] Installation and setup instructions
+- [x] Usage guide with user flows
+- [x] Testing documentation
+- [x] Project structure documentation
+- [x] Technologies and dependencies list
+- [x] Firebase configuration guide
+- [x] Known issues and future enhancements
 - [x] requirements.md → REQUIREMENTS.md (this file)
 - [x] Code comments for complex logic
 - [x] Widget documentation strings
-- [] Firebase structure documented
+- [x] Firebase structure documented in README
 
 ---
 
@@ -605,8 +639,15 @@
 **Reusable Widgets**: 5+ (ProductCard, HoverImage, SquareImage, AppHeader, AppFooter)
 **Models**: 2 (CartModel, OrderModel)
 **Services**: 2 (AuthService, OrderService)
-**Tests**: 7 test files
+**Tests**: 7 test files with 50+ total tests
+  - layout_test.dart: Header/Footer tests
+  - product_page_test.dart: 27 widget tests
+  - search_page_test.dart: 6 widget tests
+  - cart_model_test.dart: CartItem and CartModel tests
+  - auth_service_test.dart: Authentication tests
+  - order_service_test.dart: Order management tests
 **Routes**: 12 configured routes
 **Responsive Components**: 6 major components
 **Firebase Collections**: 3 (products, users/cart, users/orders)
+**Documentation**: Comprehensive README.md with installation, usage, and architecture guides
 
