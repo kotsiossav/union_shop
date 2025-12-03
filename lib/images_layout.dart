@@ -11,7 +11,8 @@ class ProductCard extends StatelessWidget {
   final String imageUrl; // Path to product image (local asset)
   final String? discountPrice; // Optional sale price (formatted)
   final String? category; // Optional product category
-  final String? collection; // Collection slug for routing (e.g., "essential-range")
+  final String?
+      collection; // Collection slug for routing (e.g., "essential-range")
 
   const ProductCard({
     super.key,
