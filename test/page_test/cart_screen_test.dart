@@ -104,7 +104,8 @@ void main() {
       expect(find.text('Item A'), findsOneWidget);
       expect(find.text('Item B'), findsOneWidget);
       expect(find.text('Subtotal'), findsOneWidget);
-      expect(find.text('£15.50'), findsOneWidget);
+      // The price appears twice now (in items count and subtotal)
+      expect(find.text('£15.50'), findsNWidgets(2));
     });
 
     testWidgets('remove button deletes item from cart', (tester) async {

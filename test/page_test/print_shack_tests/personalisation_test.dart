@@ -317,7 +317,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Custom Personalisation'), findsWidgets);
-      expect(find.text('£15.00'), findsOneWidget);
+      // Default is "One line of text" which adds £2, so £15 + £2 = £17
+      expect(find.text('£17.00'), findsWidgets);
 
       addTearDown(tester.view.reset);
     });
