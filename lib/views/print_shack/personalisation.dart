@@ -258,196 +258,239 @@ class _PersonilationPageState extends State<PersonilationPage> {
 
         final title = _extractTitle(data);
         final price = _parsePrice(data['price']);
-        // compute extra charge based on selected personalisation:
-        final sel = (_selectedPersonalisation.value ?? '').toLowerCase();
-        int linesCount = 0;
-        if (sel.startsWith('one')) {
-          linesCount = 1;
-        } else if (sel.startsWith('two'))
-          linesCount = 2;
-        else if (sel.startsWith('three'))
-          linesCount = 3;
-        else if (sel.startsWith('four')) linesCount = 4;
-        // extra only applies to "lines of text" options: £2 per extra line beyond the first
-        final double extra = sel.contains('line') && linesCount > 1
-            ? (linesCount - 1) * 2.0
-            : 0.0;
-        final double totalPrice = price + extra;
         final bool isNetwork = imageUrl.startsWith('http');
 
         // Responsive layout: use LayoutBuilder to adapt to screen size
         return Scaffold(
           appBar: AppBar(title: const Text('Print Shack — Personalisation')),
-          body: Column(
-            children: [
-              const AppHeader(),
-              Expanded(
-                child: SingleChildScrollView(
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                const AppHeader(),
+                Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // product preview card: responsive layout
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final isMobile = constraints.maxWidth < 600;
+                      // Wrap in ValueListenableBuilder to update price when selection changes
+                      ValueListenableBuilder<String?>(
+                        valueListenable: _selectedPersonalisation,
+                        builder: (context, selectedValue, child) {
+                          // Compute extra charge based on selected personalisation
+                          final sel = (selectedValue ?? '').toLowerCase();
+                          int linesCount = 0;
+                          if (sel.startsWith('one')) {
+                            linesCount = 1;
+                          } else if (sel.startsWith('two'))
+                            linesCount = 2;
+                          else if (sel.startsWith('three'))
+                            linesCount = 3;
+                          else if (sel.startsWith('four')) linesCount = 4;
 
-                          return Card(
-                            elevation: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: isMobile
-                                  ? Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // Image on top for mobile
-                                        Center(
-                                          child: SizedBox(
-                                            width: double.infinity,
-                                            height: 260,
-                                            child: isNetwork
-                                                ? Image.network(
-                                                    imageUrl,
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (ctx, err,
-                                                            st) =>
-                                                        const Center(
-                                                            child: Icon(
-                                                                Icons.image,
-                                                                size: 56,
-                                                                color: Colors
-                                                                    .grey)),
-                                                  )
-                                                : Image.asset(
-                                                    imageUrl.isEmpty
-                                                        ? 'assets/images/personalisation_placeholder.png'
-                                                        : imageUrl,
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (ctx, err,
-                                                            st) =>
-                                                        const Center(
-                                                            child: Icon(
-                                                                Icons.image,
-                                                                size: 56,
-                                                                color: Colors
-                                                                    .grey)),
-                                                  ),
-                                          ),
+                          // Calculate extra: £2 per line for multi-line options, £4 for large logo
+                          final double extra;
+                          if (sel.contains('line') && linesCount > 0) {
+                            // £2 per line (including the first line)
+                            extra = linesCount * 2.0;
+                          } else if (sel.contains('large')) {
+                            // Large logo same price as 2 lines (£4)
+                            extra = 4.0;
+                          } else {
+                            // Small logo or other options: no extra charge
+                            extra = 0.0;
+                          }
+                          final double totalPrice = price + extra;
+
+                          return LayoutBuilder(
+                            builder: (context, constraints) {
+                              final isMobile = constraints.maxWidth < 600;
+
+                              return Card(
+                                elevation: 2,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: isMobile
+                                      ? Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // Image on top for mobile
+                                            Center(
+                                              child: SizedBox(
+                                                width: double.infinity,
+                                                height: 260,
+                                                child: isNetwork
+                                                    ? Image.network(
+                                                        imageUrl,
+                                                        fit: BoxFit.cover,
+                                                        errorBuilder: (ctx, err,
+                                                                st) =>
+                                                            const Center(
+                                                                child: Icon(
+                                                                    Icons.image,
+                                                                    size: 56,
+                                                                    color: Colors
+                                                                        .grey)),
+                                                      )
+                                                    : Image.asset(
+                                                        imageUrl.isEmpty
+                                                            ? 'assets/images/personalisation_placeholder.png'
+                                                            : imageUrl,
+                                                        fit: BoxFit.cover,
+                                                        errorBuilder: (ctx, err,
+                                                                st) =>
+                                                            const Center(
+                                                                child: Icon(
+                                                                    Icons.image,
+                                                                    size: 56,
+                                                                    color: Colors
+                                                                        .grey)),
+                                                      ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 16),
+                                            _buildProductDetails(
+                                                title, totalPrice, isMobile),
+                                          ],
+                                        )
+                                      : Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // Image on left for desktop
+                                            SizedBox(
+                                              width: 260,
+                                              height: 260,
+                                              child: isNetwork
+                                                  ? Image.network(
+                                                      imageUrl,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder: (ctx, err,
+                                                              st) =>
+                                                          const Center(
+                                                              child: Icon(
+                                                                  Icons.image,
+                                                                  size: 56,
+                                                                  color: Colors
+                                                                      .grey)),
+                                                    )
+                                                  : Image.asset(
+                                                      imageUrl.isEmpty
+                                                          ? 'assets/images/personalisation_placeholder.png'
+                                                          : imageUrl,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder: (ctx, err,
+                                                              st) =>
+                                                          const Center(
+                                                              child: Icon(
+                                                                  Icons.image,
+                                                                  size: 56,
+                                                                  color: Colors
+                                                                      .grey)),
+                                                    ),
+                                            ),
+                                            const SizedBox(width: 20),
+                                            Expanded(
+                                              child: _buildProductDetails(
+                                                  title, totalPrice, isMobile),
+                                            ),
+                                          ],
                                         ),
-                                        const SizedBox(height: 16),
-                                        _buildProductDetails(
-                                            title, totalPrice, isMobile),
-                                      ],
-                                    )
-                                  : Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // Image on left for desktop
-                                        SizedBox(
-                                          width: 260,
-                                          height: 260,
-                                          child: isNetwork
-                                              ? Image.network(
-                                                  imageUrl,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (ctx, err,
-                                                          st) =>
-                                                      const Center(
-                                                          child: Icon(
-                                                              Icons.image,
-                                                              size: 56,
-                                                              color:
-                                                                  Colors.grey)),
-                                                )
-                                              : Image.asset(
-                                                  imageUrl.isEmpty
-                                                      ? 'assets/images/personalisation_placeholder.png'
-                                                      : imageUrl,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (ctx, err,
-                                                          st) =>
-                                                      const Center(
-                                                          child: Icon(
-                                                              Icons.image,
-                                                              size: 56,
-                                                              color:
-                                                                  Colors.grey)),
-                                                ),
-                                        ),
-                                        const SizedBox(width: 20),
-                                        Expanded(
-                                          child: _buildProductDetails(
-                                              title, totalPrice, isMobile),
-                                        ),
-                                      ],
-                                    ),
-                            ),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
 
                       const SizedBox(height: 24),
 
-                      // Add to cart button
-                      Center(
-                        child: SizedBox(
-                          width: 280,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              final lines = _lineControllers
-                                  .map((c) => c.text.trim())
-                                  .where((t) => t.isNotEmpty)
-                                  .toList();
-                              final details = [
-                                _selectedPersonalisation.value ?? '',
-                                if (lines.isNotEmpty)
-                                  'Text: ${lines.join(" • ")}'
-                              ].where((s) => s.isNotEmpty).join(' — ');
+                      // Add to cart button wrapped in ValueListenableBuilder to access totalPrice
+                      ValueListenableBuilder<String?>(
+                        valueListenable: _selectedPersonalisation,
+                        builder: (context, selectedValue, child) {
+                          // Recalculate price for add to cart
+                          final sel = (selectedValue ?? '').toLowerCase();
+                          int linesCount = 0;
+                          if (sel.startsWith('one')) {
+                            linesCount = 1;
+                          } else if (sel.startsWith('two'))
+                            linesCount = 2;
+                          else if (sel.startsWith('three'))
+                            linesCount = 3;
+                          else if (sel.startsWith('four')) linesCount = 4;
 
-                              final titleLabel =
-                                  title.isNotEmpty ? title : 'Personalisation';
-                              final titleWithDetails = details.isNotEmpty
-                                  ? '$titleLabel ($details)'
-                                  : titleLabel;
-                              final priceLabel = _formatPrice(totalPrice);
-                              final quantityText = _quantity.value > 1
-                                  ? ' (×${_quantity.value})'
-                                  : '';
+                          final double extra;
+                          if (sel.contains('line') && linesCount > 0) {
+                            extra = linesCount * 2.0;
+                          } else if (sel.contains('large')) {
+                            extra = 4.0;
+                          } else {
+                            extra = 0.0;
+                          }
+                          final double totalPrice = price + extra;
 
-                              // Add to cart with the specified quantity
-                              for (int i = 0; i < _quantity.value; i++) {
-                                globalCart.addProduct(
-                                  title: titleWithDetails,
-                                  imageUrl: imageUrl,
-                                  price: totalPrice,
-                                  category: 'personalisation',
-                                );
-                              }
+                          return Center(
+                            child: SizedBox(
+                              width: 280,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  final lines = _lineControllers
+                                      .map((c) => c.text.trim())
+                                      .where((t) => t.isNotEmpty)
+                                      .toList();
+                                  final details = [
+                                    _selectedPersonalisation.value ?? '',
+                                    if (lines.isNotEmpty)
+                                      'Text: ${lines.join(" • ")}'
+                                  ].where((s) => s.isNotEmpty).join(' — ');
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                      'Added "$titleLabel"${details.isNotEmpty ? " ($details)" : ""}$quantityText — $priceLabel to cart'),
+                                  final titleLabel = title.isNotEmpty
+                                      ? title
+                                      : 'Personalisation';
+                                  final titleWithDetails = details.isNotEmpty
+                                      ? '$titleLabel ($details)'
+                                      : titleLabel;
+                                  final priceLabel = _formatPrice(totalPrice);
+                                  final quantityText = _quantity.value > 1
+                                      ? ' (×${_quantity.value})'
+                                      : '';
+
+                                  // Add to cart with the specified quantity
+                                  for (int i = 0; i < _quantity.value; i++) {
+                                    globalCart.addProduct(
+                                      title: titleWithDetails,
+                                      imageUrl: imageUrl,
+                                      price: totalPrice,
+                                      category: 'personalisation',
+                                    );
+                                  }
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'Added "$titleLabel"${details.isNotEmpty ? " ($details)" : ""}$quantityText — $priceLabel to cart'),
+                                    ),
+                                  );
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 12.0),
+                                  child: Text('Add to cart',
+                                      style: TextStyle(fontSize: 16)),
                                 ),
-                              );
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text('Add to cart',
-                                  style: TextStyle(fontSize: 16)),
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                       const SizedBox(height: 24),
                     ],
                   ),
                 ),
-              ),
-              const AppFooter(),
-            ],
+                const AppFooter(),
+              ],
+            ),
           ),
         );
       },
