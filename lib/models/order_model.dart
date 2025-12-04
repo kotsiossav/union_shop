@@ -61,9 +61,9 @@ class OrderItem {
 class Order {
   final String id; // Unique order ID from Firestore document ID
   final List<OrderItem> items; // List of all items in this order
-  final double totalAmount; // Total price of entire order
-  final DateTime orderDate; // When the order was placed
-  final String status; // Order status (e.g., "completed", "pending")
+  final double totalAmount; 
+  final DateTime orderDate; 
+  final String status; //  "completed", "pending"
 
   Order({
     required this.id,

@@ -5,15 +5,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // Represents a single item in the shopping cart
 // Stores product information, selection options (color/size), and quantity
 class CartItem {
-  final String title; // Product name
-  final String imageUrl; // Path to product image (local asset or URL)
-  final double price; // Price per unit (uses effective price if discounted)
-  final String? category; // Optional product category (e.g., "Clothing")
+  final String title; 
+  final String imageUrl; 
+  final double price; 
+  final String? category; 
   final String?
-      collection; // Optional collection name (e.g., "essential-range")
-  final String? color; // Optional selected color for clothing items
-  final String? size; // Optional selected size for clothing items
-  int quantity; // Number of this item in cart
+      collection; 
+  final String? color; 
+  final String? size; 
+  int quantity; 
 
   CartItem({
     required this.title,
