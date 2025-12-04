@@ -222,23 +222,93 @@ class _CartScreenState extends State<CartScreen> {
                   const SizedBox(height: 4),
                 ],
                 Text(
-                  '£${item.price.toStringAsFixed(2)}',
+                  '£${item.price.toStringAsFixed(2)} each',
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
                   ),
                 ),
+                const SizedBox(height: 8),
+                // Quantity controls
+                Row(
+                  children: [
+                    const Text(
+                      'Quantity: ',
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade400),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Decrease button
+                          InkWell(
+                            onTap: () {
+                              widget.cart.removeProduct(item.title);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              child: const Icon(Icons.remove, size: 16),
+                            ),
+                          ),
+                          // Quantity display
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                left: BorderSide(color: Colors.grey.shade400),
+                                right: BorderSide(color: Colors.grey.shade400),
+                              ),
+                            ),
+                            child: Text(
+                              '${item.quantity}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          // Increase button
+                          InkWell(
+                            onTap: () {
+                              widget.cart.addProduct(
+                                title: item.title,
+                                imageUrl: item.imageUrl,
+                                price: item.price,
+                                category: item.category,
+                                collection: item.collection,
+                                color: item.color,
+                                size: item.size,
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              child: const Icon(Icons.add, size: 16),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
 
-          // Quantity and remove
+          // Item total and remove
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                'Quantity: ${item.quantity}',
-                style: const TextStyle(fontSize: 14),
+                '£${item.totalPrice.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               TextButton(
@@ -261,6 +331,8 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartSummary(BuildContext context) {
+    final itemCount = widget.cart.totalQuantity;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -270,17 +342,34 @@ class _CartScreenState extends State<CartScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Item count
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Items ($itemCount)',
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              Text(
+                '£${widget.cart.totalPrice.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ],
+          ),
+          const Divider(height: 24),
+
           // Subtotal
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Subtotal',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Text(
                 '£${widget.cart.totalPrice.toStringAsFixed(2)}',
-                style: const TextStyle(fontSize: 16),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
           ),
