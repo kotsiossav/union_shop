@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:union_shop/layout.dart';
 
+/// Static information page about the Print Shack personalization service
+/// Uses AppHeader and AppFooter for consistent navigation across the app
 class PrintShackAbout extends StatelessWidget {
   const PrintShackAbout({super.key});
 
+  /// Builds a scrollable page with Print Shack information and AppHeader/AppFooter
+  /// All content is static text with headings, descriptions, pricing, and terms
   @override
   Widget build(BuildContext context) {
     return Scaffold(

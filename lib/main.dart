@@ -11,7 +11,6 @@ import 'firebase_options.dart';
 // Create a global instance of AuthService to be shared across the app
 final authService = AuthService();
 
-// Application entry point - initializes Firebase and starts the app
 Future<void> main() async {
   // Configure web URLs to use clean paths without hash (#) symbols
   setPathUrlStrategy();

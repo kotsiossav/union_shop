@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
 
+/// User registration page that collects email, password, and confirmation
+/// Provides form validation to ensure password requirements are met and passwords match
+/// Delegates account creation to AuthService and navigates to homepage on success
 class RegisterPage extends StatefulWidget {
+  /// Optional auth service for dependency injection (enables testing with mock services)
   final AuthServiceBase? authService;
 
   const RegisterPage({super.key, this.authService});
@@ -12,15 +16,28 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  /// Controller for email,password input field
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  
+  /// Controller for password confirmation field 
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  
+  /// Authentication service instance (either injected or default AuthService)
   late final AuthServiceBase _authService;
+  
+  /// Loading state during registration API call (shows progress indicator)
   bool _isLoading = false;
+  
+  /// Whether to obscure the password field (toggleable via eye icon)
   bool _obscurePassword = true;
+  
+  /// Whether to obscure the confirm password field (toggleable via eye icon)
   bool _obscureConfirmPassword = true;
 
+  /// Cleanup method to prevent memory leaks by disposing text controllers
+  /// Called when the widget is permanently removed from the widget tree
   @override
   void dispose() {
     _emailController.dispose();
@@ -29,17 +46,24 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
+  /// Initialize the authentication service on widget creation
+  /// Uses injected service for testing or falls back to default AuthService implementation
   @override
   void initState() {
     super.initState();
     _authService = widget.authService ?? AuthService();
   }
 
+  /// Handles user registration with email and password
+  /// Validates all fields are filled, passwords match, and password meets minimum length (6 chars)
+  /// Calls AuthService.registerWithEmail() and navigates to homepage on success
+  /// Shows error snackbar if validation fails or registration throws an exception
   Future<void> _register() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
+    // Validation: ensure all fields have content
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all fields')),
@@ -47,6 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    // Validation: passwords must match
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Passwords do not match')),
@@ -54,6 +79,7 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    // Validation: password must meet minimum length requirement
     if (password.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Password must be at least 6 characters')),
@@ -61,25 +87,30 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    // Show loading indicator during API call
     setState(() {
       _isLoading = true;
     });
 
     try {
+      // Attempt to create account via Firebase Auth
       await _authService.registerWithEmail(email, password);
       if (mounted) {
+        // Show success message and navigate to homepage
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registration successful!')),
         );
         context.go('/');
       }
     } catch (e) {
+      // Display error message from AuthService (e.g., "Email already in use")
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
       }
     } finally {
+      // Always hide loading indicator when done
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -88,6 +119,9 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  /// Builds a centered, scrollable registration form with email, password, and confirm password fields
+  /// Form is constrained to max width of 420px for optimal readability on large screens
+  /// Includes password visibility toggles, validation, and submit button with loading state
   @override
   Widget build(BuildContext context) {
     return Scaffold(
