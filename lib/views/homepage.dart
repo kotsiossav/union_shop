@@ -520,7 +520,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             // VIEW ALL button
                             Center(
                               child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  context.go('/collections/sale');
+                                },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Color(0xFF4d2963),
                                   foregroundColor: Colors.white,
