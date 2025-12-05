@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:union_shop/layout.dart';
 import 'package:union_shop/routing.dart';
 
+/// Page for customizing products with personalized text or logos
 class PersonilationPage extends StatefulWidget {
   final FirebaseFirestore? firestore;
 
@@ -13,6 +14,7 @@ class PersonilationPage extends StatefulWidget {
 }
 
 class _PersonilationPageState extends State<PersonilationPage> {
+  /// Available personalization options (text lines or logo sizes)
   final List<String> _personalisationOptions = [
     'One line of text',
     'Two lines of text',
@@ -21,15 +23,17 @@ class _PersonilationPageState extends State<PersonilationPage> {
     'Small logo',
     'Large logo',
   ];
+
+  /// Currently selected personalization option
   late final ValueNotifier<String?> _selectedPersonalisation;
 
-  // controllers for the dynamic text boxes
+  /// Text input controllers for each line of text
   final List<TextEditingController> _lineControllers = [];
 
-  // quantity selector (using ValueNotifier to avoid full page rebuild)
+  /// Product quantity (reactive to avoid full page rebuild)
   final ValueNotifier<int> _quantity = ValueNotifier<int>(1);
 
-  // keep controllers count in sync with selection
+  /// Adjusts number of text controllers based on selected option
   void _updateControllersForSelection(String? selection) {
     int count = 1;
     final s = (selection ?? '').toLowerCase();
@@ -43,16 +47,18 @@ class _PersonilationPageState extends State<PersonilationPage> {
       count = 4;
     else if (s.contains('small') || s.contains('large')) count = 1;
 
-    // add controllers if needed
+    /// Add controllers if needed
     while (_lineControllers.length < count) {
       _lineControllers.add(TextEditingController());
     }
-    // remove extra controllers
+
+    /// Remove and dispose extra controllers
     while (_lineControllers.length > count) {
       _lineControllers.removeLast().dispose();
     }
   }
 
+  /// Fetches personalisation product from Firestore
   Future<Map<String, dynamic>?> _fetchPersonalisationProduct() async {
     final firestore = widget.firestore ?? FirebaseFirestore.instance;
     final col = firestore.collection('products');
@@ -64,18 +70,17 @@ class _PersonilationPageState extends State<PersonilationPage> {
     return q.docs.first.data();
   }
 
+  /// Extracts image URL from product data
   String _extractImage(Map<String, dynamic> d) {
     return (d['image_url'] ?? d['imageUrl'] ?? d['image'] ?? '') as String;
   }
 
+  /// Extracts product title from product data
   String _extractTitle(Map<String, dynamic> d) {
     return (d['title'] ?? '') as String;
   }
 
-  String _extractCategory(Map<String, dynamic> d) {
-    return (d['cat'] ?? d['category'] ?? '') as String;
-  }
-
+  /// Parses price from various formats (number or string)
   double _parsePrice(dynamic raw) {
     if (raw == null) return 0.0;
     if (raw is num) return raw.toDouble();
@@ -84,17 +89,22 @@ class _PersonilationPageState extends State<PersonilationPage> {
     return double.tryParse(numeric) ?? 0.0;
   }
 
+  /// Formats price as currency string
   String _formatPrice(double p) => '£${p.toStringAsFixed(2)}';
 
+  /// Builds product details section with options and quantity selector
   Widget _buildProductDetails(String title, double totalPrice, bool isMobile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        /// Product title
         Text(
           title.isNotEmpty ? title : 'Personalisation',
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
+
+        /// Product price (updates dynamically with selection)
         Text(
           _formatPrice(totalPrice),
           style: const TextStyle(fontSize: 18, color: Colors.black87),
@@ -105,12 +115,15 @@ class _PersonilationPageState extends State<PersonilationPage> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
+
+        /// Dropdown for selecting personalization type
         ValueListenableBuilder<String?>(
           valueListenable: _selectedPersonalisation,
           builder: (context, selectedValue, child) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                /// Dropdown menu with all personalization options
                 DropdownButton<String>(
                   value: selectedValue,
                   isExpanded: true,
@@ -126,7 +139,8 @@ class _PersonilationPageState extends State<PersonilationPage> {
                   },
                 ),
                 const SizedBox(height: 12),
-                // dynamic text boxes based on selection
+
+                /// Dynamic text input fields (count depends on selected option)
                 Column(
                   children: List.generate(
                     _lineControllers.length,
@@ -149,7 +163,8 @@ class _PersonilationPageState extends State<PersonilationPage> {
           },
         ),
         const SizedBox(height: 16),
-        // quantity selector (isolated rebuild)
+
+        /// Quantity selector with increment/decrement buttons
         ValueListenableBuilder<int>(
           valueListenable: _quantity,
           builder: (context, quantity, child) {
@@ -189,6 +204,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
     );
   }
 
+  /// Initialize with first option selected and create initial controllers
   @override
   void initState() {
     super.initState();
@@ -197,6 +213,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
     _updateControllersForSelection(_selectedPersonalisation.value);
   }
 
+  /// Clean up controllers and notifiers to prevent memory leaks
   @override
   void dispose() {
     for (var c in _lineControllers) {
@@ -207,11 +224,13 @@ class _PersonilationPageState extends State<PersonilationPage> {
     super.dispose();
   }
 
+  /// Build page with product data from Firestore
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>?>(
       future: _fetchPersonalisationProduct(),
       builder: (context, snap) {
+        /// Show loading spinner while fetching product data
         if (snap.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(title: const Text('Print Shack — Personalisation')),
@@ -225,6 +244,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
           );
         }
 
+        /// Show error message if product not found
         if (!snap.hasData || snap.data == null) {
           return Scaffold(
             appBar: AppBar(title: const Text('Print Shack — Personalisation')),
@@ -248,19 +268,22 @@ class _PersonilationPageState extends State<PersonilationPage> {
           );
         }
 
+        /// Extract and process product data
         final data = snap.data!;
         final rawImage = _extractImage(data);
         final imageUrl = rawImage
             .toString()
-            .replaceAll(RegExp("^['\"]+|['\"]+\$"), '')
+            .replaceAll(RegExp("^['\"]+ |['\"]+ \$"), '')
             .replaceAll('\\', '/')
             .trim();
 
         final title = _extractTitle(data);
         final price = _parsePrice(data['price']);
+
+        /// Check if image is from network or local asset
         final bool isNetwork = imageUrl.startsWith('http');
 
-        // Responsive layout: use LayoutBuilder to adapt to screen size
+        /// Build responsive layout that adapts to screen size
         return Scaffold(
           appBar: AppBar(title: const Text('Print Shack — Personalisation')),
           body: SingleChildScrollView(
@@ -272,12 +295,11 @@ class _PersonilationPageState extends State<PersonilationPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // product preview card: responsive layout
-                      // Wrap in ValueListenableBuilder to update price when selection changes
+                      /// Product preview card with dynamic pricing
                       ValueListenableBuilder<String?>(
                         valueListenable: _selectedPersonalisation,
                         builder: (context, selectedValue, child) {
-                          // Compute extra charge based on selected personalisation
+                          /// Calculate extra charges based on selection
                           final sel = (selectedValue ?? '').toLowerCase();
                           int linesCount = 0;
                           if (sel.startsWith('one')) {
@@ -288,20 +310,18 @@ class _PersonilationPageState extends State<PersonilationPage> {
                             linesCount = 3;
                           else if (sel.startsWith('four')) linesCount = 4;
 
-                          // Calculate extra: £2 per line for multi-line options, £4 for large logo
+                          /// Pricing: £2/line for text, £4 for large logo, £0 for small logo
                           final double extra;
                           if (sel.contains('line') && linesCount > 0) {
-                            // £2 per line (including the first line)
                             extra = linesCount * 2.0;
                           } else if (sel.contains('large')) {
-                            // Large logo same price as 2 lines (£4)
                             extra = 4.0;
                           } else {
-                            // Small logo or other options: no extra charge
                             extra = 0.0;
                           }
                           final double totalPrice = price + extra;
 
+                          /// Responsive layout: mobile (column) vs desktop (row)
                           return LayoutBuilder(
                             builder: (context, constraints) {
                               final isMobile = constraints.maxWidth < 600;
@@ -315,7 +335,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            // Image on top for mobile
+                                            /// Mobile: image above details
                                             Center(
                                               child: SizedBox(
                                                 width: double.infinity,
@@ -358,7 +378,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            // Image on left for desktop
+                                            /// Desktop: image on left side
                                             SizedBox(
                                               width: 260,
                                               height: 260,
@@ -406,11 +426,11 @@ class _PersonilationPageState extends State<PersonilationPage> {
 
                       const SizedBox(height: 24),
 
-                      // Add to cart button wrapped in ValueListenableBuilder to access totalPrice
+                      /// Add to cart button with current price
                       ValueListenableBuilder<String?>(
                         valueListenable: _selectedPersonalisation,
                         builder: (context, selectedValue, child) {
-                          // Recalculate price for add to cart
+                          /// Recalculate price for cart
                           final sel = (selectedValue ?? '').toLowerCase();
                           int linesCount = 0;
                           if (sel.startsWith('one')) {
@@ -436,10 +456,13 @@ class _PersonilationPageState extends State<PersonilationPage> {
                               width: 280,
                               child: ElevatedButton(
                                 onPressed: () {
+                                  /// Collect entered text from all input fields
                                   final lines = _lineControllers
                                       .map((c) => c.text.trim())
                                       .where((t) => t.isNotEmpty)
                                       .toList();
+
+                                  /// Build product details string for cart
                                   final details = [
                                     _selectedPersonalisation.value ?? '',
                                     if (lines.isNotEmpty)
@@ -457,7 +480,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
                                       ? ' (×${_quantity.value})'
                                       : '';
 
-                                  // Add to cart with the specified quantity
+                                  /// Add items to cart (multiple if quantity > 1)
                                   for (int i = 0; i < _quantity.value; i++) {
                                     globalCart.addProduct(
                                       title: titleWithDetails,
@@ -467,6 +490,7 @@ class _PersonilationPageState extends State<PersonilationPage> {
                                     );
                                   }
 
+                                  /// Show confirmation message
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
