@@ -4,9 +4,11 @@ import 'package:union_shop/layout.dart';
 import 'package:union_shop/models/cart_model.dart';
 import 'package:union_shop/services/order_service.dart';
 
+// Shopping cart screen displaying cart items with quantity editing and checkout
+// Allows users to view items, modify quantities, remove items, and place orders
 class CartScreen extends StatefulWidget {
-  final CartModel cart;
-  final OrderService? orderService;
+  final CartModel cart; // Cart state management
+  final OrderService? orderService; // Optional order service for testing
 
   const CartScreen({super.key, required this.cart, this.orderService});
 
@@ -16,26 +18,32 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   late final OrderService _orderService;
-  bool _isProcessingCheckout = false;
+  bool _isProcessingCheckout = false; // Prevent duplicate checkout requests
 
   @override
   void initState() {
     super.initState();
+    // Initialize order service with provided instance or create new one
     _orderService = widget.orderService ?? OrderService();
+    // Listen for cart changes to update UI
     widget.cart.addListener(_onCartChanged);
   }
 
   @override
   void dispose() {
+    // Remove listener to prevent memory leaks
     widget.cart.removeListener(_onCartChanged);
     super.dispose();
   }
 
+  // Rebuild UI when cart changes
   void _onCartChanged() {
     setState(() {});
   }
 
+  // Process checkout: create order, clear cart, navigate to order history
   Future<void> _handleCheckout() async {
+    // Validate cart is not empty
     if (widget.cart.items.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Your cart is empty')),
@@ -43,11 +51,13 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
 
+    // Show loading state
     setState(() {
       _isProcessingCheckout = true;
     });
 
     try {
+      // Create order from cart items
       final orderId = await _orderService.createOrderFromCart(widget.cart);
 
       if (orderId != null) {
@@ -55,6 +65,7 @@ class _CartScreenState extends State<CartScreen> {
         widget.cart.clearCart();
 
         if (mounted) {
+          // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Order placed successfully!'),
@@ -66,6 +77,7 @@ class _CartScreenState extends State<CartScreen> {
         }
       }
     } catch (e) {
+      // Show error message if checkout fails
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -75,6 +87,7 @@ class _CartScreenState extends State<CartScreen> {
         );
       }
     } finally {
+      // Reset loading state
       if (mounted) {
         setState(() {
           _isProcessingCheckout = false;
@@ -85,6 +98,7 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get cart items and check if empty
     final cartItems = widget.cart.items.values.toList();
     final isEmpty = cartItems.isEmpty;
 
@@ -92,17 +106,16 @@ class _CartScreenState extends State<CartScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Header
             const AppHeader(),
 
-            // Main content
+            // Main content with max width constraint for desktop
             Container(
               constraints: const BoxConstraints(maxWidth: 1200),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title
+                  // Page title
                   const Text(
                     'Your Cart',
                     style: TextStyle(
@@ -126,7 +139,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Cart content
+                  // Show empty message or cart items
                   if (isEmpty)
                     const Center(
                       child: Padding(
@@ -140,13 +153,13 @@ class _CartScreenState extends State<CartScreen> {
                   else
                     Column(
                       children: [
-                        // Cart items list
+                        // Render each cart item
                         ...cartItems
                             .map((item) => _buildCartItem(context, item)),
 
                         const SizedBox(height: 32),
 
-                        // Cart summary
+                        // Cart summary with checkout button
                         _buildCartSummary(context),
                       ],
                     ),
@@ -154,7 +167,6 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
 
-            // Footer
             const AppFooter(),
           ],
         ),
@@ -162,6 +174,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // Build individual cart item row with image, details, quantity controls, and remove button
   Widget _buildCartItem(BuildContext context, CartItem item) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -173,7 +186,7 @@ class _CartScreenState extends State<CartScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product image
+          // Product image (100x100)
           Container(
             width: 100,
             height: 100,
@@ -188,11 +201,12 @@ class _CartScreenState extends State<CartScreen> {
           ),
           const SizedBox(width: 16),
 
-          // Product details
+          // Product details (title, color, size, price, quantity controls)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Product title
                 Text(
                   item.title,
                   style: const TextStyle(
@@ -201,6 +215,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
+                // Color option (if available)
                 if (item.color != null) ...[
                   Text(
                     'Color: ${item.color}',
@@ -211,6 +226,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   const SizedBox(height: 4),
                 ],
+                // Size option (if available)
                 if (item.size != null) ...[
                   Text(
                     'Size: ${item.size}',
@@ -221,6 +237,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   const SizedBox(height: 4),
                 ],
+                // Unit price
                 Text(
                   '£${item.price.toStringAsFixed(2)} each',
                   style: const TextStyle(
@@ -229,7 +246,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                // Quantity controls
+                // Quantity controls with +/- buttons
                 Wrap(
                   spacing: 8,
                   crossAxisAlignment: WrapCrossAlignment.center,
@@ -247,7 +264,7 @@ class _CartScreenState extends State<CartScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Decrease button
+                          // Decrease quantity button (removes item if quantity = 1)
                           InkWell(
                             onTap: () {
                               widget.cart.removeProduct(item.uniqueKey);
@@ -257,7 +274,7 @@ class _CartScreenState extends State<CartScreen> {
                               child: const Icon(Icons.remove, size: 16),
                             ),
                           ),
-                          // Quantity display
+                          // Current quantity display
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             decoration: BoxDecoration(
@@ -274,7 +291,7 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                             ),
                           ),
-                          // Increase button
+                          // Increase quantity button
                           InkWell(
                             onTap: () {
                               widget.cart.addProduct(
@@ -301,10 +318,11 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
 
-          // Item total and remove
+          // Item total price and remove button
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              // Total price for this item (quantity × unit price)
               Text(
                 '£${item.totalPrice.toStringAsFixed(2)}',
                 style: const TextStyle(
@@ -313,6 +331,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
               const SizedBox(height: 8),
+              // Remove item button (deletes completely regardless of quantity)
               TextButton(
                 onPressed: () {
                   widget.cart.removeProductCompletely(item.uniqueKey);
@@ -332,6 +351,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // Build cart summary panel with item count, subtotal, and checkout button
   Widget _buildCartSummary(BuildContext context) {
     final itemCount = widget.cart.totalQuantity;
 
@@ -344,7 +364,7 @@ class _CartScreenState extends State<CartScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Item count
+          // Item count and total price
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -377,6 +397,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           const SizedBox(height: 12),
 
+          // Tax and shipping notice
           const Text(
             'Taxes and shipping calculated at checkout',
             style: TextStyle(
@@ -387,7 +408,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Checkout button
+          // Checkout button with loading state
           SizedBox(
             height: 50,
             child: ElevatedButton(

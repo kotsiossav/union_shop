@@ -51,7 +51,7 @@ class AboutPage extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 18, // subtitle size
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey, // <-- make this text grey
+                          color: Colors.grey, 
                         ),
                       ),
                     ],

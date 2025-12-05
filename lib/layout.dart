@@ -586,8 +586,8 @@ class _AppHeaderState extends State<AppHeader> {
           ),
         ),
       ],
-      child: Padding(
-        padding: const EdgeInsets.all(6),
+      child: const Padding(
+        padding: EdgeInsets.all(6),
         child: Icon(Icons.person, size: 20, color: Colors.grey),
       ),
     );
