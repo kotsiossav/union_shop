@@ -247,6 +247,17 @@ xdg-open coverage/html/index.html  # Linux
 - `test/services_tests/` - Unit tests for services
 - `test/layout_test.dart` - Tests for header/footer components
 
+### Testing Limitations
+
+Due to Firebase integration throughout the application, dependency injection was required for a significant portion of the test suite. Mock implementations (`fake_cloud_firestore` and `firebase_auth_mocks`) were used to simulate Firebase services during testing. However, this approach has limitations:
+
+- Some code paths that heavily interact with Firebase could not be thoroughly tested
+- Certain Firebase-specific behaviors and edge cases are difficult to replicate with mocks
+- Test coverage may not reflect the full complexity of Firebase interactions in production
+- Real-time listeners and authentication state changes have limited test coverage due to the constraints of mocked services
+
+While we achieved comprehensive coverage of core business logic and UI components, complete end-to-end testing would require integration tests with actual Firebase instances, which falls outside the scope of unit and widget testing.
+
 ---
 
 ## 📁 Project Structure
