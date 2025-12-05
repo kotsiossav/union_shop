@@ -44,17 +44,21 @@ class _ProductPageState extends State<ProductPage> {
   @override
   void initState() {
     super.initState();
+    // Initialize quantity text controller with default value
     _qtyController = TextEditingController(text: '$_quantity');
+    // Set default color and size selections if available
     _selectedColor = _colors.isNotEmpty ? _colors.first : null;
     _selectedSize = _sizes.isNotEmpty ? _sizes.first : null;
   }
 
   @override
   void dispose() {
+    // Clean up text controller to prevent memory leaks
     _qtyController.dispose();
     super.dispose();
   }
 
+  // Increase quantity by 1 and update text field
   void _increment() {
     setState(() {
       _quantity++;
@@ -62,6 +66,7 @@ class _ProductPageState extends State<ProductPage> {
     });
   }
 
+  // Decrease quantity by 1 (minimum is 1) and update text field
   void _decrement() {
     if (_quantity > 1) {
       setState(() {
@@ -71,8 +76,11 @@ class _ProductPageState extends State<ProductPage> {
     }
   }
 
+  // Add product(s) to cart and show confirmation message
   void _addToCart() {
+    // Use discount price if available, otherwise use regular price
     final effectivePrice = widget.discPrice ?? widget.price;
+    // Add each item individually to cart (for accurate quantity tracking)
     for (int i = 0; i < _quantity; i++) {
       widget.cart.addProduct(
         title: widget.title,
@@ -84,6 +92,7 @@ class _ProductPageState extends State<ProductPage> {
       );
     }
 
+    // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Added $_quantity × ${widget.title} to cart'),
