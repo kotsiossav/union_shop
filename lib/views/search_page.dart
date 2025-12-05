@@ -3,10 +3,12 @@ import 'package:union_shop/layout.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 
+// Search page for finding products by name or collection
 class SearchPage extends StatefulWidget {
-  final String? initialQuery;
-  final FirebaseFirestore? firestore;
-  final Future<QuerySnapshot<Map<String, dynamic>>> Function()? fetchProducts;
+  final String? initialQuery; // Optional pre-filled search query
+  final FirebaseFirestore? firestore; // Optional Firestore instance for testing
+  final Future<QuerySnapshot<Map<String, dynamic>>> Function()?
+      fetchProducts; // Optional custom fetch function for testing
 
   const SearchPage({
     super.key,
@@ -21,13 +23,14 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, dynamic>> _searchResults = [];
-  bool _isSearching = false;
-  bool _hasSearched = false;
+  List<Map<String, dynamic>> _searchResults = []; // Filtered product results
+  bool _isSearching = false; // Loading state during search
+  bool _hasSearched = false; // Track if a search has been performed
 
   @override
   void initState() {
     super.initState();
+    // If initial query provided, populate search field and trigger search
     if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
       _searchController.text = widget.initialQuery!;
       // Perform search after the widget is built
@@ -39,10 +42,12 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   void dispose() {
+    // Clean up text controller to prevent memory leaks
     _searchController.dispose();
     super.dispose();
   }
 
+  // Fetch products from Firestore and filter by search query
   Future<void> _performSearch() async {
     final query = _searchController.text.trim().toLowerCase();
 
@@ -54,6 +59,7 @@ class _SearchPageState extends State<SearchPage> {
     });
 
     try {
+      // Use custom fetch function if provided, otherwise query Firestore
       final snapshot = widget.fetchProducts != null
           ? await widget.fetchProducts!()
           : await (widget.firestore ?? FirebaseFirestore.instance)
@@ -69,11 +75,11 @@ class _SearchPageState extends State<SearchPage> {
 
         // Check if query matches title or any collection
         if (title.contains(query) || coll.contains(query)) {
-          // Parse collections
+          // Parse collections from comma-separated string
           final collParts = coll.split(',').map((e) => e.trim()).toList();
           final collection = collParts.isNotEmpty ? collParts.first : 'all';
 
-          // Parse price
+          // Parse price from various formats (number, string, pence)
           double parsePrice(Object? raw) {
             if (raw is num) return raw.toDouble();
             if (raw is String) {
@@ -88,6 +94,7 @@ class _SearchPageState extends State<SearchPage> {
           final price = parsePrice(data['price']);
           final discPrice = parsePrice(data['disc_price']);
 
+          // Add matching product to results
           results.add({
             'title': data['title'] ?? '',
             'imageUrl': data['image_url'] ?? '',
@@ -107,6 +114,7 @@ class _SearchPageState extends State<SearchPage> {
       setState(() {
         _isSearching = false;
       });
+      // Show error message if search fails
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error searching: $e')),
@@ -123,12 +131,13 @@ class _SearchPageState extends State<SearchPage> {
           children: [
             const AppHeader(),
 
-            // Search content
+            // Search content area
             Padding(
               padding: const EdgeInsets.all(40.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Page title
                   const Text(
                     'Search',
                     style: TextStyle(
@@ -137,6 +146,7 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
+                  // Search input with button
                   Row(
                     children: [
                       Expanded(
@@ -169,25 +179,30 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                   const SizedBox(height: 40),
 
-                  // Search results
+                  // Search results with different states
                   if (_isSearching)
+                    // Loading state
                     const Center(
                       child: CircularProgressIndicator(),
                     )
                   else if (!_hasSearched)
+                    // Initial state (no search performed yet)
                     const Text(
                       'Enter a search term to find products',
                       style: TextStyle(color: Colors.grey),
                     )
                   else if (_searchResults.isEmpty)
+                    // Empty results state
                     const Text(
                       'No products found matching your search',
                       style: TextStyle(color: Colors.grey),
                     )
                   else
+                    // Results found state
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Results count
                         Text(
                           '${_searchResults.length} product${_searchResults.length == 1 ? '' : 's'} found',
                           style: const TextStyle(
@@ -196,6 +211,7 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                         ),
                         const SizedBox(height: 24),
+                        // List of product items
                         ..._searchResults.map((product) {
                           return _buildProductItem(context, product);
                         }),
@@ -212,6 +228,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  // Build individual product item row with image, details, and navigation
   Widget _buildProductItem(BuildContext context, Map<String, dynamic> product) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -222,11 +239,13 @@ class _SearchPageState extends State<SearchPage> {
       ),
       child: InkWell(
         onTap: () {
+          // Create URL-friendly slugs for navigation
           final productSlug = Uri.encodeComponent(product['title']
               .toString()
               .toLowerCase()
               .replaceAll(RegExp(r'\s+'), '-'));
           final collectionSlug = product['collection'] ?? 'all';
+          // Navigate to product detail page
           context.push(
             '/collections/$collectionSlug/products/$productSlug',
             extra: {
@@ -256,7 +275,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
             const SizedBox(width: 16),
 
-            // Product details
+            // Product details (title, price, category)
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,6 +288,7 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ),
                   const SizedBox(height: 8),
+                  // Show discount price if available
                   if (product['discPrice'] != null) ...[
                     Text(
                       '£${product['discPrice'].toStringAsFixed(2)}',
@@ -279,6 +299,7 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                     ),
                     const SizedBox(height: 4),
+                    // Original price with strikethrough
                     Text(
                       '£${product['price'].toStringAsFixed(2)}',
                       style: const TextStyle(
@@ -288,6 +309,7 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                     ),
                   ] else ...[
+                    // Regular price
                     Text(
                       '£${product['price'].toStringAsFixed(2)}',
                       style: const TextStyle(
@@ -297,6 +319,7 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ],
                   const SizedBox(height: 4),
+                  // Product category
                   Text(
                     'Category: ${product['category']}',
                     style: const TextStyle(
@@ -308,7 +331,7 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ),
 
-            // Arrow icon
+            // Navigation arrow indicator
             const Icon(
               Icons.arrow_forward_ios,
               size: 16,

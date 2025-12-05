@@ -120,7 +120,6 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   /// Builds a centered, scrollable registration form with email, password, and confirm password fields
-  /// Form is constrained to max width of 420px for optimal readability on large screens
   /// Includes password visibility toggles, validation, and submit button with loading state
   @override
   Widget build(BuildContext context) {
