@@ -202,7 +202,7 @@ void main() {
         price: 45.00,
       );
 
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 100));
 
       expect(cart.itemCount, 1);
       expect(cart.totalQuantity, 1);
