@@ -215,8 +215,8 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                // Color option (if available)
-                if (item.color != null) ...[
+                // Color option (only for clothing items)
+                if (item.category == 'clothing' && item.color != null) ...[
                   Text(
                     'Color: ${item.color}',
                     style: const TextStyle(
@@ -226,8 +226,8 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   const SizedBox(height: 4),
                 ],
-                // Size option (if available)
-                if (item.size != null) ...[
+                // Size option (only for clothing items)
+                if (item.category == 'clothing' && item.size != null) ...[
                   Text(
                     'Size: ${item.size}',
                     style: const TextStyle(
