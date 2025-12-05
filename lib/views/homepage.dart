@@ -5,8 +5,10 @@ import 'package:union_shop/app_styles.dart';
 import 'package:union_shop/images_layout.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Homepage displaying hero slideshow, featured products, and collection links
 class HomeScreen extends StatefulWidget {
-  final bool enableProducts;
+  final bool enableProducts; // Allow disabling products for testing
+
   const HomeScreen({super.key, this.enableProducts = true});
 
   @override
@@ -15,8 +17,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final PageController _heroController = PageController();
-  int _currentHeroPage = 0;
+  int _currentHeroPage = 0; // Track current slide index
 
+  // Hero slideshow data
   final List<HeroSlide> _slides = const [
     HeroSlide(
       imagePath: 'assets/images/Pink_Essential_Hoodie_720x.webp',
@@ -46,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // This is the event handler for buttons that don't work yet
   }
 
+  // Parse price from Firestore (handles both numbers and strings)
   double _parsePrice(dynamic raw) {
     if (raw is num) return raw.toDouble();
     if (raw is String) {
@@ -58,8 +62,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return 0.0;
   }
 
+  // Format price as currency string
   String _formatPrice(double v) => '£${v.toStringAsFixed(2)}';
 
+  // Parse collection string from Firestore
   List<String> _collParts(dynamic raw) {
     if (raw == null) return [];
     return raw
@@ -71,6 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .toList();
   }
 
+  // Build product card by fetching data from Firestore
   Widget _buildProductCard(String productTitle) {
     return FutureBuilder<DocumentSnapshot>(
       future: FirebaseFirestore.instance
@@ -89,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return const Center(child: Text('Error loading product'));
         }
 
+        // Extract and clean product data
         final data = snapshot.data!.data() as Map<String, dynamic>;
         final rawImage = (data['image_url'] as String?) ?? '';
         final imageUrl =
@@ -118,18 +126,17 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Handle hero slideshow button clicks
   void _onHeroButtonPressed(int index) {
     if (index == 0) {
-      // Navigate to Essential Range collection
       context.go('/collections/essential-range');
     } else if (index == 1) {
-      // Navigate to Print Shack personalisation page
       context.go('/personalisation');
     }
   }
 
+  // Navigate to previous slide (wraps to last if at first)
   void _goToPreviousSlide() {
-    // wrap to last slide if on first
     final int targetIndex =
         _currentHeroPage > 0 ? _currentHeroPage - 1 : _slides.length - 1;
 
@@ -140,8 +147,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Navigate to next slide (wraps to first if at last)
   void _goToNextSlide() {
-    // wrap to first slide if on last
     final int targetIndex =
         _currentHeroPage < _slides.length - 1 ? _currentHeroPage + 1 : 0;
 
@@ -164,10 +171,9 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Header from layout.dart
             const AppHeader(),
 
-            // Hero Section - slideshow
+            // Hero slideshow section with responsive sizing
             LayoutBuilder(
               builder: (context, constraints) {
                 final isMobile = constraints.maxWidth < 600;
@@ -177,6 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: double.infinity,
                   child: Stack(
                     children: [
+                      // PageView for swipeable slides
                       PageView.builder(
                         controller: _heroController,
                         itemCount: _slides.length,
@@ -188,16 +195,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Stack(
                             fit: StackFit.expand,
                             children: [
-                              // background image
+                              // Background image
                               Image.asset(
                                 slide.imagePath,
                                 fit: BoxFit.cover,
                               ),
-                              // dark overlay
+                              // Dark overlay for text readability
                               Container(
                                 color: Colors.black.withOpacity(0.7),
                               ),
-                              // content
+                              // Centered text and button content
                               Center(
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -254,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
 
-                      // arrows + dots in one translucent black box
+                      // Navigation controls (arrows + dots) at bottom center
                       Positioned(
                         bottom: 12,
                         left: 0,
@@ -267,14 +274,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             decoration: BoxDecoration(
                               color: Colors.black.withOpacity(0.5),
-                              borderRadius: BorderRadius.zero, // squared box
+                              borderRadius: BorderRadius.zero,
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                // LEFT arrow
+                                // Previous slide arrow
                                 IconButton(
-                                  iconSize: 18, // smaller
+                                  iconSize: 18,
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
                                   color: Colors.white70,
@@ -284,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                 const SizedBox(width: 6),
 
-                                // dots
+                                // Page indicator dots
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children:
@@ -310,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                 const SizedBox(width: 6),
 
-                                // RIGHT arrow
+                                // Next slide arrow
                                 IconButton(
                                   iconSize: 18,
                                   padding: EdgeInsets.zero,
@@ -330,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
 
-            // Products Section (product cards can be disabled for tests)
+            // Products section with responsive layout
             Container(
               color: Colors.white,
               child: LayoutBuilder(
@@ -347,6 +354,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: containerWidth,
                         child: Column(
                           children: [
+                            // Essential Range section title
                             const Text(
                               'ESSENTIAL RANGE - OVER 20% OFF!',
                               style: AppStyles.title,
@@ -354,7 +362,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             SizedBox(height: isMobile ? 24 : 48),
 
-                            // First 2 products in a row (or column on mobile)
+                            // First pair of products (responsive: row or column)
                             if (isMobile)
                               Column(
                                 children: [
@@ -390,7 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             SizedBox(height: isMobile ? 24 : 48),
 
-                            // Text between first 2 and last 2 product cards
+                            // Signature Range section title
                             const Center(
                               child: Text(
                                 'SIGNATURE RANGE',
@@ -401,7 +409,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             SizedBox(height: isMobile ? 24 : 48),
 
-                            // Last 2 products in a row (or column on mobile)
+                            // Second pair of products
                             if (isMobile)
                               Column(
                                 children: [
@@ -437,6 +445,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             SizedBox(height: isMobile ? 24 : 48),
 
+                            // Portsmouth City Collection section title
                             const Center(
                               child: Text(
                                 'PORTSMOUTH CITY COLLECTION',
@@ -447,6 +456,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             SizedBox(height: isMobile ? 24 : 48),
 
+                            // Third pair of products
                             if (isMobile)
                               Column(
                                 children: [
@@ -482,6 +492,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             SizedBox(height: isMobile ? 24 : 48),
 
+                            // Fourth pair of products
                             if (isMobile)
                               Column(
                                 children: [
@@ -517,7 +528,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             SizedBox(height: isMobile ? 24 : 48),
 
-                            // VIEW ALL button
+                            // View all button navigating to sale collection
                             Center(
                               child: ElevatedButton(
                                 onPressed: () {
@@ -548,7 +559,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             SizedBox(height: isMobile ? 24 : 48),
 
-                            // OUR RANGE title
+                            // Our Range section title
                             const Center(
                               child: Text(
                                 'OUR RANGE',
@@ -559,7 +570,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             SizedBox(height: isMobile ? 24 : 48),
 
-                            // 4 square images, each linking to collections
+                            // Category images grid (4 clickable squares)
                             Wrap(
                               alignment: WrapAlignment.center,
                               spacing: 24,
@@ -603,7 +614,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             SizedBox(height: isMobile ? 24 : 48),
 
-                            // Add a Personal Touch section
+                            // Personalisation service section (responsive layout)
                             if (isMobile)
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -656,7 +667,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  // Left side: text + button
+                                  // Text and button on left side
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -702,7 +713,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                   const SizedBox(width: 48),
 
-                                  // Right side: image
+                                  // Print Shack logo on right side
                                   SizedBox(
                                     width: 450,
                                     height: 300,
@@ -724,7 +735,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Footer from layout.dart
             const AppFooter(),
           ],
         ),
