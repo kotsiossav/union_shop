@@ -223,7 +223,8 @@ void main() {
 
       await Future.delayed(Duration(milliseconds: 100));
 
-      final item = cart.items['premium hoodie'];
+      final item = cart
+          .items['premium hoodie_navy_l']; // uniqueKey includes color and size
       expect(item, isNotNull);
       expect(item!.category, 'clothing');
       expect(item.collection, 'signature-range');
@@ -363,7 +364,7 @@ void main() {
 
       expect(cart.items['hoodie']!.quantity, 3);
 
-      cart.removeProduct('Hoodie');
+      cart.removeProduct('hoodie'); // Use uniqueKey (lowercase)
 
       await Future.delayed(Duration(milliseconds: 100));
 
@@ -381,7 +382,7 @@ void main() {
 
       await Future.delayed(Duration(milliseconds: 100));
 
-      cart.removeProduct('T-Shirt');
+      cart.removeProduct('t-shirt'); // Use uniqueKey (lowercase)
 
       await Future.delayed(Duration(milliseconds: 100));
 
@@ -419,7 +420,7 @@ void main() {
 
       await Future.delayed(Duration(milliseconds: 100));
 
-      cart.removeProduct('Non-Existent Product');
+      cart.removeProduct('non-existent product'); // Use uniqueKey (lowercase)
 
       await Future.delayed(Duration(milliseconds: 100));
 
@@ -449,7 +450,7 @@ void main() {
 
       expect(cart.items['hoodie']!.quantity, 3);
 
-      cart.removeProductCompletely('Hoodie');
+      cart.removeProductCompletely('hoodie'); // Use uniqueKey (lowercase title)
 
       await Future.delayed(Duration(milliseconds: 100));
 

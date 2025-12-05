@@ -161,8 +161,10 @@ class CartModel extends ChangeNotifier {
         await doc.reference.delete();
       }
 
+      // Create a copy of items to avoid concurrent modification
+      final itemsList = _items.values.toList();
       // Add current cart items to Firestore
-      for (var item in _items.values) {
+      for (var item in itemsList) {
         await cartRef.add(item.toMap());
       }
     } catch (e) {
