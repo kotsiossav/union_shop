@@ -250,7 +250,7 @@ class _CartScreenState extends State<CartScreen> {
                           // Decrease button
                           InkWell(
                             onTap: () {
-                              widget.cart.removeProduct(item.title);
+                              widget.cart.removeProduct(item.uniqueKey);
                             },
                             child: Container(
                               padding: const EdgeInsets.all(8),
@@ -315,7 +315,7 @@ class _CartScreenState extends State<CartScreen> {
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () {
-                  widget.cart.removeProductCompletely(item.title);
+                  widget.cart.removeProductCompletely(item.uniqueKey);
                 },
                 child: const Text(
                   'Remove',

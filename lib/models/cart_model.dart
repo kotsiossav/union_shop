@@ -5,15 +5,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // Represents a single item in the shopping cart
 // Stores product information, selection options (color/size), and quantity
 class CartItem {
-  final String title; 
-  final String imageUrl; 
-  final double price; 
-  final String? category; 
-  final String?
-      collection; 
-  final String? color; 
-  final String? size; 
-  int quantity; 
+  final String title;
+  final String imageUrl;
+  final double price;
+  final String? category;
+  final String? collection;
+  final String? color;
+  final String? size;
+  int quantity;
 
   CartItem({
     required this.title,
@@ -28,6 +27,15 @@ class CartItem {
 
   // Calculate total price for this cart item (price × quantity)
   double get totalPrice => price * quantity;
+
+  // Generate unique key for cart item (title + color + size)
+  // Used to distinguish items with same title but different variants
+  String get uniqueKey {
+    final parts = [title.toLowerCase()];
+    if (color != null && color!.isNotEmpty) parts.add(color!.toLowerCase());
+    if (size != null && size!.isNotEmpty) parts.add(size!.toLowerCase());
+    return parts.join('_');
+  }
 
   // Convert CartItem to Map for Firestore storage
   // Used when saving cart to database
@@ -123,8 +131,8 @@ class CartModel extends ChangeNotifier {
       _items.clear();
       for (var doc in snapshot.docs) {
         final item = CartItem.fromMap(doc.data());
-        // Use lowercase title as key for case-insensitive matching
-        _items[item.title.toLowerCase()] = item;
+        // Use unique key (title + color + size) to identify items
+        _items[item.uniqueKey] = item;
       }
       // Notify listeners to update UI with loaded cart
       notifyListeners();
@@ -145,7 +153,9 @@ class CartModel extends ChangeNotifier {
 
       // Delete all existing cart items first
       final existingDocs = await cartRef.get();
-      for (var doc in existingDocs.docs) {
+      // Create a list copy to avoid concurrent modification during iteration
+      final docsList = existingDocs.docs.toList();
+      for (var doc in docsList) {
         await doc.reference.delete();
       }
 
@@ -159,7 +169,7 @@ class CartModel extends ChangeNotifier {
   }
 
   // Add a product to the cart or increment quantity if already exists
-  // Uses lowercase title for case-insensitive matching
+  // Uses unique key (title + color + size) to distinguish variants
   void addProduct({
     required String title,
     required String imageUrl,
@@ -169,22 +179,24 @@ class CartModel extends ChangeNotifier {
     String? color,
     String? size,
   }) {
-    final key = title.toLowerCase();
+    // Create temporary item to generate unique key
+    final tempItem = CartItem(
+      title: title,
+      imageUrl: imageUrl,
+      price: price,
+      category: category,
+      collection: collection,
+      color: color,
+      size: size,
+    );
+    final key = tempItem.uniqueKey;
 
     if (_items.containsKey(key)) {
-      // Product already in cart - increment quantity
+      // Product with same title, color, and size already in cart - increment quantity
       _items[key]!.quantity++;
     } else {
-      // New product - add to cart
-      _items[key] = CartItem(
-        title: title,
-        imageUrl: imageUrl,
-        price: price,
-        category: category,
-        collection: collection,
-        color: color,
-        size: size,
-      );
+      // New product variant - add to cart
+      _items[key] = tempItem;
     }
     // Notify listeners to update UI and save to Firestore
     notifyListeners();
@@ -192,16 +204,15 @@ class CartModel extends ChangeNotifier {
   }
 
   // Decrease quantity of a product or remove if quantity reaches 0
-  void removeProduct(String title) {
-    final key = title.toLowerCase();
-
-    if (_items.containsKey(key)) {
-      if (_items[key]!.quantity > 1) {
+  // Uses uniqueKey to identify the specific item variant
+  void removeProduct(String uniqueKey) {
+    if (_items.containsKey(uniqueKey)) {
+      if (_items[uniqueKey]!.quantity > 1) {
         // Decrease quantity by 1
-        _items[key]!.quantity--;
+        _items[uniqueKey]!.quantity--;
       } else {
         // Remove item if quantity would be 0
-        _items.remove(key);
+        _items.remove(uniqueKey);
       }
       notifyListeners();
       _saveCartToFirestore();
@@ -209,9 +220,9 @@ class CartModel extends ChangeNotifier {
   }
 
   // Remove a product completely from cart regardless of quantity
-  void removeProductCompletely(String title) {
-    final key = title.toLowerCase();
-    _items.remove(key);
+  // Uses uniqueKey to identify the specific item variant
+  void removeProductCompletely(String uniqueKey) {
+    _items.remove(uniqueKey);
     notifyListeners();
     _saveCartToFirestore();
   }
