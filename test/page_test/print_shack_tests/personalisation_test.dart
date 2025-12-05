@@ -61,31 +61,58 @@ void main() {
   });
 
   group('PersonilationPage Internal Logic', () {
-    test('Personalisation options list contains correct items', () {
-      const page = PersonilationPage();
-      final state = page.createState();
+    testWidgets('Personalisation dropdown contains all expected options',
+        (WidgetTester tester) async {
+      await fakeFirestore.collection('products').add({
+        'title': 'Test Product',
+        'cat': 'personalisation',
+        'price': 10.0,
+        'image_url': 'https://example.com/test.png',
+      });
 
-      // Options should include line options and logo options
-      final expectedOptions = [
-        'One line of text',
-        'Two lines of text',
-        'Three lines of text',
-        'Four lines of text',
-        'Small logo',
-        'Large logo',
-      ];
+      tester.view.physicalSize = const Size(1200, 2000);
+      tester.view.devicePixelRatio = 1.0;
 
-      // We can't directly access _personalisationOptions, but we know the page is structured correctly
-      expect(page, isNotNull);
+      await tester.pumpWidget(
+        createTestWidget(PersonilationPage(firestore: fakeFirestore)),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap the dropdown to open it
+      await tester.tap(find.byType(DropdownButton<String>));
+      await tester.pumpAndSettle();
+
+      // Verify all options are present
+      expect(find.text('One line of text').hitTestable(), findsOneWidget);
+      expect(find.text('Two lines of text').hitTestable(), findsOneWidget);
+      expect(find.text('Three lines of text').hitTestable(), findsOneWidget);
+      expect(find.text('Four lines of text').hitTestable(), findsOneWidget);
+      expect(find.text('Small logo').hitTestable(), findsOneWidget);
+      expect(find.text('Large logo').hitTestable(), findsOneWidget);
+
+      addTearDown(tester.view.reset);
     });
 
-    test('Default quantity is expected to be 1', () {
-      const page = PersonilationPage();
-      final state = page.createState();
+    testWidgets('Default quantity is 1', (WidgetTester tester) async {
+      await fakeFirestore.collection('products').add({
+        'title': 'Test Product',
+        'cat': 'personalisation',
+        'price': 10.0,
+        'image_url': 'https://example.com/test.png',
+      });
 
-      // Default quantity should start at 1
-      expect(page, isNotNull);
-      expect(state, isNotNull);
+      tester.view.physicalSize = const Size(1200, 2000);
+      tester.view.devicePixelRatio = 1.0;
+
+      await tester.pumpWidget(
+        createTestWidget(PersonilationPage(firestore: fakeFirestore)),
+      );
+      await tester.pumpAndSettle();
+
+      // Find the quantity display between the + and - buttons
+      expect(find.text('1'), findsWidgets);
+
+      addTearDown(tester.view.reset);
     });
   });
 
