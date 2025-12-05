@@ -3,8 +3,9 @@ import '../layout.dart';
 import '../models/order_model.dart' as order_model;
 import '../services/order_service.dart';
 
+// Order history page displaying all user orders with details
 class OrderHistoryPage extends StatefulWidget {
-  final OrderServiceBase? orderService;
+  final OrderServiceBase? orderService; // Optional for testing
 
   const OrderHistoryPage({super.key, this.orderService});
 
@@ -19,7 +20,9 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
   @override
   void initState() {
     super.initState();
+    // Initialize order service with provided instance or create new one
     _orderService = widget.orderService ?? OrderService();
+    // Fetch user's orders from Firestore
     _ordersFuture = _orderService.getUserOrders();
   }
 
@@ -30,12 +33,14 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
         child: Column(
           children: [
             const AppHeader(),
+            // Main content with max width constraint for desktop
             Container(
               constraints: const BoxConstraints(maxWidth: 1200),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Page title
                   const Text(
                     'Order History',
                     style: TextStyle(
@@ -44,9 +49,11 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
+                  // Orders list with loading/error/empty states
                   FutureBuilder<List<order_model.Order>>(
                     future: _ordersFuture,
                     builder: (context, snapshot) {
+                      // Show loading indicator while fetching
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
                           child: Padding(
@@ -56,6 +63,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                         );
                       }
 
+                      // Show error message if fetch failed
                       if (snapshot.hasError) {
                         return Center(
                           child: Padding(
@@ -70,6 +78,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
 
                       final orders = snapshot.data ?? [];
 
+                      // Show empty state if no orders found
                       if (orders.isEmpty) {
                         return Center(
                           child: Padding(
@@ -103,6 +112,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                         );
                       }
 
+                      // Display list of order cards
                       return Column(
                         children: orders.map((order) {
                           return _buildOrderCard(order);
@@ -120,7 +130,9 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     );
   }
 
+  // Build individual order card with header, items, and total
   Widget _buildOrderCard(order_model.Order order) {
+    // Format date as MM/DD/YYYY at HH:MM
     final formattedDate =
         '${order.orderDate.month}/${order.orderDate.day}/${order.orderDate.year} at ${order.orderDate.hour}:${order.orderDate.minute.toString().padLeft(2, '0')}';
 
@@ -132,6 +144,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Order header with ID and status badge
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -142,6 +155,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                // Status badge (confirmed/pending/etc)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -163,6 +177,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               ],
             ),
             const SizedBox(height: 8),
+            // Order date
             Text(
               formattedDate,
               style: TextStyle(
@@ -171,9 +186,10 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               ),
             ),
             const Divider(height: 24),
-            // Order items
+            // List of items in order
             ...order.items.map((item) => _buildOrderItem(item)),
             const Divider(height: 24),
+            // Order total
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -200,13 +216,14 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
     );
   }
 
+  // Build individual order item row with image, details, and price
   Widget _buildOrderItem(order_model.OrderItem item) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product image
+          // Product thumbnail image (60x60)
           Container(
             width: 60,
             height: 60,
@@ -221,7 +238,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
             ),
           ),
           const SizedBox(width: 12),
-          // Product details
+          // Product details (title, color/size if available, quantity)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,6 +251,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                   ),
                 ),
                 const SizedBox(height: 4),
+                // Show color and size if available, separated by bullet
                 if (item.color != null || item.size != null)
                   Text(
                     [
@@ -246,6 +264,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                     ),
                   ),
                 const SizedBox(height: 4),
+                // Item quantity
                 Text(
                   'Quantity: ${item.quantity}',
                   style: TextStyle(
@@ -256,7 +275,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               ],
             ),
           ),
-          // Price
+          // Item total price (quantity × unit price)
           Text(
             '£${item.totalPrice.toStringAsFixed(2)}',
             style: const TextStyle(

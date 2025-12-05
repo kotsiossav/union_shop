@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:union_shop/layout.dart';
 import 'package:union_shop/models/cart_model.dart';
-import 'package:union_shop/views/cart_screen.dart';
+import 'package:union_shop/views/cart_page.dart';
 import 'package:union_shop/services/auth_service.dart';
 import 'package:union_shop/services/order_service.dart';
 
